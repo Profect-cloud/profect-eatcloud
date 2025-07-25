@@ -36,3 +36,8 @@ src/main/resources/application.properties
 
 ### VS Code ###
 .vscode/
+
+application-secret.properties
+
+
+.env
