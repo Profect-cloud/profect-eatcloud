@@ -18,6 +18,11 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	
+	// Netty DNS 리졸버 의존성 제외
+	all {
+		exclude group: 'io.netty', module: 'netty-resolver-dns-native-macos'
+	}
 }
 
 repositories {
@@ -94,4 +99,13 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// JVM 옵션 설정 (Netty DNS 리졸버 경고 억제)
+tasks.named('bootRun') {
+	jvmArgs = [
+		'-Dio.netty.resolver.dns.DnsServerAddressStreamProviders.suppressUnsafeWarning=true',
+		'-Dio.netty.noUnsafe=true',
+		'-Dio.netty.noJdkZlibDecoder=true'
+	]
 }
