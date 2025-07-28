@@ -82,6 +82,10 @@ dependencies {
 	// 5-2. 테스트용 H2 데이터베이스
 	testRuntimeOnly 'com.h2database:h2'
 
+	// spock
+	testImplementation('org.spockframework:spock-core:2.1-groovy-3.0')
+	testImplementation('org.spockframework:spock-spring:2.1-groovy-3.0')
+
 	// 6. email 보내기 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
