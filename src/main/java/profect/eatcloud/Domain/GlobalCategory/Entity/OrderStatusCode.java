@@ -24,6 +24,7 @@ public class OrderStatusCode {
     private Integer sortOrder;
 
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
 
     @ManyToOne(fetch = FetchType.LAZY)

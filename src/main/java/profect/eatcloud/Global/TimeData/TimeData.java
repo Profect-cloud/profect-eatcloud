@@ -5,6 +5,8 @@ import lombok.*;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.UuidGenerator;
+
 @Entity
 @Table(name = "p_time")
 @Getter
@@ -14,6 +16,7 @@ import java.util.UUID;
 @Builder
 public class TimeData {
     @Id
+    @UuidGenerator  // UUID 자동 생성 추가
     @Column(name = "p_time_id", nullable = false)
     private UUID pTimeId;
 
