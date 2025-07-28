@@ -35,6 +35,7 @@ public class Store {
     private Category category;
 
     @Column(name = "min_cost", nullable = false)
+    @Builder.Default
     private Integer minCost = 0;
 
     @Column(name = "description")

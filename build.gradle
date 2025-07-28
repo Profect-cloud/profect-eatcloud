@@ -15,12 +15,11 @@ java {
 	}
 }
 
-
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
-	
+
 	// Netty DNS 리졸버 의존성 제외
 	all {
 		exclude group: 'io.netty', module: 'netty-resolver-dns-native-macos'
@@ -71,12 +70,12 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test' // JUnit5 + Mockito 포함된 스프링 테스트 설정
 	testImplementation 'org.springframework.security:spring-security-test' // 시큐리티 테스트 (Mock 인증 등 지원)
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 플랫폼 런처
-	
+
 	// 5-1. Spock 테스트 프레임워크
 	testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
 	testImplementation 'org.spockframework:spock-spring:2.3-groovy-4.0'
 	testImplementation 'org.apache.groovy:groovy:4.0.17'
-	
+
 	// 5-2. 테스트용 H2 데이터베이스
 	testRuntimeOnly 'com.h2database:h2'
 
@@ -105,6 +104,14 @@ dependencies {
 
 	// 12. Redis 캐싱
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+}
+
+sourceSets {
+	test {
+		groovy {
+			srcDirs = ['src/test/java', 'src/test/groovy']
+		}
+	}
 }
 
 tasks.named('test') {
