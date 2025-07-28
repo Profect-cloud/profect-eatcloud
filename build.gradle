@@ -1,6 +1,7 @@
 plugins {
 	id 'java'
 	id 'war'
+	id 'groovy'
 	id 'org.springframework.boot' version '3.5.3'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -10,13 +11,19 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(24)
+		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
+
 
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
+	}
+	
+	// Netty DNS 리졸버 의존성 제외
+	all {
+		exclude group: 'io.netty', module: 'netty-resolver-dns-native-macos'
 	}
 }
 
@@ -64,6 +71,14 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test' // JUnit5 + Mockito 포함된 스프링 테스트 설정
 	testImplementation 'org.springframework.security:spring-security-test' // 시큐리티 테스트 (Mock 인증 등 지원)
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 플랫폼 런처
+	
+	// 5-1. Spock 테스트 프레임워크
+	testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
+	testImplementation 'org.spockframework:spock-spring:2.3-groovy-4.0'
+	testImplementation 'org.apache.groovy:groovy:4.0.17'
+	
+	// 5-2. 테스트용 H2 데이터베이스
+	testRuntimeOnly 'com.h2database:h2'
 
 	// 6. email 보내기 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
@@ -94,4 +109,13 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// JVM 옵션 설정 (Netty DNS 리졸버 경고 억제)
+tasks.named('bootRun') {
+	jvmArgs = [
+		'-Dio.netty.resolver.dns.DnsServerAddressStreamProviders.suppressUnsafeWarning=true',
+		'-Dio.netty.noUnsafe=true',
+		'-Dio.netty.noJdkZlibDecoder=true'
+	]
 }
