@@ -1,4 +1,4 @@
-package profect.eatcloud.Payment.Dto;
+package profect.eatcloud.Domain.Payment.Dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -1,12 +1,12 @@
-package profect.eatcloud.Payment;
+package profect.eatcloud.Domain.Payment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import profect.eatcloud.Payment.Dto.TossPaymentResponse;
-import profect.eatcloud.Payment.Dto.TossPaymentRequest;
+import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
+import profect.eatcloud.Domain.Payment.Dto.TossPaymentRequest;
 
 import java.util.Base64;
 
