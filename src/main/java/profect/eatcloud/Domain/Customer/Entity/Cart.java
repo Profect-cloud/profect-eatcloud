@@ -1,8 +1,7 @@
 package profect.eatcloud.Domain.Customer.Entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import profect.eatcloud.Domain.Customer.Dto.CartItem;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -12,7 +11,10 @@ import java.util.List;
 
 @Entity
 @Table(name = "p_cart")
-@Getter @Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Cart extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

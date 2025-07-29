@@ -1,8 +1,7 @@
 package profect.eatcloud.Domain.Order.Entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import profect.eatcloud.Domain.Order.Dto.OrderMenu;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
@@ -17,7 +16,10 @@ import java.util.List;
 
 @Entity
 @Table(name = "p_orders")
-@Getter @Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Order extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,17 +33,14 @@ public class Order extends BaseTimeEntity {
 	@Column(name = "order_menu_list", nullable = false, columnDefinition = "jsonb")
 	private List<OrderMenu> orderMenuList;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "customer_id", nullable = false)
-	private Customer customer;
+	@Column(name = "customer_id", nullable = false)
+	private UUID customerId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "store_id", nullable = false)
-	private Store store;
+	@Column(name = "store_id", nullable = false)
+	private UUID storeId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "payment_id")
-	private Payment payment;
+	@Column(name = "payment_id")
+	private UUID paymentId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_status", referencedColumnName = "code")
