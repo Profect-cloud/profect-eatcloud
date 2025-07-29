@@ -8,7 +8,7 @@ import lombok.Setter;
 @EntityListeners(TimeDataListener.class)
 @Getter @Setter
 public abstract class BaseTimeEntity {
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
 	@JoinColumn(name = "p_time_id", nullable = false)
 	private TimeData timeData;
 }

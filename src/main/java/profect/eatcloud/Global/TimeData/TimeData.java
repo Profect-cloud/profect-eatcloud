@@ -16,7 +16,6 @@ import org.hibernate.annotations.UuidGenerator;
 @Builder
 public class TimeData {
     @Id
-    @UuidGenerator  // UUID 자동 생성 추가
     @Column(name = "p_time_id", nullable = false)
     private UUID pTimeId;
 

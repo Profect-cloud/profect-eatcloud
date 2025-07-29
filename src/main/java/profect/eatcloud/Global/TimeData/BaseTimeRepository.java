@@ -1,30 +1,28 @@
 package profect.eatcloud.Global.TimeData;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.query.Param;
 import profect.eatcloud.Security.SecurityUtil;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 @NoRepositoryBean
 public interface BaseTimeRepository<T extends BaseTimeEntity, ID> extends JpaRepository<T, ID> {
 
-	// 소프트 삭제
-	default void softDelete(ID id) {
-		findByIdIncludingDeleted(id).ifPresent(entity -> {
-			String user = SecurityUtil.getCurrentUsername();
-			TimeDataService timeDataService = BeanUtil.getBean(TimeDataService.class);
-			timeDataService.softDeleteTimeData(entity.getTimeData().getPTimeId(), user);
-		});
-	}
+	// 소프트 삭제를 위한 업데이트 쿼리
+	@Modifying
+	@Query("UPDATE #{#entityName} e SET e.timeData.deletedAt = :deletedAt, e.timeData.deletedBy = :deletedBy WHERE e.id = :id")
+	void softDeleteById(@Param("id") ID id, @Param("deletedAt") Instant deletedAt, @Param("deletedBy") String deletedBy);
 
-	default void softDelete(T entity) {
-		String user = SecurityUtil.getCurrentUsername();
-		TimeDataService timeDataService = BeanUtil.getBean(TimeDataService.class);
-		timeDataService.softDeleteTimeData(entity.getTimeData().getPTimeId(), user);
-	}
+	// TimeData의 UUID를 통한 소프트 삭제
+	@Modifying
+	@Query("UPDATE #{#entityName} e SET e.timeData.deletedAt = :deletedAt, e.timeData.deletedBy = :deletedBy WHERE e.timeData.pTimeId = :timeId")
+	void softDeleteByTimeId(@Param("timeId") java.util.UUID timeId, @Param("deletedAt") Instant deletedAt, @Param("deletedBy") String deletedBy);
 
 	// 기본 조회: 삭제되지 않은 데이터만
 	@Query("SELECT e FROM #{#entityName} e WHERE e.timeData.deletedAt IS NULL")
@@ -49,21 +47,37 @@ public interface BaseTimeRepository<T extends BaseTimeEntity, ID> extends JpaRep
 	// 기본 delete를 소프트 삭제로 오버라이드
 	@Override
 	default void delete(T entity) {
-		softDelete(entity);
+		if (entity != null && entity.getTimeData() != null) {
+			String user = SecurityUtil.getCurrentUsername();
+			softDeleteByTimeId(entity.getTimeData().getPTimeId(), Instant.now(), user);
+		}
 	}
 
 	@Override
 	default void deleteById(ID id) {
-		softDelete(id);
+		String user = SecurityUtil.getCurrentUsername();
+		softDeleteById(id, Instant.now(), user);
 	}
 
 	@Override
 	default void deleteAll(Iterable<? extends T> entities) {
-		entities.forEach(this::softDelete);
+		String user = SecurityUtil.getCurrentUsername();
+		Instant now = Instant.now();
+		entities.forEach(entity -> {
+			if (entity != null && entity.getTimeData() != null) {
+				softDeleteByTimeId(entity.getTimeData().getPTimeId(), now, user);
+			}
+		});
 	}
 
 	@Override
 	default void deleteAll() {
-		findAllIncludingDeleted().forEach(this::softDelete);
+		String user = SecurityUtil.getCurrentUsername();
+		Instant now = Instant.now();
+		findAllIncludingDeleted().forEach(entity -> {
+			if (entity != null && entity.getTimeData() != null) {
+				softDeleteByTimeId(entity.getTimeData().getPTimeId(), now, user);
+			}
+		});
 	}
 }

@@ -2,11 +2,12 @@ package profect.eatcloud.Domain.Store.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import profect.eatcloud.Domain.Store.Entity.Store;
+import profect.eatcloud.Global.TimeData.BaseTimeRepository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public interface StoreRepository_min extends JpaRepository<Store, UUID> {
+public interface StoreRepository_min extends BaseTimeRepository<Store, UUID> {
 
     // 메뉴 등록 시 storeId로 가게 정보 조회
     Optional<Store> findById(UUID storeId);
