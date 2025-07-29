@@ -236,4 +236,18 @@ class PaymentValidationServiceSpec extends Specification {
         results.every { it != null }
         println "✅ 1000건 결제 요청 처리 성능 테스트 통과"
     }
+
+    def "포인트가 있는 고객이 주문시 포인트가 차감되어야 한다"() {
+        given: "2000포인트를 가진 고객이 10000원 주문을 할 때"
+        UUID customerId = UUID.randomUUID()
+        Integer customerPoints = 2000
+        Integer orderAmount = 10000
+        Integer expectedPaymentAmount = 8000  // 실제 결제할 금액
+
+        when: "포인트를 사용해서 주문하면"
+        // 여기에 포인트 차감 로직이 들어갈 예정
+
+        then: "포인트는 차감되고 남은 금액만 결제되어야 한다"
+        // 테스트 로직
+    }
 }

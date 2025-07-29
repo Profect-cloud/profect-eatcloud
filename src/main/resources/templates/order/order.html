@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>주문하기 - EatCloud</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #ff6b35;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .store-info {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .store-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .store-desc {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .menu-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-image {
+            width: 80px;
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .menu-info {
+            flex: 1;
+        }
+
+        .menu-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .menu-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .menu-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ff6b35;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            margin-left: 16px;
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .quantity-btn:hover {
+            background: #f8f9fa;
+        }
+
+        .quantity-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .quantity-display {
+            margin: 0 12px;
+            font-size: 16px;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .cart-summary {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 2px solid #f0f0f0;
+            font-weight: 700;
+        }
+
+        .point-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .point-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .current-points {
+            color: #ff6b35;
+            font-weight: 700;
+        }
+
+        .point-use {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .point-checkbox {
+            margin-right: 8px;
+        }
+
+        .point-input-group {
+            display: flex;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .point-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-right: 8px;
+        }
+
+        .point-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .max-btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .order-button {
+            width: 100%;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .order-button:hover {
+            background: #e55a2b;
+        }
+
+        .order-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .payment-amount {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff6b35;
+            margin-bottom: 8px;
+        }
+
+        .point-discount {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🍽️ 주문하기</h1>
+    </div>
+
+    <div class="content">
+        <!-- 가게 정보 -->
+        <div class="store-info">
+            <div class="store-name">맛있는 한식당</div>
+            <div class="store-desc">⭐ 4.8 • 배달비 3,000원 • 30-40분</div>
+        </div>
+
+        <!-- 메뉴 선택 -->
+        <div class="menu-section">
+            <div class="section-title">🍜 메뉴 선택</div>
+
+            <div class="menu-item">
+                <div class="menu-image">🍜</div>
+                <div class="menu-info">
+                    <div class="menu-name">김치찌개</div>
+                    <div class="menu-desc">진짜 맛있는 김치찌개</div>
+                    <div class="menu-price">8,000원</div>
+                </div>
+                <div class="quantity-control">
+                    <button class="quantity-btn" onclick="updateQuantity('kimchi', -1)">-</button>
+                    <span class="quantity-display" id="kimchi-qty">0</span>
+                    <button class="quantity-btn" onclick="updateQuantity('kimchi', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-image">🍚</div>
+                <div class="menu-info">
+                    <div class="menu-name">제육볶음</div>
+                    <div class="menu-desc">매콤달콤한 제육볶음</div>
+                    <div class="menu-price">12,000원</div>
+                </div>
+                <div class="quantity-control">
+                    <button class="quantity-btn" onclick="updateQuantity('jeyuk', -1)">-</button>
+                    <span class="quantity-display" id="jeyuk-qty">0</span>
+                    <button class="quantity-btn" onclick="updateQuantity('jeyuk', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-image">🥘</div>
+                <div class="menu-info">
+                    <div class="menu-name">된장찌개</div>
+                    <div class="menu-desc">구수한 된장찌개</div>
+                    <div class="menu-price">7,000원</div>
+                </div>
+                <div class="quantity-control">
+                    <button class="quantity-btn" onclick="updateQuantity('doenjang', -1)">-</button>
+                    <span class="quantity-display" id="doenjang-qty">0</span>
+                    <button class="quantity-btn" onclick="updateQuantity('doenjang', 1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 주문 요약 -->
+        <div class="cart-summary" id="cart-summary" style="display: none;">
+            <div class="section-title">🛒 주문 내역</div>
+            <div id="cart-items"></div>
+            <div class="cart-item">
+                <span>배달비</span>
+                <span>3,000원</span>
+            </div>
+            <div class="cart-item">
+                <span>총 주문금액</span>
+                <span id="total-amount">0원</span>
+            </div>
+        </div>
+
+        <!-- 포인트 사용 -->
+        <div class="point-section" id="point-section" style="display: none;">
+            <div class="section-title">💰 포인트 사용</div>
+            <div class="point-info">
+                <span>보유 포인트</span>
+                <span class="current-points" th:text="${customerPoints} ? ${customerPoints} + '원' : '5,000원'">5,000원</span>
+            </div>
+
+            <div class="point-use">
+                <input type="checkbox" id="usePoints" class="point-checkbox" onchange="togglePointUse()">
+                <label for="usePoints">포인트 사용하기</label>
+            </div>
+
+            <div class="point-input-group" id="point-input-group" style="display: none;">
+                <input type="number" id="pointAmount" class="point-input" placeholder="사용할 포인트" min="0" max="5000" onchange="calculatePaymentAmount()">
+                <button class="max-btn" onclick="useMaxPoints()">전액사용</button>
+            </div>
+
+            <div class="point-discount" id="point-discount" style="display: none;">
+                포인트 할인: -<span id="discount-amount">0</span>원
+            </div>
+        </div>
+
+        <!-- 결제 버튼 -->
+        <div class="payment-amount" id="payment-amount" style="display: none;">
+            결제금액: <span id="final-amount">0</span>원
+        </div>
+
+        <button class="order-button" id="order-button" onclick="proceedToPayment()" disabled>
+            주문하기
+        </button>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // 서버에서 받은 데이터
+    const customerPoints = /*[[${customerPoints}]]*/ 5000;
+    const customerId = /*[[${customerId}]]*/ 'customer_123';
+
+    // 메뉴 데이터
+    const menuData = {
+        kimchi: { name: '김치찌개', price: 8000 },
+        jeyuk: { name: '제육볶음', price: 12000 },
+        doenjang: { name: '된장찌개', price: 7000 }
+    };
+
+    // 주문 상태
+    let cart = {};
+    let deliveryFee = 3000;
+    let totalAmount = 0;
+    let pointsToUse = 0;
+    let finalPaymentAmount = 0;
+
+    // 수량 업데이트
+    function updateQuantity(menuId, change) {
+        if (!cart[menuId]) cart[menuId] = 0;
+        cart[menuId] = Math.max(0, cart[menuId] + change);
+
+        document.getElementById(menuId + '-qty').textContent = cart[menuId];
+        updateCartSummary();
+    }
+
+    // 장바구니 요약 업데이트
+    function updateCartSummary() {
+        const cartItems = document.getElementById('cart-items');
+        const cartSummary = document.getElementById('cart-summary');
+        const pointSection = document.getElementById('point-section');
+        const orderButton = document.getElementById('order-button');
+
+        cartItems.innerHTML = '';
+        totalAmount = 0;
+
+        let hasItems = false;
+        for (const [menuId, quantity] of Object.entries(cart)) {
+            if (quantity > 0) {
+                hasItems = true;
+                const menu = menuData[menuId];
+                const itemTotal = menu.price * quantity;
+                totalAmount += itemTotal;
+
+                cartItems.innerHTML += `
+                        <div class="cart-item">
+                            <span>${menu.name} x ${quantity}</span>
+                            <span>${itemTotal.toLocaleString()}원</span>
+                        </div>
+                    `;
+            }
+        }
+
+        if (hasItems) {
+            totalAmount += deliveryFee;
+            document.getElementById('total-amount').textContent = totalAmount.toLocaleString() + '원';
+            cartSummary.style.display = 'block';
+            pointSection.style.display = 'block';
+            orderButton.disabled = false;
+            calculatePaymentAmount();
+        } else {
+            cartSummary.style.display = 'none';
+            pointSection.style.display = 'none';
+            orderButton.disabled = true;
+            document.getElementById('payment-amount').style.display = 'none';
+        }
+    }
+
+    // 포인트 사용 토글
+    function togglePointUse() {
+        const usePoints = document.getElementById('usePoints').checked;
+        const pointInputGroup = document.getElementById('point-input-group');
+
+        if (usePoints) {
+            pointInputGroup.style.display = 'flex';
+        } else {
+            pointInputGroup.style.display = 'none';
+            document.getElementById('pointAmount').value = '';
+            pointsToUse = 0;
+            calculatePaymentAmount();
+        }
+    }
+
+    // 최대 포인트 사용
+    function useMaxPoints() {
+        const maxPoints = Math.min(customerPoints, totalAmount);
+        document.getElementById('pointAmount').value = maxPoints;
+        calculatePaymentAmount();
+    }
+
+    // 결제 금액 계산
+    function calculatePaymentAmount() {
+        const pointInput = document.getElementById('pointAmount');
+        pointsToUse = parseInt(pointInput.value) || 0;
+
+        // 포인트 제한
+        pointsToUse = Math.min(pointsToUse, customerPoints, totalAmount);
+        pointInput.value = pointsToUse;
+
+        finalPaymentAmount = totalAmount - pointsToUse;
+
+        // UI 업데이트
+        const paymentAmountDiv = document.getElementById('payment-amount');
+        const pointDiscountDiv = document.getElementById('point-discount');
+
+        if (pointsToUse > 0) {
+            document.getElementById('discount-amount').textContent = pointsToUse.toLocaleString();
+            pointDiscountDiv.style.display = 'block';
+        } else {
+            pointDiscountDiv.style.display = 'none';
+        }
+
+        if (totalAmount > 0) {
+            document.getElementById('final-amount').textContent = finalPaymentAmount.toLocaleString();
+            paymentAmountDiv.style.display = 'block';
+        }
+    }
+
+    // 결제 진행
+    function proceedToPayment() {
+        if (totalAmount === 0) {
+            alert('주문할 메뉴를 선택해주세요.');
+            return;
+        }
+
+        // 주문 데이터 생성
+        const orderData = {
+            customerId: customerId,
+            items: [],
+            totalAmount: totalAmount,
+            usePoints: document.getElementById('usePoints').checked,
+            pointsToUse: pointsToUse,
+            finalPaymentAmount: finalPaymentAmount
+        };
+
+        // 주문 항목 추가
+        for (const [menuId, quantity] of Object.entries(cart)) {
+            if (quantity > 0) {
+                orderData.items.push({
+                    menuId: menuId,
+                    name: menuData[menuId].name,
+                    price: menuData[menuId].price,
+                    quantity: quantity
+                });
+            }
+        }
+
+        console.log('주문 데이터:', orderData);
+
+        // 결제 페이지로 이동 (POST 방식으로 데이터 전송)
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/payment/checkout';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'orderData';
+        input.value = JSON.stringify(orderData);
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    // 페이지 로드시 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('주문 페이지 로드 완료');
+        console.log('고객 포인트:', customerPoints);
+    });
+</script>
+</body>
+</html>
