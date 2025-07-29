@@ -1,38 +1,40 @@
 plugins {
-	id 'java'
-	id 'war'
-	id 'groovy'
-	id 'org.springframework.boot' version '3.5.3'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'war'
+    id 'groovy'
+    id 'org.springframework.boot' version '3.5.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+
 }
 
 group = 'profect'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 
-	// Netty DNS 리졸버 의존성 제외 및 Groovy 버전 충돌 방지
-	all {
-		exclude group: 'io.netty', module: 'netty-resolver-dns-native-macos'
-		resolutionStrategy.eachDependency { details ->
-			if (details.requested.group == 'org.codehaus.groovy') {
-				details.useTarget "org.apache.groovy:${details.requested.name}:4.0.17"
-			}
-		}
-	}
+    // Netty DNS 리졸버 의존성 제외 및 Groovy 버전 충돌 방지
+    all {
+        exclude group: 'io.netty', module: 'netty-resolver-dns-native-macos'
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.codehaus.groovy') {
+                details.useTarget "org.apache.groovy:${details.requested.name}:4.0.17"
+            }
+        }
+    }
+
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
@@ -47,66 +49,69 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-	// 2. Spring Security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	implementation 'org.springframework.security:spring-security-crypto'
+    // 2. Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.security:spring-security-crypto'
 
-	// 3. JWT
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    // 3. JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-	// 4. Database
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	runtimeOnly 'org.postgresql:postgresql'
+    // 4. Database
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'org.postgresql:postgresql'
 
-	// 5. Lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+    // 5. Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-	// 6. AWS S3
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-	implementation 'software.amazon.awssdk:s3:2.20.67'
+    // 6. AWS S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation 'software.amazon.awssdk:s3:2.20.67'
 
-	// 7. Swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+    // 7. Swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 
-	// 8. WebSocket 메시징
-	implementation 'org.springframework:spring-messaging'
+    // 8. WebSocket 메시징
+    implementation 'org.springframework:spring-messaging'
 
-	// 9. 런타임
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    // 9. 런타임
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
-	// 10. 테스트 의존성
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testRuntimeOnly 'com.h2database:h2'
+    // 10. 테스트 의존성
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly 'com.h2database:h2'
 
-	// 11. Spock 테스트 프레임워크
-	testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
-	testImplementation 'org.spockframework:spock-spring:2.3-groovy-4.0'
-	testImplementation 'org.apache.groovy:groovy:4.0.17'
+    // 11. Spock 테스트 프레임워크
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
+    testImplementation 'org.spockframework:spock-spring:2.3-groovy-4.0'
+    testImplementation 'org.apache.groovy:groovy:4.0.17'
+
 }
 
 sourceSets {
-	test {
-		groovy {
-			srcDirs = ['src/test/java', 'src/test/groovy']
-		}
-	}
+    test {
+        groovy {
+            srcDirs = ['src/test/java', 'src/test/groovy']
+        }
+    }
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 // JVM 옵션 설정
 tasks.named('bootRun') {
-	jvmArgs = [
-			'-Dio.netty.resolver.dns.DnsServerAddressStreamProviders.suppressUnsafeWarning=true',
-			'-Dio.netty.noUnsafe=true',
-			'-Dio.netty.noJdkZlibDecoder=true'
-	]
+
+    jvmArgs = [
+            '-Dio.netty.resolver.dns.DnsServerAddressStreamProviders.suppressUnsafeWarning=true',
+            '-Dio.netty.noUnsafe=true',
+            '-Dio.netty.noJdkZlibDecoder=true'
+    ]
+
 }
