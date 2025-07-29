@@ -1,17 +1,5 @@
 package profect.eatcloud.Login.service;
 
-<<<<<<< HEAD
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.Repository.AdminRepository;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
-import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
-import profect.eatcloud.Login.dto.LoginRequestDto;
-import profect.eatcloud.Security.jwt.JwtUtil;
-import profect.eatcloud.Security.userDetails.CustomUserDetails;
-=======
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,38 +10,11 @@ import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Login.dto.SignupDto;
 import profect.eatcloud.Security.jwt.JwtUtil;
 import profect.eatcloud.Security.userDetails.CustomUserDetailsService;
->>>>>>> d974436be3d6aa74dec64244dac7a084c0036739
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-<<<<<<< HEAD
-	private final CustomerRepository customerRepository;
-	private final ManagerRepository managerRepository;
-	private final AdminRepository adminRepository;
-	private final PasswordEncoder passwordEncoder;
-	private final JwtUtil jwtUtil;
-
-	public String login(LoginRequestDto request) {
-		String username = request.getUsername();
-		String password = request.getPassword();
-		String role = request.getRole();
-
-		CustomUserDetails account = switch (role.toUpperCase()) {
-			case "CUSTOMER" -> customerRepository.findByUsername(username).orElseThrow();
-			case "MANAGER" -> managerRepository.findByUsername(username).orElseThrow();
-			case "ADMIN" -> adminRepository.findByUsername(username).orElseThrow();
-			default -> throw new IllegalArgumentException("Invalid role: " + role);
-		};
-
-		if (!passwordEncoder.matches(password, account.getPassword())) {
-			throw new RuntimeException("Invalid credentials");
-		}
-
-		return jwtUtil.generateToken(account.getUsername(), role);
-	}
-=======
     private final CustomerRepository customerRepository;
     private final CustomUserDetailsService customUserDetailsService;
 
@@ -83,5 +44,4 @@ public class AuthService {
 
         return jwtUtil.generateToken(userDetails.getUsername(), role);
     }
->>>>>>> d974436be3d6aa74dec64244dac7a084c0036739
 }

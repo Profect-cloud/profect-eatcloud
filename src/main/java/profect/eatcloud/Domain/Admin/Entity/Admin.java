@@ -42,8 +42,4 @@ public class Admin extends BaseTimeEntity {
 
 	@Column(length = 50)
 	private String position;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "p_time_id", nullable = false)
-    private TimeData pTime;
 }

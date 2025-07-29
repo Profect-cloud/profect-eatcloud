@@ -4,6 +4,7 @@ package profect.eatcloud.Domain.Customer.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -21,31 +22,30 @@ import profect.eatcloud.Security.userDetails.CustomUserDetails;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Customer extends BaseTimeEntity implements CustomUserDetails {
+public class Customer extends BaseTimeEntity  {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "name",nullable = false, unique = true, length = 20)
-    private String username;
+    @Column(name = "name", nullable = false, length = 20, unique = true)
+    private String name;
 
-    @Column(length = 100)
+    @Column(name = "nickname", length = 100)
     private String nickname;
 
-    @Column(length = 255)
+    @Column(name = "email", length = 255)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
 
     @Column(name = "phone_number", length = 18)
     private String phoneNumber;
 
+    @Column(name = "points")
     private Integer points;
 
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
-    }
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    private List<Address> addresses = new ArrayList<>();
 }

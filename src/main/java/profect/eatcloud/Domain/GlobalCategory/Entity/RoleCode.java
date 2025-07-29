@@ -3,6 +3,8 @@ package profect.eatcloud.Domain.GlobalCategory.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
+
+import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import profect.eatcloud.Global.TimeData.TimeData;
 
 @Entity
@@ -12,7 +14,7 @@ import profect.eatcloud.Global.TimeData.TimeData;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RoleCode {
+public class RoleCode extends BaseTimeEntity {
     @Id
     @Column(name = "code", length = 30)
     private String code;
@@ -26,8 +28,4 @@ public class RoleCode {
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "p_time_id", nullable = false)
-    private TimeData pTime;
 } 

@@ -3,6 +3,8 @@ package profect.eatcloud.Domain.Store.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
+
+import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import profect.eatcloud.Global.TimeData.TimeData;
 
 @Entity
@@ -12,7 +14,7 @@ import profect.eatcloud.Global.TimeData.TimeData;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Category {
+public class Category extends BaseTimeEntity {
     @Id
     @Column(name = "category_id")
     private UUID categoryId;
@@ -27,7 +29,4 @@ public class Category {
     @Builder.Default
     private Boolean isActive = true;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "p_time_id", nullable = false)
-    private TimeData pTime;
 } 

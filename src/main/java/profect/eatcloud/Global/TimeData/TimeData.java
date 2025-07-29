@@ -27,13 +27,13 @@ public class TimeData {
     private String createdBy;
 
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "updated_by", nullable = false, length = 100)
     private String updatedBy;
 
     @Column(name = "deleted_at")
-    private Instant deletedAt;
+    private LocalDateTime deletedAt;
 
     @Column(name = "deleted_by", length = 100)
     private String deletedBy;
