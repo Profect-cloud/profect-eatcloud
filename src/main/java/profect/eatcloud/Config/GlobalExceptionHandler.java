@@ -1,11 +1,18 @@
 package profect.eatcloud.Config;
 
 import java.util.NoSuchElementException;
+import java.util.Map;
+import java.util.HashMap;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import profect.eatcloud.Domain.Payment.Exception.PaymentException;
+import profect.eatcloud.Domain.Payment.Exception.PaymentNotFoundException;
+import profect.eatcloud.Domain.Payment.Exception.PaymentValidationException;
 
 @RestControllerAdvice    // 모든 @RestController 에 적용
 public class GlobalExceptionHandler {
@@ -23,6 +30,43 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(e.getMessage());
+    }
+
+    // Payment 관련 예외 처리
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlePaymentNotFound(PaymentNotFoundException e) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", "PAYMENT_NOT_FOUND");
+        response.put("message", e.getMessage());
+        response.put("errorCode", e.getErrorCode());
+        
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(PaymentValidationException.class)
+    public ResponseEntity<Map<String, Object>> handlePaymentValidation(PaymentValidationException e) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", "PAYMENT_VALIDATION_ERROR");
+        response.put("message", e.getMessage());
+        response.put("errorCode", e.getErrorCode());
+        
+        return ResponseEntity
+                .badRequest()
+                .body(response);
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<Map<String, Object>> handlePaymentError(PaymentException e) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", "PAYMENT_ERROR");
+        response.put("message", e.getMessage());
+        response.put("errorCode", e.getErrorCode());
+        
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
     }
 
     // 그 외 모든 예외는 500 Internal Server Error 로 응답

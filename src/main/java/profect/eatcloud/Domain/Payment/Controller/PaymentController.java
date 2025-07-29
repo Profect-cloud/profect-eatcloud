@@ -66,43 +66,30 @@ public class PaymentController {
                                 @RequestParam String orderId,
                                 @RequestParam Integer amount,
                                 Model model) {
-        try {
-            System.out.println("=== 결제 성공 콜백 수신 ===");
-            System.out.println("Payment Key: " + paymentKey);
-            System.out.println("Order ID: " + orderId);
-            System.out.println("Amount: " + amount);
-            
-            // 토스페이먼츠 승인 API 호출
-            TossPaymentResponse response = tossPaymentService.confirmPayment(paymentKey, orderId, amount);
-            
-            // 성공 페이지에 전달할 데이터
-            model.addAttribute("paymentKey", paymentKey);
-            model.addAttribute("orderId", orderId);
-            model.addAttribute("amount", amount);
-            model.addAttribute("status", response.getStatus());
-            model.addAttribute("method", response.getMethod());
-            model.addAttribute("approvedAt", response.getApprovedAt());
-            
-            System.out.println("=== 결제 처리 완료 ===");
-            
-            // TODO: 여기서 비즈니스 로직 처리
-            // - 포인트 충전
-            // - 주문 상태 업데이트
-            // - 알림 발송 등
-            
-            return "payment/success";
-            
-        } catch (Exception e) {
-            System.out.println("=== 결제 승인 실패 ===");
-            System.out.println("오류 메시지: " + e.getMessage());
-            
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("paymentKey", paymentKey);
-            model.addAttribute("orderId", orderId);
-            model.addAttribute("amount", amount);
-            
-            return "payment/fail";
-        }
+        System.out.println("=== 결제 성공 콜백 수신 ===");
+        System.out.println("Payment Key: " + paymentKey);
+        System.out.println("Order ID: " + orderId);
+        System.out.println("Amount: " + amount);
+        
+        // 토스페이먼츠 승인 API 호출
+        TossPaymentResponse response = tossPaymentService.confirmPayment(paymentKey, orderId, amount);
+        
+        // 성공 페이지에 전달할 데이터
+        model.addAttribute("paymentKey", paymentKey);
+        model.addAttribute("orderId", orderId);
+        model.addAttribute("amount", amount);
+        model.addAttribute("status", response.getStatus());
+        model.addAttribute("method", response.getMethod());
+        model.addAttribute("approvedAt", response.getApprovedAt());
+        
+        System.out.println("=== 결제 처리 완료 ===");
+        
+        // TODO: 여기서 비즈니스 로직 처리
+        // - 포인트 충전
+        // - 주문 상태 업데이트
+        // - 알림 발송 등
+        
+        return "payment/success";
     }
     
     /**
@@ -133,18 +120,11 @@ public class PaymentController {
     @GetMapping("/api/payments/status/{orderId}")
     @ResponseBody
     public ResponseEntity<?> getPaymentStatus(@PathVariable String orderId) {
-        try {
-            // TODO: DB에서 주문 상태 조회 로직 구현
-            return ResponseEntity.ok(Map.of(
-                "orderId", orderId,
-                "status", "pending",
-                "message", "결제 대기 중입니다."
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "error", e.getMessage(),
-                "orderId", orderId
-            ));
-        }
+        // TODO: DB에서 주문 상태 조회 로직 구현
+        return ResponseEntity.ok(Map.of(
+            "orderId", orderId,
+            "status", "pending",
+            "message", "결제 대기 중입니다."
+        ));
     }
 }
