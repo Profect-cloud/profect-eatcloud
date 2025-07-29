@@ -19,7 +19,7 @@ import profect.eatcloud.Security.userDetails.CustomUserDetailsService;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfiguration {
+public class SecurityConfig  {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
