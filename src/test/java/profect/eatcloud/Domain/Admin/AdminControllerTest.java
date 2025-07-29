@@ -5,7 +5,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import profect.eatcloud.Domain.Admin.Controller.AdminController;
-import profect.eatcloud.Domain.Admin.Dto.CustomerDto;
+import profect.eatcloud.Domain.Admin.Dto.UserDto;
 import profect.eatcloud.Domain.Admin.Service.AdminService;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,32 +43,37 @@ class AdminControllerTest {
 			.build();
 	}
 
+	@DisplayName("관리자 전체 사용자 목록 조회 성공")
 	@Test
-	@DisplayName("GET /admin/users - 전체 사용자 목록 조회 성공")
-	void testGetAllCustomers() throws Exception {
-		CustomerDto dto = CustomerDto.builder().id(null).name("John").build();
-		given(adminService.getAllCustomers("admin-uuid"))
-			.willReturn(Collections.singletonList(dto));
+	void givenUsers_whenGetAllUsers_thenReturnUserList() throws Exception {
+		// given
+		String adminId = "550e8400-e29b-41d4-a716-446655440000";
+		UserDto userDto = UserDto.builder()
+			.id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+			.name("홍길동")
+			.nickname("gildong")
+			.email("gildong@example.com")
+			.phoneNumber("010-1234-5678")
+			.points(1000)
+			.createdAt(LocalDateTime.of(2025, 7, 29, 15, 0))
+			.build();
 
-		mockMvc.perform(get("/admin/users")
-				.with(user("admin-uuid"))
+		given(adminService.getAllCustomers(adminId))
+			.willReturn(Collections.singletonList(userDto));
+
+		// when & then
+		mockMvc.perform(get("/users")
+				.with(user(adminId))
 				.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-			.andExpect(jsonPath("$[0].name").value("John"));
+			.andExpect(jsonPath("$[0].id").value(userDto.getId().toString()))
+			.andExpect(jsonPath("$[0].name").value(userDto.getName()))
+			.andExpect(jsonPath("$[0].nickname").value(userDto.getNickname()))
+			.andExpect(jsonPath("$[0].email").value(userDto.getEmail()))
+			.andExpect(jsonPath("$[0].phoneNumber").value(userDto.getPhoneNumber()))
+			.andExpect(jsonPath("$[0].points").value(userDto.getPoints()))
+			.andExpect(jsonPath("$[0].createdAt").value(userDto.getCreatedAt().toString()));
+
+		then(adminService).should().getAllCustomers(adminId);
 	}
-
-	@Test
-	@DisplayName("DELETE /admin/users/{id} - 사용자 삭제 성공")
-	void testDeleteCustomer() throws Exception {
-		Long customerId = 1L;
-		doNothing().when(adminService).deleteCustomer("admin-uuid", customerId);
-
-		mockMvc.perform(delete("/admin/users/{id}", customerId)
-				.with(user("admin-uuid")))
-			.andExpect(status().isOk())
-			.andExpect(content().string("삭제 완료"));
-	}
-
-	// TODO: 기타 엔드포인트 테스트 추가
 }

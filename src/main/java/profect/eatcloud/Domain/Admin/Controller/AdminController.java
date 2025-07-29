@@ -1,6 +1,7 @@
 package profect.eatcloud.Domain.Admin.Controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -50,24 +51,22 @@ public class AdminController {
 	*/
 	private final AdminService adminService;
 
+	// 사용자가 많아질 때 어떻게 로직을 변경할지 고민해 봐야함.
 	@Operation(summary = "1. 전체 사용자 목록 조회")
 	@GetMapping("/users")
-	public ResponseEntity<List<UserDto>> getAllUsers(
-		@AuthenticationPrincipal UserDetails userDetails
-	) {
+	public ResponseEntity<List<UserDto>> getAllCustomers(
+		@AuthenticationPrincipal UserDetails userDetails) {
 		String adminId = userDetails.getUsername();
-		List<UserDto> users = adminService.getAllUsers(adminId);
+		List<UserDto> users = adminService.getAllCustomers(adminId);
 		return ResponseEntity.ok(users);
 	}
 
 	@Operation(summary = "2. 사용자 삭제")
 	@DeleteMapping("/users/{userId}")
-	public ResponseEntity<String> deleteUser(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long userId
-	) {
+	public ResponseEntity<String> deleteUser(@AuthenticationPrincipal UserDetails userDetails,
+		@PathVariable UUID userId) {
 		String adminId = userDetails.getUsername();
-		adminService.deleteUser(adminId, userId);
+		adminService.deleteCustomer(adminId, userId);
 		return ResponseEntity.ok("사용자 삭제 완료");
 	}
 

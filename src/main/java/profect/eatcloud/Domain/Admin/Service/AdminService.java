@@ -1,21 +1,28 @@
 package profect.eatcloud.Domain.Admin.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import profect.eatcloud.Domain.Admin.Dto.CategoryDto;
-import profect.eatcloud.Domain.Admin.Dto.CustomerDto;
 import profect.eatcloud.Domain.Admin.Dto.DashboardDto;
 import profect.eatcloud.Domain.Admin.Dto.OrderDto;
 import profect.eatcloud.Domain.Admin.Dto.OrderStatusDto;
 import profect.eatcloud.Domain.Admin.Dto.StoreDto;
 import profect.eatcloud.Domain.Admin.Dto.UserDto;
 import profect.eatcloud.Domain.Admin.Repository.AdminRepository;
+import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Domain.Order.Repository.OrderRepository_hong;
+import profect.eatcloud.Domain.Store.Entity.Category;
+import profect.eatcloud.Domain.Store.Entity.Store;
 import profect.eatcloud.Domain.Store.Repository.CategoryRepository_hong;
 import profect.eatcloud.Domain.Store.Repository.StoreRepository_hong;
 
@@ -29,29 +36,90 @@ public class AdminService {
 	private final CategoryRepository_hong categoryRepository;  // p_categories
 	private final OrderRepository_hong orderRepository;        // p_orders
 
-	public List<UserDto> getAllUsers(String adminId) {
-		return null;
-	}
-
-	public void deleteUser(String adminId, Long userId) {
-		return;
-	}
-
 	@Transactional(readOnly = true)
-	public List<CustomerDto> getAllCustomers(String adminId) {
-		// TODO: 관리자의 권한 확인 후 고객 목록 조회
-		return null;
+	public List<UserDto> getAllCustomers(String adminId) {
+		// 1) UUID 변환
+		UUID adminUuid = UUID.fromString(adminId);
+
+		// 2) Admin 조회
+		adminRepository.findById(adminUuid)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminUuid));
+
+		// 3) Customer 전체 조회 및 DTO 매핑
+		return customerRepository.findAll().stream()
+			.map(c -> UserDto.builder()
+				.id(c.getId())
+				.name(c.getUsername())
+				.nickname(c.getNickname())
+				.email(c.getEmail())
+				.phoneNumber(c.getPhoneNumber())
+				.points(c.getPoints())
+				.createdAt(LocalDateTime.from(c.getPTime().getCreatedAt()))
+				.build()
+			)
+			.collect(Collectors.toList());
 	}
 
 	@Transactional
-	public void deleteCustomer(String adminId, Long customerId) {
-		// TODO: 관리자의 권한 확인 후 고객 삭제 처리
+	public void deleteCustomer(String adminId, UUID userId) {
+		// 1) admin 검증
+		UUID adminUuid = UUID.fromString(adminId);
+		adminRepository.findById(adminUuid)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminUuid));
+
+		// 2) 삭제 대상 고객 조회 (없으면 NoSuchElementException)
+		Customer customer = customerRepository.findById(userId)
+			.orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+
+		// 3) 논리삭제로
+		customer.getPTime().setDeletedAt(Instant.from(LocalDateTime.now()));
+		customer.getPTime().setDeletedBy(String.valueOf(adminUuid));
+
 	}
 
 	@Transactional
 	public StoreDto createStore(String adminId, StoreDto storeDto) {
-		// TODO: 관리자의 권한 확인 및 가게 등록 로직
-		return null;
+		// 1) 관리자 검증
+		UUID adminUuid = UUID.fromString(adminId);
+		adminRepository.findById(adminUuid)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminUuid));
+
+		// 2) 카테고리 검증
+		UUID categoryUuid = storeDto.getCategoryId();
+		Category category = categoryRepository.findById(categoryUuid)
+			.orElseThrow(() -> new NoSuchElementException("Category not found: " + categoryUuid));
+
+		// 3) 엔티티 생성
+		Store store = Store.builder()
+			// DB에서 자동 생성되는 PK가 없다면 UUID.randomUUID() 사용
+			.storeId(UUID.randomUUID())
+			.storeName(storeDto.getStoreName())
+			.description(storeDto.getDescription())
+			.minCost(storeDto.getMinCost())
+			.storeLat(storeDto.getStoreLat())
+			.storeLon(storeDto.getStoreLon())
+			.openStatus(storeDto.getOpenStatus())
+			.openTime(storeDto.getOpenTime())
+			.closeTime(storeDto.getCloseTime())
+			.category(category)
+			.build();
+
+		// 4) 저장 (TimeDataListener가 p_time을 자동 생성/연결해 줍니다)
+		Store saved = storeRepository.save(store);
+
+		// 5) DTO로 변환하여 반환
+		return StoreDto.builder()
+			.storeId(saved.getStoreId())
+			.storeName(saved.getStoreName())
+			.categoryId(saved.getCategory().getCategoryId())
+			.minCost(saved.getMinCost())
+			.description(saved.getDescription())
+			.storeLat(saved.getStoreLat())
+			.storeLon(saved.getStoreLon())
+			.openStatus(saved.getOpenStatus())
+			.openTime(saved.getOpenTime())
+			.closeTime(saved.getCloseTime())
+			.build();
 	}
 
 	@Transactional(readOnly = true)

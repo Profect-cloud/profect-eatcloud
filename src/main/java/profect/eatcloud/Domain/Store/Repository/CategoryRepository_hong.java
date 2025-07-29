@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import profect.eatcloud.Domain.Store.Entity.Menu;
+import profect.eatcloud.Domain.Store.Entity.Category;
 
-public interface CategoryRepository_hong extends JpaRepository<Menu, UUID> {
+public interface CategoryRepository_hong extends JpaRepository<Category, UUID> {
 }
