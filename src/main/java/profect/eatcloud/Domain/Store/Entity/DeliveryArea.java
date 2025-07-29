@@ -1,14 +1,16 @@
-package profect.eatcloud.Domain.GlobalCategory.Entity;
+package profect.eatcloud.Domain.Store.Entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import java.util.UUID;
 
 @Entity
 @Table(name = "delivery_areas")
 @Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class DeliveryArea extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

@@ -1,8 +1,7 @@
 package profect.eatcloud.Domain.Payment.Entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.GlobalCategory.Entity.PaymentStatusCode;
@@ -15,7 +14,10 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "p_payments")
-@Getter @Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Payment extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

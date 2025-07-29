@@ -1,16 +1,19 @@
 package profect.eatcloud.Domain.Store.Entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 
+import java.time.LocalTime;
 import java.util.UUID;
 import java.sql.Time;
 
 @Entity
 @Table(name = "p_stores")
-@Getter @Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Store extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -42,10 +45,10 @@ public class Store extends BaseTimeEntity {
     private Boolean openStatus;
 
     @Column(name = "open_time", nullable = false)
-    private Time openTime;
+    private LocalTime openTime;
 
     @Column(name = "close_time", nullable = false)
-    private Time closeTime;
+    private LocalTime closeTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")

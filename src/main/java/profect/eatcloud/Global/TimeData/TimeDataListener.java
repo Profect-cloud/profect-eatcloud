@@ -9,8 +9,6 @@ import java.util.UUID;
 
 public class TimeDataListener {
 
-
-
 	@PrePersist
 	public void prePersist(BaseTimeEntity entity) {
 		if (entity.getTimeData() == null) {
