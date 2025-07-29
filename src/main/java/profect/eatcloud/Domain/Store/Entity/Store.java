@@ -1,26 +1,19 @@
 package profect.eatcloud.Domain.Store.Entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
+import lombok.Getter;
+import lombok.Setter;
+import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 
 import java.util.UUID;
-
-import profect.eatcloud.Global.TimeData.BaseTimeEntity;
-import profect.eatcloud.Global.TimeData.BaseTimeRepository;
-import profect.eatcloud.Global.TimeData.TimeData;
+import java.sql.Time;
 
 @Entity
 @Table(name = "p_stores")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter
 public class Store extends BaseTimeEntity {
-
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "store_id")
     private UUID storeId;
 
@@ -33,15 +26,10 @@ public class Store extends BaseTimeEntity {
     @Column(name = "phone_number", length = 18)
     private String phoneNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
-
     @Column(name = "min_cost", nullable = false)
-    @Builder.Default
     private Integer minCost = 0;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "store_lat")
@@ -54,13 +42,12 @@ public class Store extends BaseTimeEntity {
     private Boolean openStatus;
 
     @Column(name = "open_time", nullable = false)
-    private java.time.LocalTime openTime;
+    private Time openTime;
 
     @Column(name = "close_time", nullable = false)
-    private java.time.LocalTime closeTime;
+    private Time closeTime;
 
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "p_time_id", nullable = false)
-    // private TimeData pTime;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 }

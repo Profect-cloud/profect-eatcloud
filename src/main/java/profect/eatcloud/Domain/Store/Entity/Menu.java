@@ -48,10 +48,6 @@ public class Menu {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "p_time_id", nullable = false)
-    private TimeData pTime;
-
     public void updateFrom(MenuRequestDto dto) {
         this.menuNum = dto.getMenuNum();
         this.menuName = dto.getMenuName();
