@@ -16,7 +16,8 @@ public interface BaseTimeRepository<T extends BaseTimeEntity, ID> extends JpaRep
 
 	// 소프트 삭제를 위한 업데이트 쿼리
 	@Modifying
-	@Query("UPDATE #{#entityName} e SET e.timeData.deletedAt = :deletedAt, e.timeData.deletedBy = :deletedBy WHERE e.id = :id")
+	@Query("UPDATE TimeData td SET td.deletedAt = :deletedAt, td.deletedBy = :deletedBy " +
+		"WHERE td.pTimeId IN (SELECT e.timeData.pTimeId FROM #{#entityName} e WHERE e.id = :id)")
 	void softDeleteById(@Param("id") ID id, @Param("deletedAt") Instant deletedAt, @Param("deletedBy") String deletedBy);
 
 	// TimeData의 UUID를 통한 소프트 삭제

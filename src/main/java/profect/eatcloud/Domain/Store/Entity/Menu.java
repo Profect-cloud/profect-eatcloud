@@ -42,6 +42,7 @@ public class Menu {
     private String description;
 
     @Column(name = "is_available", nullable = false)
+    @Builder.Default
     private Boolean isAvailable = true;
 
     @Column(name = "image_url", length = 500)
