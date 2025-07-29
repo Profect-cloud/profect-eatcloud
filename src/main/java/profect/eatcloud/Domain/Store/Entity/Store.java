@@ -5,6 +5,9 @@ import lombok.*;
 
 
 import java.util.UUID;
+
+import profect.eatcloud.Global.TimeData.BaseTimeEntity;
+import profect.eatcloud.Global.TimeData.BaseTimeRepository;
 import profect.eatcloud.Global.TimeData.TimeData;
 
 @Entity
@@ -14,7 +17,7 @@ import profect.eatcloud.Global.TimeData.TimeData;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Store {
+public class Store extends BaseTimeEntity {
 
     @Id
     @GeneratedValue
@@ -56,8 +59,8 @@ public class Store {
     @Column(name = "close_time", nullable = false)
     private java.time.LocalTime closeTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "p_time_id", nullable = false)
-    private TimeData pTime;
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "p_time_id", nullable = false)
+    // private TimeData pTime;
 
 }

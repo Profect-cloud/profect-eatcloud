@@ -9,8 +9,8 @@ import java.util.Optional;
 @NoRepositoryBean
 public interface BaseCodeRepository<T extends BaseTimeEntity, ID> extends BaseTimeRepository<T, ID> {
 
-	// is_active 필드를 가진 코드성 테이블용 (assumming isActive field exists)
-	@Query("SELECT e FROM #{#entityName} e WHERE e.timeData.deletedAt IS NULL AND e.isActive = true")
+	// Fetch Join으로 N+1 방지
+	@Query("SELECT e FROM #{#entityName} e JOIN FETCH e.timeData WHERE e.timeData.deletedAt IS NULL AND e.isActive = true")
 	@Override
 	List<T> findAll();
 
