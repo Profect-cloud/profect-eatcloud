@@ -6,8 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.Domain.Payment.TossPaymentService;
-import profect.eatcloud.Domain.Payment.Dto.TossPaymentRequest;
+import profect.eatcloud.Domain.Payment.Service.TossPaymentService;
 import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
 
 import java.util.Map;

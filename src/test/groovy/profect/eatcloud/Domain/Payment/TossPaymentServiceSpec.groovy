@@ -1,5 +1,6 @@
 package profect.eatcloud.Domain.Payment
 
+import profect.eatcloud.Domain.Payment.Service.TossPaymentService
 import spock.lang.Specification
 
 class TossPaymentServiceSpec extends Specification {

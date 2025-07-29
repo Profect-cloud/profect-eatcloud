@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Payment;
+package profect.eatcloud.Domain.Payment.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
