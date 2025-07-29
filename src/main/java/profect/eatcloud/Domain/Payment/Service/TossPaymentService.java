@@ -1,12 +1,14 @@
-package profect.eatcloud.Payment;
+package profect.eatcloud.Domain.Payment.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import profect.eatcloud.Payment.Dto.TossPaymentResponse;
-import profect.eatcloud.Payment.Dto.TossPaymentRequest;
+import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
+import profect.eatcloud.Domain.Payment.Dto.TossPaymentRequest;
+import profect.eatcloud.Domain.Payment.Exception.PaymentException;
+import profect.eatcloud.Domain.Payment.Exception.PaymentValidationException;
 
 import java.util.Base64;
 
@@ -28,6 +30,9 @@ public class TossPaymentService {
         System.out.println("Payment Key: " + paymentKey);
         System.out.println("Order ID: " + orderId);
         System.out.println("Amount: " + amount);
+        
+        // 입력값 검증
+        validatePaymentRequest(paymentKey, orderId, amount);
         
         // 1. 시크릿 키 Base64 인코딩 (토스 API 인증 방식)
         String encodedAuth = Base64.getEncoder()
@@ -56,7 +61,24 @@ public class TossPaymentService {
         } catch (Exception e) {
             System.out.println("=== 토스페이먼츠 승인 실패 ===");
             System.out.println("에러 메시지: " + e.getMessage());
-            throw new RuntimeException("결제 승인 중 오류가 발생했습니다: " + e.getMessage(), e);
+            throw new PaymentException("결제 승인 중 오류가 발생했습니다: " + e.getMessage(), "PAYMENT_CONFIRM_ERROR", e);
+        }
+    }
+    
+    /**
+     * 결제 요청 데이터 검증
+     */
+    private void validatePaymentRequest(String paymentKey, String orderId, Integer amount) {
+        if (paymentKey == null || paymentKey.trim().isEmpty()) {
+            throw new PaymentValidationException("paymentKey", "결제 키는 필수입니다.");
+        }
+        
+        if (orderId == null || orderId.trim().isEmpty()) {
+            throw new PaymentValidationException("orderId", "주문 ID는 필수입니다.");
+        }
+        
+        if (amount == null || amount <= 0) {
+            throw new PaymentValidationException("amount", "결제 금액은 0보다 커야 합니다.");
         }
     }
 }

@@ -1,5 +1,6 @@
 package profect.eatcloud.Config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,13 +11,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${toss.api.base-url:https://api.tosspayments.com}")
-    private String tossApiBaseUrl;
+    @Value("${toss.secret-key}")
+    private String secretKey;
 
-    @Bean(name = "tossWebClient")
+    @Bean
+    @Qualifier("tossWebClient")
     public WebClient tossWebClient() {
         return WebClient.builder()
-                .baseUrl(tossApiBaseUrl)
+                .baseUrl("https://api.tosspayments.com/v1")
+                .defaultHeader("Content-Type", "application/json")
                 .build();
     }
 
@@ -29,4 +32,4 @@ public class WebClientConfig {
                 .build();
     }
 
-} 
+}
