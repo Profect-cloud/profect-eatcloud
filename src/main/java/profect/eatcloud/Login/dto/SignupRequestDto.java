@@ -1,11 +1,15 @@
 package profect.eatcloud.Login.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class SignupDto {
+@NoArgsConstructor
+@AllArgsConstructor
+public class SignupRequestDto {
     private String email;
     private String password;
     private String name;
