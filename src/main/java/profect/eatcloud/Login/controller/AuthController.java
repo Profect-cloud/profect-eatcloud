@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import profect.eatcloud.Login.dto.LoginRequestDto;
-import profect.eatcloud.Login.dto.SignupDto;
-import profect.eatcloud.Login.dto.TokenResponseDto;
+import profect.eatcloud.Login.dto.SignupRequestDto;
+import profect.eatcloud.Login.dto.JwtResponseDto;
 import profect.eatcloud.Login.service.AuthService;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,15 +20,17 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupDto signupDto) {
-        authService.signup(signupDto);
-        return ResponseEntity.ok("회원가입 성공");
+    // 로그인
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody LoginRequestDto req) {
+        String token = authService.login(req.getEmail(), req.getPassword());
+        return Map.of("token", token);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<TokenResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
-        String token = authService.login(loginRequestDto.getRole(), loginRequestDto.getEmail(), loginRequestDto.getPassword());
-        return ResponseEntity.ok(new TokenResponseDto(token));
+    // 고객 회원가입
+    @PostMapping("/signup")
+    public ResponseEntity<String> signupCustomer(@RequestBody SignupRequestDto req) {
+        authService.signup(req);
+        return ResponseEntity.ok("Customer registered");
     }
 }

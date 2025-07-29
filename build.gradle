@@ -107,11 +107,13 @@ tasks.named('test') {
 
 // JVM 옵션 설정
 tasks.named('bootRun') {
+	jvmArgs = [
+			'-Dio.netty.resolver.dns.DnsServerAddressStreamProviders.suppressUnsafeWarning=true',
+			'-Dio.netty.noUnsafe=true',
+			'-Dio.netty.noJdkZlibDecoder=true'
+	]
+}
 
-    jvmArgs = [
-            '-Dio.netty.resolver.dns.DnsServerAddressStreamProviders.suppressUnsafeWarning=true',
-            '-Dio.netty.noUnsafe=true',
-            '-Dio.netty.noJdkZlibDecoder=true'
-    ]
-
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
 }

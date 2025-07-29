@@ -1,87 +1,56 @@
 package profect.eatcloud.Login.service;
 
-<<<<<<< HEAD
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.Repository.AdminRepository;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
-import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
-import profect.eatcloud.Login.dto.LoginRequestDto;
-import profect.eatcloud.Security.jwt.JwtUtil;
-import profect.eatcloud.Security.userDetails.CustomUserDetails;
-=======
-import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
-import profect.eatcloud.Login.dto.SignupDto;
-import profect.eatcloud.Security.jwt.JwtUtil;
+import profect.eatcloud.Login.dto.SignupRequestDto;
+import profect.eatcloud.Security.jwt.JwtTokenProvider;
 import profect.eatcloud.Security.userDetails.CustomUserDetailsService;
->>>>>>> d974436be3d6aa74dec64244dac7a084c0036739
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-<<<<<<< HEAD
-	private final CustomerRepository customerRepository;
-	private final ManagerRepository managerRepository;
-	private final AdminRepository adminRepository;
-	private final PasswordEncoder passwordEncoder;
-	private final JwtUtil jwtUtil;
-
-	public String login(LoginRequestDto request) {
-		String username = request.getUsername();
-		String password = request.getPassword();
-		String role = request.getRole();
-
-		CustomUserDetails account = switch (role.toUpperCase()) {
-			case "CUSTOMER" -> customerRepository.findByUsername(username).orElseThrow();
-			case "MANAGER" -> managerRepository.findByUsername(username).orElseThrow();
-			case "ADMIN" -> adminRepository.findByUsername(username).orElseThrow();
-			default -> throw new IllegalArgumentException("Invalid role: " + role);
-		};
-
-		if (!passwordEncoder.matches(password, account.getPassword())) {
-			throw new RuntimeException("Invalid credentials");
-		}
-
-		return jwtUtil.generateToken(account.getUsername(), role);
-	}
-=======
+    private final AuthenticationManager authenticationManager;
     private final CustomerRepository customerRepository;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JwtUtil jwtUtil;
+    // 1) 로그인
+    public String login(String email, String password) {
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password)
+        );
+        // 인증 성공 후 권한 뽑고
+        List<String> roles = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
-    public void signup(SignupDto signupDto){
-        if (customerRepository.findByEmail(signupDto.getEmail()).isPresent()) {
-            throw new RuntimeException("이미 존재하는 사용자입니다.");
-        }
-
-        Customer customer = new Customer();
-        customer.setEmail(signupDto.getEmail());
-        customer.setPassword(bCryptPasswordEncoder.encode(signupDto.getPassword()));
-        customer.setName(signupDto.getName());
-        customer.setNickname(signupDto.getNickname());
-        customer.setPhoneNumber(signupDto.getPhone());
-        customerRepository.save(customer);
+        // 토큰 생성 시 subject 로 auth.getName() (=== email) 을 사용
+        return jwtTokenProvider.createToken(auth.getName(), roles);
     }
 
-    public String login(String role, String email, String rawPassword) {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
-
-        if (!bCryptPasswordEncoder.matches(rawPassword, userDetails.getPassword())) {
-            throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
+    // 2) 회원가입 (Customer 예시)
+    public void signup(SignupRequestDto req) {
+        if (customerRepository.findByEmail(req.getEmail()).isPresent()) {
+            throw new RuntimeException("이미 존재하는 이메일입니다.");
         }
-
-        return jwtUtil.generateToken(userDetails.getUsername(), role);
+        Customer c = new Customer();
+        c.setEmail(req.getEmail());
+        c.setPassword(passwordEncoder.encode(req.getPassword()));
+        c.setName(req.getName());
+        c.setNickname(req.getNickname());
+        customerRepository.save(c);
     }
->>>>>>> d974436be3d6aa74dec64244dac7a084c0036739
 }

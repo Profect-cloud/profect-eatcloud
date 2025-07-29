@@ -1,7 +1,6 @@
 package profect.eatcloud.Security.userDetails;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,22 +12,30 @@ import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Domain.Manager.Entity.Manager;
 import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
 
+import java.util.Optional;
+
 @Service
-@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final CustomerRepository customerRepository;
-    private final ManagerRepository managerRepository;
-    private final AdminRepository adminRepository;
+    @Autowired private CustomerRepository customerRepo;
+    @Autowired private ManagerRepository managerRepo;
+    @Autowired private AdminRepository adminRepo;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return customerRepository.findByEmail(email)
-                .map(c -> new CustomUserDetails(c.getEmail(), c.getPassword(), "CUSTOMER"))
-                .or(() -> managerRepository.findByEmail(email)
-                        .map(m -> new CustomUserDetails(m.getEmail(), m.getPassword(), "MANAGER")))
-                .or(() -> adminRepository.findByEmail(email)
-                        .map(a -> new CustomUserDetails(a.getEmail(), a.getPassword(), "ADMIN")))
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        Optional<Customer> c = customerRepo.findByEmail(email);
+        if (c.isPresent()) {
+            return new CustomerPrincipal(c.get());
+        }
+        Optional<Manager> m = managerRepo.findByEmail(email);
+        if (m.isPresent()) {
+            return new ManagerPrincipal(m.get());
+        }
+        Optional<Admin> a = adminRepo.findByEmail(email);
+        if (a.isPresent()) {
+            return new AdminPrincipal(a.get());
+        }
+        throw new UsernameNotFoundException("User not found with email: " + email);
     }
+
 }
