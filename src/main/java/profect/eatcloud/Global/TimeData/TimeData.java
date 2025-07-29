@@ -3,6 +3,7 @@ package profect.eatcloud.Global.TimeData;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
@@ -20,7 +21,7 @@ public class TimeData {
     private UUID pTimeId;
 
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "created_by", nullable = false, length = 100)
     private String createdBy;
