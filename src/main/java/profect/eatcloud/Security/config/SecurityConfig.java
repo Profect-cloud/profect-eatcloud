@@ -1,71 +1,118 @@
 package profect.eatcloud.Security.config;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import profect.eatcloud.Security.jwt.JwtAuthFilter;
-import profect.eatcloud.Security.jwt.JwtUtil;
-import profect.eatcloud.Security.userDetails.CustomUserDetailsService;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import lombok.RequiredArgsConstructor;
+import profect.eatcloud.Security.jwt.JwtAuthorizationFilter;
 
 @Configuration
-@EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfig{
+public class SecurityConfig {
+	private static final List<String> ALLOWED_ORIGINS = List.of(
+		"http://localhost:3000",
+		"http://localhost:5173",
+		"http://localhost:8080"
+	);
 
-	private final CustomUserDetailsService userDetailsService;
-	private final JwtUtil jwtUtil;
+	// API endponit 허용할거 작성.
+	public static final String[] PERMIT_URLS = {
+		// 기본/Swagger
+		"/error",
+		"/favicon.ico",
+		"/v3/api-docs",
+		"/swagger-ui/index.html",
+		"/swagger-ui/**",
+		"/v3/api-docs/**",
+		"/swagger-resources/**",
+		"/swagger-ui.html",
+		"/webjars/**",
+
+		// Auth
+		"/api/v1/auth/**",
+		"/api/v1/auth/login",
+		"/api/v1/auth/register",
+	};
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		//csrf disable
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	/*
+	 * 1. 로그인은 했지만 권한 부족(예: 403 Forbidden)인 경우 응답을 커스터마이징
+	 * 2. OAuth2 로그인 연동(FE 와 상의필요)
+	 * */
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthorizationFilter jwtAuthFilter) throws
+		Exception {
 		http
-			.csrf((auth) -> auth.disable());
-		//From 로그인 방식 disable
-		http
-			.formLogin((auth) -> auth.disable());
-		//http basic 인증 방식 disable
-		http
-			.httpBasic((auth) -> auth.disable());
-		//경로별 인가 작업
-		http
-			.authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/auth/**").permitAll()
-				.requestMatchers("/admin").hasRole("ADMIN")
-				.requestMatchers(
-					"/swagger-ui.html",
-					"/swagger-ui/",
-					"/v3/api-docs/",
-					"/webjars/**"
-				).permitAll()
-				.anyRequest().authenticated());
-		//세션 설정
-		http
-			.sessionManagement((session) -> session
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-		http
-			.addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+			.csrf(csrf -> csrf.disable())
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+			.formLogin(form -> form.disable())
+			.authorizeHttpRequests(auth -> auth
+				.requestMatchers(PERMIT_URLS).permitAll()
+				.anyRequest().authenticated()
+			)
+			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+			.exceptionHandling(exception -> exception
+				.authenticationEntryPoint((_, response, _) -> {
+					response.setStatus(HttpStatus.UNAUTHORIZED.value());
+					response.setContentType("application/json");
+					response.getWriter().write("{\"error\": \"Unauthorized access\"}");
+				})
+				.accessDeniedHandler((req, res, accessDeniedEx) -> {
+					res.setStatus(HttpStatus.FORBIDDEN.value());
+					res.setContentType("application/json");
+					res.getWriter().write("{\"error\": \"Forbidden: 권한이 없습니다.\"}");
+				})
+			);
+
 		return http.build();
 	}
 
 	@Bean
-	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-		AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-		authBuilder.userDetailsService(userDetailsService)
-			.passwordEncoder(bCryptPasswordEncoder());
-		return authBuilder.build();
+	public CorsConfigurationSource corsConfigurationSource() {
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+
+		config.setAllowedOrigins(ALLOWED_ORIGINS);
+		config.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
+		config.setAllowedHeaders(List.of("*"));
+		config.setAllowCredentials(true);
+
+		source.registerCorsConfiguration("/**", config);
+		return request -> {
+			String origin = request.getHeader("Origin");
+			if (origin != null && !ALLOWED_ORIGINS.contains(origin)) {
+				// System.out.println("CORS 차단: " + origin + "는 허용되지 않은 Origin입니다!");
+				throw new RuntimeException("CORS 차단: " + origin + "는 허용되지 않은 Origin입니다!");
+			}
+			return config;
+		};
 	}
 
 	@Bean
-	public BCryptPasswordEncoder bCryptPasswordEncoder() {
-		return new BCryptPasswordEncoder();
+	public AuthenticationManager authenticationManager(
+		AuthenticationConfiguration authenticationConfiguration) throws Exception {
+		return authenticationConfiguration.getAuthenticationManager();
 	}
 }
+
