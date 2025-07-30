@@ -31,11 +31,6 @@ public class CustomerService {
 			.orElseThrow(() -> new NoSuchElementException("Customer not found with ID: " + customerId));
 	}
 
-	public Optional<Customer> findCustomer(UUID customerId) {
-		Objects.requireNonNull(customerId, "Customer ID cannot be null");
-		return customerRepository.findById(customerId);
-	}
-
 	@Transactional
 	public CustomerProfileResponse updateCustomer(UUID customerId, CustomerProfileUpdateRequest request) {
 		Objects.requireNonNull(customerId, "Customer ID cannot be null");
@@ -59,12 +54,6 @@ public class CustomerService {
 
 		customerRepository.deleteById(customerId);
 		return CustomerWithdrawResponse.of(LocalDateTime.now());
-	}
-
-	@Transactional
-	public void deleteCustomer(UUID customerId) {
-		Objects.requireNonNull(customerId, "Customer ID cannot be null");
-		customerRepository.deleteById(customerId);
 	}
 
 	private void applyProfileUpdates(Customer customer, CustomerProfileUpdateRequest request) {
