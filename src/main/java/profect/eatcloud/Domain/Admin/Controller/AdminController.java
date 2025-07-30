@@ -3,6 +3,7 @@ package profect.eatcloud.Domain.Admin.Controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +23,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import profect.eatcloud.Domain.Admin.Dto.CategoryDto;
 import profect.eatcloud.Domain.Admin.Dto.DashboardDto;
+import profect.eatcloud.Domain.Admin.Dto.ManagerCreateRequestDto;
+import profect.eatcloud.Domain.Admin.Dto.ManagerDto;
 import profect.eatcloud.Domain.Admin.Dto.OrderDto;
 import profect.eatcloud.Domain.Admin.Dto.OrderStatusDto;
 import profect.eatcloud.Domain.Admin.Dto.StoreDto;
@@ -31,53 +35,103 @@ import profect.eatcloud.Domain.Admin.Service.AdminService;
  * Admin 전용 API 컨트롤러 (뼈대)
  */
 @RestController
-@RequestMapping("/admin")
-@Tag(name = "Admin API", description = "관리자 전용 API 모음")
-@PreAuthorize("USER")
+@RequestMapping("/api/v1/admin")
+@Tag(name = "1. Admin API", description = "관리자만 사용하는 API")
+@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class AdminController {
 
 	/*
-	 1. 전체 사용자 목록 조회
-	 2. 사용자 삭제
-	 3. 가게 등록
-	 4. 가게 목록 조회
-	 5. 가게 정보 변경
-	 6. 가게 삭제
-	 7. 카테고리 추가
-	 8. 카테고리 변경
-	 9. 카테고리 삭제
-	 10. 주문 상세 조회
-	 11. 주문 상태 변경
+	 1. 전체 Customer, Manager 목록 조회
+	 2. 특정 이메일에 해당하는 Customer 또는 Manager 정보조회
+	 3. Customer, Manager 삭제
+	 4. Manager 계정 생성
+	 ---------------
+	 5. 가게 삭제 -> Ban
+	 6. 카테고리 추가
+	 7. 카테고리 변경
+	 8. 카테고리 삭제
+	 9. daily_store_sales, daily_menu_sales 특정시간(새벽 3시)마다 1일기준 업데이트
+	 -----------------
+	 10. order 에서 review를 조회하고, 평균 평점 계산하기.
+	 11. Order 데이터 상태 변경(주문 취소 라던가)
 	 12. 대시보드 조회
 	*/
 	private final AdminService adminService;
 
-	// 사용자가 많아질 때 어떻게 로직을 변경할지 고민해 봐야함.
-	@Operation(summary = "1. 전체 사용자 목록 조회")
-	@GetMapping("/users")
-	public ResponseEntity<List<UserDto>> getAllCustomers(
-		@AuthenticationPrincipal UserDetails userDetails) {
-		String adminId = userDetails.getUsername();
-		List<UserDto> users = adminService.getAllCustomers(adminId);
-		return ResponseEntity.ok(users);
+	private UUID getAdminUuid(@AuthenticationPrincipal UserDetails userDetails) {
+		return UUID.fromString(userDetails.getUsername());
 	}
 
-	@Operation(summary = "2. 사용자 삭제")
-	@DeleteMapping("/users/{userId}")
-	public ResponseEntity<String> deleteUser(@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable UUID userId) {
-		String adminId = userDetails.getUsername();
-		adminService.deleteCustomer(adminId, userId);
-		return ResponseEntity.ok("사용자 삭제 완료");
+	// ---------------- GET ---------------
+
+	@Operation(summary = "1. 전체 사용자 목록 조회")
+	@GetMapping("/users")
+	public ResponseEntity<List<UserDto>> getAllCustomers(@AuthenticationPrincipal UserDetails userDetails) {
+		UUID adminUuid = getAdminUuid(userDetails);
+		return ResponseEntity.ok(adminService.getAllCustomers(adminUuid));
 	}
+
+	@Operation(summary = "2. 이메일로 고객 조회")
+	@GetMapping(value = "/users/search", params = "email")
+	public ResponseEntity<UserDto> getCustomerByEmail(@AuthenticationPrincipal UserDetails userDetails,
+		@RequestParam String email) {
+		UUID adminUuid = getAdminUuid(userDetails);
+		return ResponseEntity.ok(adminService.getCustomerByEmail(adminUuid, email));
+	}
+
+	@Operation(summary = "3. 전체 매니저 목록 조회")
+	@GetMapping("/managers")
+	public ResponseEntity<List<ManagerDto>> getAllManagers(@AuthenticationPrincipal UserDetails userDetails) {
+		UUID adminUuid = getAdminUuid(userDetails);
+		return ResponseEntity.ok(adminService.getAllManagers(adminUuid));
+	}
+
+	@Operation(summary = "4. 이메일로 매니저 조회")
+	@GetMapping(value = "/managers/search", params = "email")
+	public ResponseEntity<ManagerDto> getManagerByEmail(@AuthenticationPrincipal UserDetails userDetails,
+		@RequestParam String email) {
+		UUID adminUuid = getAdminUuid(userDetails);
+		return ResponseEntity.ok(adminService.getManagerByEmail(adminUuid, email));
+	}
+
+	@Operation(summary = "5. 이메일로 고객 밴(논리 삭제)")
+	@DeleteMapping(value = "/customers", params = "email")
+	public ResponseEntity<String> deleteCustomerByEmail(
+		@AuthenticationPrincipal UserDetails userDetails,
+		@RequestParam String email
+	) {
+		UUID adminUuid = getAdminUuid(userDetails);
+		adminService.deleteCustomerByEmail(adminUuid, email);
+		return ResponseEntity.ok("고객 밴 처리 완료: " + email);
+	}
+
+	@Operation(summary = "7. 이메일로 매니저 밴(논리 삭제)")
+	@DeleteMapping(value = "/managers", params = "email")
+	public ResponseEntity<String> deleteManagerByEmail(@AuthenticationPrincipal UserDetails userDetails,
+		@RequestParam String email) {
+
+		UUID adminUuid = getAdminUuid(userDetails);
+		adminService.deleteManagerByEmail(adminUuid, email);
+		return ResponseEntity.ok("매니저 밴 처리 완료: " + email);
+	}
+
+	@Operation(summary = "7. 매니저 계정 생성")
+	@PostMapping("/managers")
+	public ResponseEntity<ManagerDto> createManager(@AuthenticationPrincipal UserDetails userDetails,
+		@RequestBody ManagerCreateRequestDto dto) {
+
+		UUID adminUuid = getAdminUuid(userDetails);
+		ManagerDto created = adminService.createManager(adminUuid, dto);
+		return ResponseEntity.status(HttpStatus.CREATED).body(created);
+	}
+	//-----------------------------
 
 	@Operation(summary = "3. 가게 등록")
 	@PostMapping("/stores")
-	public ResponseEntity<StoreDto> createStore(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@RequestBody StoreDto storeDto
-	) {
+	public ResponseEntity<StoreDto> createStore(@AuthenticationPrincipal UserDetails userDetails,
+		@RequestBody StoreDto storeDto) {
+
 		String adminId = userDetails.getUsername();
 		StoreDto created = adminService.createStore(adminId, storeDto);
 		return ResponseEntity.ok(created);

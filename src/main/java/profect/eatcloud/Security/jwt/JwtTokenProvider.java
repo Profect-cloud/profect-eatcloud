@@ -38,7 +38,7 @@ public class JwtTokenProvider {
 	private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
 	public JwtTokenProvider(@Value("${jwt.secret}") String secret,
-		@Qualifier("customerUserDetailsService") UserDetailsService userDetailsService) {
+		@Qualifier("customUserDetailsService") UserDetailsService userDetailsService) {
 		this.secretKey = Keys.hmacShaKeyFor(secret.getBytes()); // 최신 Key 생성 방식
 		this.userDetailsService = userDetailsService;
 	}

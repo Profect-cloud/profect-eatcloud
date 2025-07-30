@@ -1,17 +1,19 @@
 package profect.eatcloud.Domain.Admin.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import profect.eatcloud.Domain.Admin.Dto.CategoryDto;
 import profect.eatcloud.Domain.Admin.Dto.DashboardDto;
+import profect.eatcloud.Domain.Admin.Dto.ManagerCreateRequestDto;
+import profect.eatcloud.Domain.Admin.Dto.ManagerDto;
 import profect.eatcloud.Domain.Admin.Dto.OrderDto;
 import profect.eatcloud.Domain.Admin.Dto.OrderStatusDto;
 import profect.eatcloud.Domain.Admin.Dto.StoreDto;
@@ -19,6 +21,8 @@ import profect.eatcloud.Domain.Admin.Dto.UserDto;
 import profect.eatcloud.Domain.Admin.Repository.AdminRepository;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
+import profect.eatcloud.Domain.Manager.Entity.Manager;
+import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
 import profect.eatcloud.Domain.Order.Repository.OrderRepository_hong;
 import profect.eatcloud.Domain.Store.Entity.Category;
 import profect.eatcloud.Domain.Store.Entity.Store;
@@ -31,20 +35,19 @@ public class AdminService {
 
 	private final AdminRepository adminRepository;        // p_admins
 	private final CustomerRepository customerRepository;  // p_customer
+	private final ManagerRepository managerRepository;
 	private final StoreRepository_hong storeRepository;        // p_stores
 	private final CategoryRepository_hong categoryRepository;  // p_categories
 	private final OrderRepository_hong orderRepository;        // p_orders
+	private final PasswordEncoder passwordEncoder;
 
 	@Transactional(readOnly = true)
-	public List<UserDto> getAllCustomers(String adminId) {
-		// 1) UUID 변환
-		UUID adminUuid = UUID.fromString(adminId);
-
-		// 2) Admin 조회
+	public List<UserDto> getAllCustomers(UUID adminUuid) {
+		// 1) UUID 변환 및 Admin 검증
 		adminRepository.findById(adminUuid)
 			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminUuid));
 
-		// 3) Customer 전체 조회 및 DTO 매핑
+		// 2) 전체 고객 조회 후 UserDto 로 매핑
 		return customerRepository.findAll().stream()
 			.map(c -> UserDto.builder()
 				.id(c.getId())
@@ -53,35 +56,135 @@ public class AdminService {
 				.email(c.getEmail())
 				.phoneNumber(c.getPhoneNumber())
 				.points(c.getPoints())
-				.createdAt(LocalDateTime.from(c.getTimeData().getCreatedAt()))
 				.build()
 			)
 			.collect(Collectors.toList());
 	}
 
+	@Transactional(readOnly = true)
+	public List<ManagerDto> getAllManagers(UUID adminId) {
+		// 1) 관리자 검증
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
+
+		// 2) 모든 매니저 조회 후 DTO 매핑
+		return managerRepository.findAll().stream()
+			.map(m -> ManagerDto.builder()
+				.id(m.getId())
+				.name(m.getName())
+				.email(m.getEmail())
+				.phoneNumber(m.getPhoneNumber())
+				.storeId(m.getStore() != null ? m.getStore().getStoreId() : null)
+				.build()
+			)
+			.collect(Collectors.toList());
+	}
+
+	@Transactional(readOnly = true)
+	public UserDto getCustomerByEmail(UUID adminId, String email) {
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
+
+		Customer c = customerRepository.findByEmail(email)
+			.orElseThrow(() -> new NoSuchElementException("Customer not found: " + email));
+
+		return UserDto.builder()
+			.id(c.getId())
+			.name(c.getName())
+			.nickname(c.getNickname())
+			.email(c.getEmail())
+			.phoneNumber(c.getPhoneNumber())
+			.points(c.getPoints())
+			.build();
+	}
+
+	@Transactional(readOnly = true)
+	public ManagerDto getManagerByEmail(UUID adminId, String email) {
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
+
+		Manager m = managerRepository.findByEmail(email)
+			.orElseThrow(() -> new NoSuchElementException("Manager not found: " + email));
+
+		return ManagerDto.builder()
+			.id(m.getId())
+			.name(m.getName())
+			.email(m.getEmail())
+			.phoneNumber(m.getPhoneNumber())
+			.storeId(m.getStore() != null ? m.getStore().getStoreId() : null)
+			.build();
+	}
+
 	@Transactional
-	public void deleteCustomer(String adminId, UUID userId) {
-		// 1) admin 검증
-		UUID adminUuid = UUID.fromString(adminId);
-		adminRepository.findById(adminUuid)
-			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminUuid));
+	public void deleteCustomerByEmail(UUID adminId, String email) {
+		// 1) Admin 검증
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
 
-		// 2) 삭제 대상 고객 조회 (없으면 NoSuchElementException)
-		Customer customer = customerRepository.findById(userId)
-			.orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+		// 2) 이메일로 고객 조회 (없으면 예외)
+		Customer c = customerRepository.findByEmail(email)
+			.orElseThrow(() -> new NoSuchElementException("Customer not found: " + email));
 
-		// 3) 논리삭제로
-		customer.getTimeData().setDeletedAt(LocalDateTime.now());
-		customer.getTimeData().setDeletedBy(String.valueOf(adminUuid));
+		// 3) 논리 삭제 (레포지토리 deleteById() 에서 처리)
+		customerRepository.deleteById(c.getId());
+	}
 
+	@Transactional
+	public void deleteManagerByEmail(UUID adminId, String email) {
+		// 1) Admin 검증
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
+
+		// 2) 이메일로 매니저 조회 (없으면 예외)
+		Manager m = managerRepository.findByEmail(email)
+			.orElseThrow(() -> new NoSuchElementException("Manager not found: " + email));
+
+		// 3) 논리 삭제
+		managerRepository.deleteById(m.getId());
+	}
+
+	@Transactional
+	public ManagerDto createManager(UUID adminId, ManagerCreateRequestDto dto) {
+		// 1) Admin 검증
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
+
+		// 2) (선택) DTO에 storeId 있으면 검증 후 불러오기
+		Store store = null;
+		if (dto.getStoreId() != null) {
+			store = storeRepository.findById(dto.getStoreId())
+				.orElseThrow(() -> new NoSuchElementException("Store not found: " + dto.getStoreId()));
+		}
+
+		// 3) Manager 엔티티 생성
+		Manager manager = Manager.builder()
+			.id(UUID.randomUUID())
+			.email(dto.getEmail())
+			.password(passwordEncoder.encode(dto.getPassword()))
+			.name(dto.getName())
+			.phoneNumber(dto.getPhoneNumber())
+			.store(store)     // store 가 null 이면 NPE 아님, 관계 없이 생성
+			.build();
+
+		Manager saved = managerRepository.save(manager);
+
+		// 4) 응답 DTO로 변환
+		return ManagerDto.builder()
+			.id(saved.getId())
+			.email(saved.getEmail())
+			.name(saved.getName())
+			.phoneNumber(saved.getPhoneNumber())
+			.storeId(saved.getStore() != null
+				? saved.getStore().getStoreId()
+				: null)
+			.build();
 	}
 
 	@Transactional
 	public StoreDto createStore(String adminId, StoreDto storeDto) {
 		// 1) 관리자 검증
 		UUID adminUuid = UUID.fromString(adminId);
-		adminRepository.findById(adminUuid)
-			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminUuid));
+		adminRepository.findById(adminUuid);
 
 		// 2) 카테고리 검증
 		UUID categoryUuid = storeDto.getCategoryId();

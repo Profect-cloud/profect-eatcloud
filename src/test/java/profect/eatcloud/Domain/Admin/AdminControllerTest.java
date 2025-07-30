@@ -47,7 +47,7 @@ class AdminControllerTest {
 	@Test
 	void givenUsers_whenGetAllUsers_thenReturnUserList() throws Exception {
 		// given
-		String adminId = "550e8400-e29b-41d4-a716-446655440000";
+		UUID adminId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
 		UserDto userDto = UserDto.builder()
 			.id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
 			.name("홍길동")
@@ -63,7 +63,7 @@ class AdminControllerTest {
 
 		// when & then
 		mockMvc.perform(get("/users")
-				.with(user(adminId))
+				.with(user(String.valueOf(adminId)))
 				.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$[0].id").value(userDto.getId().toString()))
