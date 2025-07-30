@@ -2,6 +2,7 @@ package profect.eatcloud.Domain.Payment.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import profect.eatcloud.Domain.Payment.Entity.PaymentRequest;
@@ -133,6 +134,7 @@ public class PaymentValidationService {
     }
 
     // ValidationResult 클래스는 동일
+    @Getter
     public static class ValidationResult {
         private final boolean success;
         private final String errorMessage;
@@ -152,8 +154,5 @@ public class PaymentValidationService {
             return new ValidationResult(false, errorMessage, null);
         }
 
-        public boolean isSuccess() { return success; }
-        public String getErrorMessage() { return errorMessage; }
-        public PaymentRequest getPaymentRequest() { return paymentRequest; }
     }
 }
