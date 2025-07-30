@@ -19,9 +19,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Security.userDetails.AdminUserDetailsService;
-import profect.eatcloud.Security.userDetails.CustomerUserDetailsService;
-import profect.eatcloud.Security.userDetails.ManagerUserDetailsService;
+import profect.eatcloud.Security.userDetails.CustomUserDetailsService;
 
 @Component
 @RequiredArgsConstructor
@@ -29,14 +27,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenProvider jwtTokenProvider;
 
-	@Qualifier("customerUserDetailsService")
-	private final CustomerUserDetailsService customerUserDetailsService;
-
-	@Qualifier("managerUserDetailsService")
-	private final ManagerUserDetailsService managerUserDetailsService;
-
-	@Qualifier("adminUserDetailsService")
-	private final AdminUserDetailsService adminUserDetailsService;
+	@Qualifier("customUserDetailsService")
+	private final CustomUserDetailsService customUserDetailsService;
 
 	// 로그인, 회원가입, OAuth 콜백 등은JWT 인증 없이 접근 가능해야 한다.
 	@Override
@@ -80,31 +72,27 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 				UUID userId = jwtTokenProvider.getIdFromToken(token);
 				String userType = jwtTokenProvider.getTypeFromToken(token);
 
-				UserDetails userDetails;
+				UserDetails userDetails = customUserDetailsService.loadUserByUsername(userId, userType);
+
 				List<GrantedAuthority> authorities;
-
 				if ("admin".equals(userType)) {
-					userDetails = adminUserDetailsService.loadUserByUsername(userId.toString());
 					authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
-
 				} else if ("manager".equals(userType)) {
-					userDetails = managerUserDetailsService.loadUserByUsername(userId.toString());
 					authorities = List.of(new SimpleGrantedAuthority("ROLE_MANAGER"));
-
 				} else {
-					userDetails = customerUserDetailsService.loadUserByUsername(userId.toString());
-					authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+					authorities = List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
 				}
 
 				// 5) Authentication 객체 생성 및 SecurityContext에 등록
-				UsernamePasswordAuthenticationToken authentication =
-					new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+					userDetails, null, authorities);
 				SecurityContextHolder.getContext().setAuthentication(authentication);
-
 			} catch (ExpiredJwtException e) {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				response.getWriter().write("{\"message\": \"세션이 만료되었습니다. 다시 로그인하세요.\"}");
 				return;
+			} catch (Throwable e) {
+				throw new RuntimeException(e);
 			}
 		}
 

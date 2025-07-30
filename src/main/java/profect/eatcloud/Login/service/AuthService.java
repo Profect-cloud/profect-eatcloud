@@ -68,14 +68,14 @@ public class AuthService {
 		//visitLogService.logVisit(user.getId());
 
 		// Access + Refresh 토큰 생성
-		String accessToken = jwtTokenProvider.createToken(customer.getId(), "user");
-		String refreshToken = jwtTokenProvider.createRefreshToken(customer.getId(), "user");
+		String accessToken = jwtTokenProvider.createToken(customer.getId(), "customer");
+		String refreshToken = jwtTokenProvider.createRefreshToken(customer.getId(), "customer");
 
 		// 리프레시 토큰 DB에 저장 또는 갱신
 		//LocalDateTime expiryDate = LocalDateTime.now().plusDays(7);
 		//refreshTokenService.saveOrUpdateToken(user, refreshToken, expiryDate);
 
-		return new LoginResponseDto(accessToken, refreshToken, "user");
+		return new LoginResponseDto(accessToken, refreshToken, "customer");
 	}
 
 	// 2) 회원가입 (Customer 예시)
