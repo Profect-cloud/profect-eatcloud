@@ -22,7 +22,7 @@ public class PaymentRequest extends BaseTimeEntity {
     @Column(name = "pg_provider", nullable = false, length = 100)
     private String pgProvider;
 
-    @Column(name = "request_payload", nullable = false, columnDefinition = "jsonb")
+    @Column(name = "request_payload", nullable = false, columnDefinition = "text")
     private String requestPayload;  // JSON 문자열로 저장
 
     @Column(name = "redirect_url", columnDefinition = "text")
