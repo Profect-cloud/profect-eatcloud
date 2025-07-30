@@ -11,6 +11,10 @@ import profect.eatcloud.Domain.Payment.Service.PaymentValidationService;
 import profect.eatcloud.Domain.Payment.Service.PointService;
 import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,16 +22,14 @@ import java.util.UUID;
  * 토스페이먼츠 표준 결제 컨트롤러
  */
 @Controller
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/payment")
+@Tag(name = "10. PaymentViewController")
 public class PaymentController {
 
-    @Autowired
-    private TossPaymentService tossPaymentService;
-
-    @Autowired
-    private PaymentValidationService paymentValidationService;
-
-    @Autowired
-    private PointService pointService;
+    private final TossPaymentService tossPaymentService;
+    private final PaymentValidationService paymentValidationService;
+    private final PointService pointService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -37,7 +39,8 @@ public class PaymentController {
     /**
      * 주문 페이지 표시
      */
-    @GetMapping("/payment/order")
+    @Operation(summary = "주문 페이지", description = "결제 주문 페이지를 표시합니다.")
+    @GetMapping("/order")
     public String orderPage(Model model) {
         // 임시 고객 정보 (실제로는 세션에서 가져와야 함)
         String customerId = "customer_123";
@@ -52,9 +55,10 @@ public class PaymentController {
     /**
      * 주문 → 결제 페이지 이동
      */
-    @PostMapping("/payment/checkout")
+    @Operation(summary = "결제 페이지", description = "주문 정보를 받아 결제 페이지로 이동합니다.")
+    @PostMapping("/checkout")
     public String checkoutPage(@RequestParam("orderData") String orderDataJson, Model model) {
-        System.out.println("=== /payment/checkout 호출됨 ==="); // 이 로그가 나오는지 확인
+        System.out.println("=== /api/v1/payment/checkout 호출됨 ==="); // 이 로그가 나오는지 확인
         System.out.println("orderDataJson: " + orderDataJson);
         try {
             // JSON 파싱
@@ -108,14 +112,15 @@ public class PaymentController {
         } catch (Exception e) {
             System.err.println("주문 처리 중 오류: " + e.getMessage());
             e.printStackTrace();
-            return "redirect:/payment/order?error=processing";
+            return "redirect:/api/v1/payment/order?error=processing";
         }
     }
 
     /**
      * 기존 결제 페이지 (포인트 충전용)
      */
-    @GetMapping("/payments/charge")
+    @Operation(summary = "포인트 충전 페이지", description = "포인트 충전을 위한 결제 페이지를 표시합니다.")
+    @GetMapping("/charge")
     public String getPaymentPage(@RequestParam(required = false) String userId,
                                  @RequestParam(required = false) Integer amount,
                                  Model model) {
@@ -143,7 +148,8 @@ public class PaymentController {
     /**
      * 결제 성공 콜백
      */
-    @GetMapping("/payment/success")
+    @Operation(summary = "결제 성공 콜백", description = "토스페이먼츠 결제 성공 콜백을 처리합니다.")
+    @GetMapping("/success")
     public String paymentSuccess(@RequestParam String paymentKey,
                                  @RequestParam String orderId,
                                  @RequestParam Integer amount,
@@ -188,7 +194,8 @@ public class PaymentController {
     /**
      * 결제 실패 콜백
      */
-    @GetMapping("/payment/fail")
+    @Operation(summary = "결제 실패 콜백", description = "토스페이먼츠 결제 실패 콜백을 처리합니다.")
+    @GetMapping("/fail")
     public String paymentFail(@RequestParam(required = false) String message,
                               @RequestParam(required = false) String code,
                               @RequestParam(required = false) String orderId,

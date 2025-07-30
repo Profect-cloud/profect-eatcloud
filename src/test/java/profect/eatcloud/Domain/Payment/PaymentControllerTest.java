@@ -63,7 +63,7 @@ class PaymentControllerTest {
                 .willReturn(mockResponse);
 
         // when & then
-        mockMvc.perform(post("/api/payments/confirm")
+        mockMvc.perform(post("/api/v1/payments/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isOk())
@@ -87,7 +87,7 @@ class PaymentControllerTest {
                 .willThrow(new PaymentValidationException("잘못된 결제 정보입니다", "INVALID_PAYMENT"));
 
         // when & then
-        mockMvc.perform(post("/api/payments/confirm")
+        mockMvc.perform(post("/api/v1/payments/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest()); // GlobalExceptionHandler가 PaymentValidationException을 400으로 처리
@@ -102,7 +102,7 @@ class PaymentControllerTest {
         String orderId = "ORDER_123456";
 
         // when & then
-        mockMvc.perform(get("/api/payments/status/{orderId}", orderId)
+        mockMvc.perform(get("/api/v1/payments/status/{orderId}", orderId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").value(orderId))
@@ -126,7 +126,7 @@ class PaymentControllerTest {
                 .willReturn(mockResponse);
 
         // when & then
-        mockMvc.perform(post("/api/payments/validate")
+        mockMvc.perform(post("/api/v1/payments/validate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isOk())
@@ -149,7 +149,7 @@ class PaymentControllerTest {
                 .willThrow(new PaymentValidationException("잘못된 결제 정보입니다", "INVALID_PAYMENT"));
 
         // when & then
-        mockMvc.perform(post("/api/payments/validate")
+        mockMvc.perform(post("/api/v1/payments/validate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest())
@@ -169,7 +169,7 @@ class PaymentControllerTest {
         requestBody.put("amount", 15000);
 
         // when & then
-        mockMvc.perform(post("/api/payments/confirm")
+        mockMvc.perform(post("/api/v1/payments/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isOk()); // 실제로는 200을 반환함
@@ -182,7 +182,7 @@ class PaymentControllerTest {
         String invalidJson = "{ invalid json }";
 
         // when & then
-        mockMvc.perform(post("/api/payments/confirm")
+        mockMvc.perform(post("/api/v1/payments/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson))
                 .andExpect(status().isInternalServerError()); // HttpMessageNotReadableException은 500으로 처리됨
