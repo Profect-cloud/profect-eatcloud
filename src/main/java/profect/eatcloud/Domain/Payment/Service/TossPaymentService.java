@@ -26,11 +26,6 @@ public class TossPaymentService {
      * 토스페이먼츠 결제 승인 API 호출 (표준 결제용)
      */
     public TossPaymentResponse confirmPayment(String paymentKey, String orderId, Integer amount) {
-        System.out.println("=== 토스페이먼츠 결제 승인 요청 ===");
-        System.out.println("Payment Key: " + paymentKey);
-        System.out.println("Order ID: " + orderId);
-        System.out.println("Amount: " + amount);
-        
         // 입력값 검증
         validatePaymentRequest(paymentKey, orderId, amount);
         
@@ -51,16 +46,9 @@ public class TossPaymentService {
                 .retrieve()  // 응답 받기
                 .bodyToMono(TossPaymentResponse.class)  // 응답을 TossPaymentResponse 객체로 변환
                 .block();  // 동기 방식으로 결과 기다리기
-                
-            System.out.println("=== 토스페이먼츠 승인 성공 ===");
-            System.out.println("결제 상태: " + response.getStatus());
-            System.out.println("결제 방법: " + response.getMethod());
-            
             return response;
             
         } catch (Exception e) {
-            System.out.println("=== 토스페이먼츠 승인 실패 ===");
-            System.out.println("에러 메시지: " + e.getMessage());
             throw new PaymentException("결제 승인 중 오류가 발생했습니다: " + e.getMessage(), "PAYMENT_CONFIRM_ERROR", e);
         }
     }
