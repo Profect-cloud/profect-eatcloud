@@ -48,7 +48,8 @@ public class Customer extends BaseTimeEntity {
 	private String phoneNumber;
 
 	@Column(name = "points")
-	private Integer points;
+	@Builder.Default
+	private Integer points = 0;
 
 	@OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
 	private List<Address> addresses = new ArrayList<>();

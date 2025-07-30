@@ -48,7 +48,17 @@ public class SecurityConfig {
 		"/api/v1/auth/**",
 		"/api/v1/auth/login",
 		"/api/v1/auth/register",
-	};
+
+		// Payment
+		"/api/v1/payment/validate",
+		"/api/v1/payment/confirm",
+		"/api/v1/payment/status/{orderId}",
+		"/api/v1/payment/checkout",
+		"/api/v1/payment/success",
+		"/api/v1/payment/order",
+		"/api/v1/payment/fail",
+		"/api/v1/payment/charge",
+    };
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
