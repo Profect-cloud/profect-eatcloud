@@ -1,5 +1,6 @@
 package profect.eatcloud.Domain.Store.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import profect.eatcloud.Domain.Store.Dto.MenuRequestDto;
@@ -8,6 +9,7 @@ import profect.eatcloud.Domain.Store.Entity.Store;
 import profect.eatcloud.Domain.Store.Repository.MenuRepository_min;
 import profect.eatcloud.Domain.Store.Repository.StoreRepository_min;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +21,24 @@ public class MenuService {
 
     public Menu createMenu(UUID storeId, MenuRequestDto dto) {
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new IllegalArgumentException("Store not found"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매장입니다"));
+
+        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
+        }
+
+        if (dto.getMenuName() == null || dto.getMenuName().trim().isEmpty()) {
+            throw new IllegalArgumentException("메뉴 이름은 필수입니다");
+        }
+
+        Boolean isAvailable = dto.getIsAvailable();
+        if (isAvailable == null) {
+            isAvailable = true;
+        }
+
+        if (menuRepository.existsByStoreAndMenuNum(store, dto.getMenuNum())) {
+            throw new IllegalArgumentException("해당 메뉴 번호는 이미 존재합니다");
+        }
 
         Menu menu = Menu.builder()
                 .store(store)
@@ -28,35 +47,72 @@ public class MenuService {
                 .menuCategoryCode(dto.getMenuCategoryCode())
                 .price(dto.getPrice())
                 .description(dto.getDescription())
-                .isAvailable(dto.getIsAvailable())
+                .isAvailable(isAvailable)
                 .imageUrl(dto.getImageUrl())
                 .build();
 
         return menuRepository.save(menu);
     }
 
-    public Menu updateMenu(UUID menuId, MenuRequestDto dto) {
+    public Menu updateMenu(UUID storeId, UUID menuId, MenuRequestDto dto) {
         Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(() -> new IllegalArgumentException("Menu not found"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다"));
 
-        menu.updateFrom(dto); // 도메인 메서드 호출
+        // 1. 메뉴 이름 유효성
+        if (dto.getMenuName() == null || dto.getMenuName().trim().isEmpty()) {
+            throw new IllegalArgumentException("메뉴 이름은 필수입니다");
+        }
 
+        // 2. 가격 유효성
+        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
+        }
+
+        // 3. menuNum 중복 체크 (정책 적용 시)
+        if (dto.getMenuNum() != menu.getMenuNum()) {
+            boolean exists = menuRepository.existsByStoreAndMenuNum(menu.getStore(), dto.getMenuNum());
+            if (exists) {
+                throw new IllegalArgumentException("해당 메뉴 번호는 이미 존재합니다");
+            }
+        }
+
+        // 4. isAvailable 기본값 처리
+        if (dto.getIsAvailable() == null) {
+            dto.setIsAvailable(true);
+        }
+
+        // 실제 업데이트
+        menu.updateFrom(dto);
         return menuRepository.save(menu);
     }
 
 
     public List<Menu> getMenusByStore(UUID storeId) {
-        return menuRepository.findByStoreStoreId(storeId);
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매장입니다"));
+
+        return menuRepository.findAllByStoreAndTimeData_DeletedAtIsNull(store);
     }
 
-    public Menu getMenu(UUID menuId) {
-        return menuRepository.findById(menuId)
-                .orElseThrow(() -> new IllegalArgumentException("Menu not found"));
+    public Menu getMenuById(UUID storeId, UUID menuId) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매장입니다"));
+
+        return menuRepository.findByIdAndStoreAndTimeData_DeletedAtIsNull(menuId, store)
+                .orElseThrow(() -> new IllegalArgumentException("해당 메뉴를 찾을 수 없습니다"));
     }
 
+
+
+
+    @Transactional
     public void deleteMenu(UUID menuId) {
-        menuRepository.deleteById(menuId);
+        menuRepository.findById(menuId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다"));
+
+        menuRepository.deleteById(menuId); // soft delete 동작
     }
+
 
     //public Menu requestAIDescription(UUID menuId) {requestAIDescription()}
 }
