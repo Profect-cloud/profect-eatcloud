@@ -3,6 +3,7 @@ package profect.eatcloud.Domain.Store.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import profect.eatcloud.Domain.Store.Dto.MenuRequestDto;
+import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import profect.eatcloud.Global.TimeData.TimeData;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Menu {
+public class Menu extends BaseTimeEntity {
 
     @Id
     @GeneratedValue

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/stores/{store_id}/menus")
+@RequestMapping("/api/v1/stores/{store_id}/menus")
 @RequiredArgsConstructor
 public class MenuController {
     private final MenuService menuService;
@@ -28,7 +28,7 @@ public class MenuController {
 
     @GetMapping("/{menu_id}")
     public ResponseEntity<Menu> getMenuDetail(@PathVariable UUID store_id, @PathVariable UUID menu_id) {
-        return ResponseEntity.ok(menuService.getMenu(menu_id));
+        return ResponseEntity.ok(menuService.getMenuById(store_id,menu_id));
     }
 
     @PostMapping("/{menu_id}/ai-description")
@@ -37,8 +37,8 @@ public class MenuController {
     }
 
     @PutMapping("/{menu_id}")
-    public ResponseEntity<Menu> updateMenu(@PathVariable UUID menu_id, @RequestBody MenuRequestDto dto) {
-        return ResponseEntity.ok(menuService.updateMenu(menu_id, dto));
+    public ResponseEntity<Menu> updateMenu(@PathVariable UUID store_id,@PathVariable UUID menu_id, @RequestBody MenuRequestDto dto) {
+        return ResponseEntity.ok(menuService.updateMenu(store_id,menu_id, dto));
     }
 
     @DeleteMapping("/{menu_id}")
