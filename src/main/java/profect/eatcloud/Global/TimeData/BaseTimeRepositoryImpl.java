@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 import jakarta.transaction.Transactional;
-import profect.eatcloud.Security.SecurityUtil;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Id;
@@ -49,7 +48,6 @@ public class BaseTimeRepositoryImpl<T extends BaseTimeEntity, ID>
 		throw new RuntimeException("@Id 어노테이션이 붙은 필드를 찾을 수 없습니다: " + entityClass.getName());
 	}
 
-	// JpaRepository 메서드 오버라이드 (소프트 삭제 적용)
 	@Override
 	public Optional<T> findById(ID id) {
 		String jpql = String.format(
@@ -73,7 +71,6 @@ public class BaseTimeRepositoryImpl<T extends BaseTimeEntity, ID>
 		return query.getResultList();
 	}
 
-	// BaseTimeRepository 메서드 구현
 	@Override
 	public Optional<T> findByIdIncludingDeleted(ID id) {
 		String jpql = String.format(
@@ -123,7 +120,6 @@ public class BaseTimeRepositoryImpl<T extends BaseTimeEntity, ID>
 	@Override
 	@Transactional
 	public void softDeleteByTimeId(UUID timeId, LocalDateTime deletedAt, String deletedBy) {
-		// 네이티브 쿼리로 p_time 테이블 직접 업데이트
 		String sql = "UPDATE p_time SET deleted_at = ?, deleted_by = ?, updated_at = ?, updated_by = ? WHERE p_time_id = ?";
 
 		entityManager.createNativeQuery(sql)
