@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,6 +33,7 @@ import profect.eatcloud.Domain.Admin.Service.AdminService;
 @RestController
 @RequestMapping("/admin")
 @Tag(name = "Admin API", description = "관리자 전용 API 모음")
+@PreAuthorize("USER")
 @RequiredArgsConstructor
 public class AdminController {
 

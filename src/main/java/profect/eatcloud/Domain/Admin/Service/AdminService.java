@@ -1,6 +1,5 @@
 package profect.eatcloud.Domain.Admin.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -49,12 +48,12 @@ public class AdminService {
 		return customerRepository.findAll().stream()
 			.map(c -> UserDto.builder()
 				.id(c.getId())
-				.name(c.getUsername())
+				.name(c.getName())
 				.nickname(c.getNickname())
 				.email(c.getEmail())
 				.phoneNumber(c.getPhoneNumber())
 				.points(c.getPoints())
-				.createdAt(LocalDateTime.from(c.getPTime().getCreatedAt()))
+				.createdAt(LocalDateTime.from(c.getTimeData().getCreatedAt()))
 				.build()
 			)
 			.collect(Collectors.toList());
@@ -72,8 +71,8 @@ public class AdminService {
 			.orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
 
 		// 3) 논리삭제로
-		customer.getPTime().setDeletedAt(Instant.from(LocalDateTime.now()));
-		customer.getPTime().setDeletedBy(String.valueOf(adminUuid));
+		customer.getTimeData().setDeletedAt(LocalDateTime.now());
+		customer.getTimeData().setDeletedBy(String.valueOf(adminUuid));
 
 	}
 

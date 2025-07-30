@@ -1,11 +1,12 @@
 package profect.eatcloud.Global.TimeData;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.UUID;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class TimeDataService {
 
 	/** 새 이력 생성 */
 	public TimeData createTimeData(String createdBy) {
-		Instant now = Instant.now();
+		LocalDateTime now = LocalDateTime.now();
 		TimeData td = TimeData.builder()
 			.createdAt(now)
 			.createdBy(createdBy)
@@ -32,7 +33,7 @@ public class TimeDataService {
 		TimeData td = timeDataRepository.findById(pTimeId)
 			.orElseThrow(() -> new IllegalArgumentException("TimeData not found: " + pTimeId));
 
-		Instant now = Instant.now();
+		LocalDateTime now = LocalDateTime.now();
 		td.setUpdatedAt(now);
 		td.setUpdatedBy(updatedBy);
 
@@ -44,7 +45,7 @@ public class TimeDataService {
 		TimeData td = timeDataRepository.findById(pTimeId)
 			.orElseThrow(() -> new IllegalArgumentException("TimeData not found: " + pTimeId));
 
-		Instant now = Instant.now();
+		LocalDateTime now = LocalDateTime.now();
 		td.setDeletedAt(now);
 		td.setDeletedBy(deletedBy);
 
