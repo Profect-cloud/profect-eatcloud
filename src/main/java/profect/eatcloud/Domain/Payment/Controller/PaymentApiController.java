@@ -19,16 +19,12 @@ import java.util.HashMap;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/payments")
-@Tag(name = "2. PaymentController")
+@RequestMapping("/api/v1/payment")
+@Tag(name = "9. PaymentController")
 public class PaymentApiController {
     
     private final TossPaymentService tossPaymentService;
-    
-    /**
-     * 결제 승인 API
-     * POST /api/v1/payments/confirm
-     */
+
     @Operation(summary = "결제 승인", description = "토스페이먼츠 결제 승인을 처리합니다.")
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmPayment(@RequestBody Map<String, Object> request) {
@@ -54,11 +50,7 @@ public class PaymentApiController {
             throw e;
         }
     }
-    
-    /**
-     * 결제 상태 확인 API
-     * GET /api/v1/payments/status/{orderId}
-     */
+
     @Operation(summary = "결제 상태 확인", description = "주문 ID로 결제 상태를 조회합니다.")
     @GetMapping("/status/{orderId}")
     public ResponseEntity<?> getPaymentStatus(@PathVariable String orderId) {
@@ -70,11 +62,7 @@ public class PaymentApiController {
         
         return ResponseEntity.ok(result);
     }
-    
-    /**
-     * 결제 검증 API
-     * POST /api/v1/payments/validate
-     */
+
     @Operation(summary = "결제 검증", description = "결제 정보의 유효성을 검증합니다.")
     @PostMapping("/validate")
     public ResponseEntity<?> validatePayment(@RequestBody Map<String, Object> request) {

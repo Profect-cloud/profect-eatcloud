@@ -1,8 +1,9 @@
 package profect.eatcloud.Domain.Payment.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,7 +26,7 @@ import java.util.UUID;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/payment")
-@Tag(name = "10. PaymentViewController")
+@Tag(name = "9. PaymentViewController")
 public class PaymentController {
 
     private final TossPaymentService tossPaymentService;
@@ -57,15 +59,14 @@ public class PaymentController {
      */
     @Operation(summary = "결제 페이지", description = "주문 정보를 받아 결제 페이지로 이동합니다.")
     @PostMapping("/checkout")
-    public String checkoutPage(@RequestParam("orderData") String orderDataJson, Model model) {
-        System.out.println("=== /api/v1/payment/checkout 호출됨 ==="); // 이 로그가 나오는지 확인
-        System.out.println("orderDataJson: " + orderDataJson);
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> checkoutPage(@RequestParam("orderData") String orderDataJson) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
         try {
             // JSON 파싱
             Map<String, Object> orderData = objectMapper.readValue(orderDataJson, Map.class);
-
-            System.out.println("=== 주문 데이터 받음 ===");
-            System.out.println("주문 데이터: " + orderData);
 
             // 주문 정보 추출
             String customerId = (String) orderData.get("customerId");
@@ -76,16 +77,19 @@ public class PaymentController {
 
             // 포인트 사용 처리
             if (usePoints && pointsToUse > 0) {
-                // 포인트 차감 (실제 처리)
-                UUID customerUUID = UUID.fromString(customerId); // customerId를 UUID로 변환
-                var pointResult = pointService.usePoints(customerUUID, pointsToUse);
+                try {
+                    UUID customerUUID = UUID.fromString(customerId);
+                    var pointResult = pointService.usePoints(customerUUID, pointsToUse);
 
-                if (!pointResult.isSuccess()) {
-                    model.addAttribute("error", pointResult.getErrorMessage());
-                    return "payment/fail";
+                    if (!pointResult.isSuccess()) {
+                        response.put("error", pointResult.getErrorMessage());
+                        return ResponseEntity.badRequest().body(response);
+                    }
+                } catch (IllegalArgumentException e) {
+                    // UUID 형식이 아닌 경우 임시 처리 (개발/테스트용)
+                    response.put("warning", "고객 ID가 UUID 형식이 아닙니다. 포인트 사용을 건너뜁니다.");
+                    // 실제 운영에서는 적절한 고객 ID를 사용해야 합니다.
                 }
-
-                System.out.println("포인트 " + pointsToUse + "원 차감 완료");
             }
 
             // 토스 주문 ID 생성
@@ -98,21 +102,22 @@ public class PaymentController {
             }
 
             // 결제 페이지에 전달할 데이터
-            model.addAttribute("orderId", tossOrderId);
-            model.addAttribute("amount", finalPaymentAmount);
-            model.addAttribute("userId", customerId);
-            model.addAttribute("clientKey", clientKey);
-            model.addAttribute("usePoints", usePoints);
-            model.addAttribute("pointsUsed", pointsToUse);
-            model.addAttribute("originalAmount", totalAmount);
-            model.addAttribute("orderItems", orderData.get("items"));
+            response.put("orderId", tossOrderId);
+            response.put("amount", finalPaymentAmount);
+            response.put("userId", customerId);
+            response.put("clientKey", clientKey);
+            response.put("usePoints", usePoints);
+            response.put("pointsUsed", pointsToUse);
+            response.put("originalAmount", totalAmount);
+            response.put("orderItems", orderData.get("items"));
+            response.put("message", "결제 페이지 데이터 생성 성공");
 
-            return "payment/checkout";
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("주문 처리 중 오류: " + e.getMessage());
             e.printStackTrace();
-            return "redirect:/api/v1/payment/order?error=processing";
+            response.put("error", "주문 처리 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
@@ -121,13 +126,11 @@ public class PaymentController {
      */
     @Operation(summary = "포인트 충전 페이지", description = "포인트 충전을 위한 결제 페이지를 표시합니다.")
     @GetMapping("/charge")
-    public String getPaymentPage(@RequestParam(required = false) String userId,
-                                 @RequestParam(required = false) Integer amount,
-                                 Model model) {
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getPaymentPage(@RequestParam(required = false) String userId,
+                                 @RequestParam(required = false) Integer amount) {
 
-        System.out.println("=== 결제 페이지 요청 ===");
-        System.out.println("User ID: " + userId);
-        System.out.println("Amount: " + amount);
+        Map<String, Object> response = new HashMap<>();
 
         // 기본값 설정
         if (userId == null) userId = "user_" + System.currentTimeMillis();
@@ -136,13 +139,14 @@ public class PaymentController {
         // 주문번호 생성
         String orderId = "ORDER_" + UUID.randomUUID().toString().substring(0, 12);
 
-        // 템플릿에 전달할 데이터 설정
-        model.addAttribute("userId", userId);
-        model.addAttribute("clientKey", clientKey);
-        model.addAttribute("amount", amount);
-        model.addAttribute("orderId", orderId);
+        // 응답 데이터 설정
+        response.put("userId", userId);
+        response.put("clientKey", clientKey);
+        response.put("amount", amount);
+        response.put("orderId", orderId);
+        response.put("message", "포인트 충전 페이지 데이터 생성 성공");
 
-        return "payment/checkout";
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -150,44 +154,38 @@ public class PaymentController {
      */
     @Operation(summary = "결제 성공 콜백", description = "토스페이먼츠 결제 성공 콜백을 처리합니다.")
     @GetMapping("/success")
-    public String paymentSuccess(@RequestParam String paymentKey,
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> paymentSuccess(@RequestParam String paymentKey,
                                  @RequestParam String orderId,
-                                 @RequestParam Integer amount,
-                                 Model model) {
-        System.out.println("=== 결제 성공 콜백 수신 ===");
-        System.out.println("Payment Key: " + paymentKey);
-        System.out.println("Order ID: " + orderId);
-        System.out.println("Amount: " + amount);
+                                 @RequestParam Integer amount) {
+        Map<String, Object> response = new HashMap<>();
 
         try {
             // 결제 정보 검증
             var validationResult = paymentValidationService.validateCallback(orderId, amount, paymentKey);
 
             if (!validationResult.isSuccess()) {
-                System.err.println("결제 검증 실패: " + validationResult.getErrorMessage());
-                model.addAttribute("error", validationResult.getErrorMessage());
-                return "payment/fail";
+                response.put("error", validationResult.getErrorMessage());
+                return ResponseEntity.badRequest().body(response);
             }
 
             // 토스페이먼츠 승인 API 호출
-            TossPaymentResponse response = tossPaymentService.confirmPayment(paymentKey, orderId, amount);
+            TossPaymentResponse tossResponse = tossPaymentService.confirmPayment(paymentKey, orderId, amount);
 
-            // 성공 페이지에 전달할 데이터
-            model.addAttribute("paymentKey", paymentKey);
-            model.addAttribute("orderId", orderId);
-            model.addAttribute("amount", amount);
-            model.addAttribute("status", response.getStatus());
-            model.addAttribute("method", response.getMethod());
-            model.addAttribute("approvedAt", response.getApprovedAt());
+            // 성공 응답 데이터
+            response.put("paymentKey", paymentKey);
+            response.put("orderId", orderId);
+            response.put("amount", amount);
+            response.put("status", tossResponse.getStatus());
+            response.put("method", tossResponse.getMethod());
+            response.put("approvedAt", tossResponse.getApprovedAt());
+            response.put("message", "결제가 성공적으로 처리되었습니다.");
 
-            System.out.println("=== 결제 처리 완료 ===");
-
-            return "payment/success";
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("결제 처리 중 오류: " + e.getMessage());
-            model.addAttribute("error", "결제 처리 중 오류가 발생했습니다.");
-            return "payment/fail";
+            response.put("error", "결제 처리 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
@@ -196,31 +194,27 @@ public class PaymentController {
      */
     @Operation(summary = "결제 실패 콜백", description = "토스페이먼츠 결제 실패 콜백을 처리합니다.")
     @GetMapping("/fail")
-    public String paymentFail(@RequestParam(required = false) String message,
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> paymentFail(@RequestParam(required = false) String message,
                               @RequestParam(required = false) String code,
-                              @RequestParam(required = false) String orderId,
-                              Model model) {
-        System.out.println("=== 결제 실패 콜백 수신 ===");
-        System.out.println("Error Message: " + message);
-        System.out.println("Error Code: " + code);
-        System.out.println("Order ID: " + orderId);
+                              @RequestParam(required = false) String orderId) {
+
+        Map<String, Object> response = new HashMap<>();
 
         // 포인트 롤백 처리 (필요시)
         if (orderId != null) {
             try {
-                // 실제로는 주문 ID로 포인트 사용 내역을 찾아서 롤백
-                // 여기서는 예시로 임시 구현
-                System.out.println("포인트 롤백 처리 필요: " + orderId);
+                //TODO:  실제로는 주문 ID로 포인트 사용 내역을 찾아서 롤백
                 // pointService.refundPoints(customerId, pointsToRefund);
             } catch (Exception e) {
-                System.err.println("포인트 롤백 중 오류: " + e.getMessage());
             }
         }
 
-        model.addAttribute("message", message != null ? message : "알 수 없는 오류가 발생했습니다.");
-        model.addAttribute("code", code);
-        model.addAttribute("orderId", orderId);
+        response.put("message", message != null ? message : "알 수 없는 오류가 발생했습니다.");
+        response.put("code", code);
+        response.put("orderId", orderId);
+        response.put("status", "FAILED");
 
-        return "payment/fail";
+        return ResponseEntity.badRequest().body(response);
     }
 }
