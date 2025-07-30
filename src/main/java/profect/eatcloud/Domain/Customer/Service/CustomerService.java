@@ -1,5 +1,6 @@
 package profect.eatcloud.Domain.Customer.Service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import profect.eatcloud.Domain.Customer.Dto.request.CustomerProfileUpdateRequest;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class CustomerService {
 
+	@Autowired
 	private final CustomerRepository customerRepository;
 
 	public CustomerService(CustomerRepository customerRepository) {

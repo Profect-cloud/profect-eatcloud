@@ -38,7 +38,7 @@ public class CustomerController {
 		return ResponseEntity.ok(response);
 	}
 
-	@DeleteMapping("/{id}")
+	@PutMapping("/{id}")
 	public ResponseEntity<CustomerWithdrawResponse> withdrawCustomer(
 		@PathVariable UUID id,
 		@Valid @RequestBody CustomerWithdrawRequest request) {
