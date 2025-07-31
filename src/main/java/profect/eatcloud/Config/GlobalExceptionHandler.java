@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import profect.eatcloud.Domain.Payment.Exception.PaymentException;
 import profect.eatcloud.Domain.Payment.Exception.PaymentNotFoundException;
 import profect.eatcloud.Domain.Payment.Exception.PaymentValidationException;
+import profect.eatcloud.Domain.Store.Exception.MenuNotFoundException;
 
 @RestControllerAdvice    // 모든 @RestController 에 적용
 public class GlobalExceptionHandler {
@@ -66,6 +67,17 @@ public class GlobalExceptionHandler {
         
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
+    }
+
+    @ExceptionHandler(MenuNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleMenuNotFound(MenuNotFoundException e) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", "MENU_NOT_FOUND");
+        response.put("message", e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(response);
     }
 

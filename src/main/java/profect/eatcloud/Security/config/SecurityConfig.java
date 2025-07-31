@@ -72,6 +72,8 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthorizationFilter jwtAuthFilter) throws
 		Exception {
+		//boolean isTestProfile = "test".equals(System.getProperty("spring.profiles.active"));
+
 		http
 			.csrf(csrf -> csrf.disable())
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -94,6 +96,11 @@ public class SecurityConfig {
 					res.getWriter().write("{\"error\": \"Forbidden: 권한이 없습니다.\"}");
 				})
 			);
+
+//		// ✅ 테스트가 아닐 때만 필터 등록
+//		if (!isTestProfile) {
+//			http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+//		}
 
 		return http.build();
 	}
