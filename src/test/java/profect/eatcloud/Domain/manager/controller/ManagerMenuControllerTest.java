@@ -9,12 +9,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import profect.eatcloud.Domain.Manager.Controller.ManagerController;
 import profect.eatcloud.Domain.Manager.Service.ManagerService;
 import profect.eatcloud.Domain.Store.Controller.MenuController;
 import profect.eatcloud.Domain.Store.Dto.MenuRequestDto;
 import profect.eatcloud.Domain.Store.Entity.Menu;
+import profect.eatcloud.Domain.Store.Exception.MenuNotFoundException;
 import profect.eatcloud.Domain.Store.Service.MenuService;
 
 import java.math.BigDecimal;
@@ -22,7 +24,9 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,6 +79,122 @@ class ManagerMenuControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.menuName").value("불고기 덮밥"));
     }
+
+    @Test
+    void 메뉴등록_실패_메뉴이름없음_400() throws Exception {
+        UUID storeId = UUID.randomUUID();
+
+        MenuRequestDto dto = new MenuRequestDto();
+        dto.setMenuNum(1);
+        dto.setPrice(new BigDecimal("8000")); // 이름 누락
+        dto.setMenuCategoryCode("KOREAN");
+
+        mockMvc.perform(post("/api/v1/manager/stores/{storeId}/menus", storeId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 메뉴등록_실패_가격음수_400() throws Exception {
+        UUID storeId = UUID.randomUUID();
+
+        MenuRequestDto dto = new MenuRequestDto();
+        dto.setMenuName("음수가격메뉴");
+        dto.setMenuNum(2);
+        dto.setPrice(new BigDecimal("-1000")); // ❌ 음수 가격
+        dto.setMenuCategoryCode("KOREAN");
+
+        mockMvc.perform(post("/api/v1/manager/stores/{storeId}/menus", storeId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+    }
+
+
+
+    @Test
+    void 메뉴수정_성공() throws Exception {
+        UUID storeId = UUID.randomUUID();
+        UUID menuId = UUID.randomUUID();
+
+        MenuRequestDto dto = new MenuRequestDto();
+        dto.setMenuNum(1); // ✅ 필수
+        dto.setMenuCategoryCode("KOREAN"); // ✅ 필수
+        dto.setMenuName("업데이트된 메뉴");
+        dto.setPrice(new BigDecimal("13000"));
+        dto.setIsAvailable(true);
+
+        Menu updatedMenu = Menu.builder()
+                .id(menuId)
+                .menuName(dto.getMenuName())
+                .price(dto.getPrice())
+                .build();
+
+        when(managerService.updateMenu(eq(storeId), eq(menuId), any(MenuRequestDto.class)))
+                .thenReturn(updatedMenu); // ✅ 반환값 설정
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/manager/stores/{storeId}/menus/{menuId}", storeId, menuId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.menuName").value("업데이트된 메뉴"));
+    }
+
+
+    @Test
+    void 메뉴수정_실패_존재하지않는메뉴() throws Exception {
+        // given
+        UUID storeId = UUID.randomUUID();
+        UUID invalidMenuId = UUID.randomUUID();
+
+        MenuRequestDto dto = new MenuRequestDto();
+        dto.setMenuName("업데이트된 메뉴");
+        dto.setPrice(new BigDecimal("13000"));
+        dto.setMenuNum(1); // ✅ 필수 필드 추가
+        dto.setMenuCategoryCode("KOREAN"); // ✅ 필수 필드 추가
+
+        doThrow(new MenuNotFoundException("존재하지 않는 메뉴입니다"))
+                .when(managerService).updateMenu(eq(storeId), eq(invalidMenuId), any(MenuRequestDto.class));
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/manager/stores/{storeId}/menus/{menuId}", storeId, invalidMenuId)
+                        .contentType(MediaType.APPLICATION_JSON) // ✅ 여기 contentType
+                        .content(objectMapper.writeValueAsString(dto))) // ✅ 여기 content
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void 메뉴삭제_성공() throws Exception {
+        // given
+        UUID storeId = UUID.randomUUID();
+        UUID menuId = UUID.randomUUID();
+
+        doNothing().when(managerService).deleteMenu(eq(menuId));
+
+        mockMvc.perform(delete("/api/v1/manager/stores/{storeId}/menus/{menuId}", storeId, menuId))
+                .andExpect(status().isNoContent());
+
+    }
+
+    @Test
+    void 메뉴삭제_실패_존재하지않는메뉴() throws Exception {
+        // given
+        UUID storeId = UUID.randomUUID();
+        UUID menuId = UUID.randomUUID();
+
+        doThrow(new MenuNotFoundException("존재하지 않는 메뉴입니다"))
+                .when(managerService).deleteMenu(eq(menuId));
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/manager/stores/{storeId}/menus/{menuId}", storeId, menuId))
+                .andExpect(status().isNotFound());
+
+
+    }
+
+
+
 
 
 }

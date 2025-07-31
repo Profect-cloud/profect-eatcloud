@@ -26,6 +26,7 @@ import profect.eatcloud.Domain.Store.Exception.MenuNotFoundException;
 import profect.eatcloud.Domain.Store.Service.MenuService;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import static java.nio.file.Paths.get;
@@ -87,6 +88,35 @@ class MenuControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/stores/{storeId}/menus/{menuId}", storeId, menuId))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void 메뉴전체조회_성공() throws Exception {
+        // given
+        UUID storeId = UUID.randomUUID();
+
+        List<Menu> menuList = List.of(
+                Menu.builder()
+                        .id(UUID.randomUUID())
+                        .menuName("김치찌개")
+                        .price(new BigDecimal("9000"))
+                        .build(),
+                Menu.builder()
+                        .id(UUID.randomUUID())
+                        .menuName("된장찌개")
+                        .price(new BigDecimal("8500"))
+                        .build()
+        );
+
+        when(menuService.getMenusByStore(eq(storeId))).thenReturn(menuList);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/stores/{storeId}/menus", storeId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].menuName").value("김치찌개"))
+                .andExpect(jsonPath("$[1].menuName").value("된장찌개"));
+    }
+
 
 }
 
