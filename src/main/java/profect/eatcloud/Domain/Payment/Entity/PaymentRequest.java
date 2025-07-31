@@ -2,7 +2,10 @@ package profect.eatcloud.Domain.Payment.Entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import java.time.LocalDateTime;
 
@@ -10,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "p_payment_requests")
+@NoArgsConstructor
 public class PaymentRequest extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,7 +26,8 @@ public class PaymentRequest extends BaseTimeEntity {
     @Column(name = "pg_provider", nullable = false, length = 100)
     private String pgProvider;
 
-    @Column(name = "request_payload", nullable = false, columnDefinition = "text")
+    @Column(name = "request_payload", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String requestPayload;  // JSON 문자열로 저장
 
     @Column(name = "redirect_url", columnDefinition = "text")
@@ -40,10 +45,6 @@ public class PaymentRequest extends BaseTimeEntity {
     @Column(name = "failure_reason", columnDefinition = "text")
     private String failureReason;
 
-    // 기본 생성자
-    public PaymentRequest() {}
-
-    // 생성자
     public PaymentRequest(java.util.UUID orderId, String pgProvider, String requestPayload) {
         this.orderId = orderId;
         this.pgProvider = pgProvider;

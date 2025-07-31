@@ -69,12 +69,12 @@ public class PaymentValidationService {
             return ValidationResult.fail("이미 처리된 결제입니다. 상태: " + request.getStatus());
         }
 
-        // 5. 금액 검증
+        // 5. 금액 검증 - 저장된 주문의 실제 결제 금액과 비교
         try {
             Integer savedAmount = extractAmount(request.getRequestPayload());
             if (!savedAmount.equals(callbackAmount)) {
                 return ValidationResult.fail(String.format("결제 금액이 일치하지 않습니다. 저장된 금액: %d, 콜백 금액: %d",
-                        savedAmount, callbackAmount));  // 상세한 정보 포함
+                        savedAmount, callbackAmount));
             }
         } catch (Exception e) {
             return ValidationResult.fail("결제 정보 파싱 오류: " + e.getMessage());
@@ -84,7 +84,7 @@ public class PaymentValidationService {
     }
 
     // 헬퍼 메서드들
-    private Optional<PaymentRequest> findByTossOrderId(String tossOrderId) {
+    public Optional<PaymentRequest> findByTossOrderId(String tossOrderId) {
         try {
             List<PaymentRequest> requests = paymentRequestRepository.findAll();
 

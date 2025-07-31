@@ -304,6 +304,48 @@
             <div class="section-title">🍜 메뉴 선택</div>
 
             <div class="menu-item">
+                <div class="menu-image">🍗</div>
+                <div class="menu-info">
+                    <div class="menu-name">후라이드치킨</div>
+                    <div class="menu-desc">바삭바삭한 후라이드치킨</div>
+                    <div class="menu-price">18,000원</div>
+                </div>
+                <div class="quantity-control">
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440001', -1)">-</button>
+                    <span class="quantity-display" id="550e8400-e29b-41d4-a716-446655440001-qty">0</span>
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440001', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-image">🍗</div>
+                <div class="menu-info">
+                    <div class="menu-name">양념치킨</div>
+                    <div class="menu-desc">매콤달콤한 양념치킨</div>
+                    <div class="menu-price">19,000원</div>
+                </div>
+                <div class="quantity-control">
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440002', -1)">-</button>
+                    <span class="quantity-display" id="550e8400-e29b-41d4-a716-446655440002-qty">0</span>
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440002', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-image">🥤</div>
+                <div class="menu-info">
+                    <div class="menu-name">콜라 1.25L</div>
+                    <div class="menu-desc">시원한 콜라</div>
+                    <div class="menu-price">3,000원</div>
+                </div>
+                <div class="quantity-control">
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440003', -1)">-</button>
+                    <span class="quantity-display" id="550e8400-e29b-41d4-a716-446655440003-qty">0</span>
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440003', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="menu-item">
                 <div class="menu-image">🍜</div>
                 <div class="menu-info">
                     <div class="menu-name">김치찌개</div>
@@ -311,9 +353,9 @@
                     <div class="menu-price">8,000원</div>
                 </div>
                 <div class="quantity-control">
-                    <button class="quantity-btn" onclick="updateQuantity('kimchi', -1)">-</button>
-                    <span class="quantity-display" id="kimchi-qty">0</span>
-                    <button class="quantity-btn" onclick="updateQuantity('kimchi', 1)">+</button>
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440004', -1)">-</button>
+                    <span class="quantity-display" id="550e8400-e29b-41d4-a716-446655440004-qty">0</span>
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440004', 1)">+</button>
                 </div>
             </div>
 
@@ -325,9 +367,9 @@
                     <div class="menu-price">12,000원</div>
                 </div>
                 <div class="quantity-control">
-                    <button class="quantity-btn" onclick="updateQuantity('jeyuk', -1)">-</button>
-                    <span class="quantity-display" id="jeyuk-qty">0</span>
-                    <button class="quantity-btn" onclick="updateQuantity('jeyuk', 1)">+</button>
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440005', -1)">-</button>
+                    <span class="quantity-display" id="550e8400-e29b-41d4-a716-446655440005-qty">0</span>
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440005', 1)">+</button>
                 </div>
             </div>
 
@@ -339,9 +381,9 @@
                     <div class="menu-price">7,000원</div>
                 </div>
                 <div class="quantity-control">
-                    <button class="quantity-btn" onclick="updateQuantity('doenjang', -1)">-</button>
-                    <span class="quantity-display" id="doenjang-qty">0</span>
-                    <button class="quantity-btn" onclick="updateQuantity('doenjang', 1)">+</button>
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440006', -1)">-</button>
+                    <span class="quantity-display" id="550e8400-e29b-41d4-a716-446655440006-qty">0</span>
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440006', 1)">+</button>
                 </div>
             </div>
         </div>
@@ -374,7 +416,7 @@
             </div>
 
             <div class="point-input-group" id="point-input-group" style="display: none;">
-                <input type="number" id="pointAmount" class="point-input" placeholder="사용할 포인트" min="0" max="5000" onchange="calculatePaymentAmount()">
+                <input type="number" id="pointAmount" class="point-input" placeholder="사용할 포인트" min="0" th:max="${customerPoints}" onchange="calculatePaymentAmount()">
                 <button class="max-btn" onclick="useMaxPoints()">전액사용</button>
             </div>
 
@@ -394,16 +436,22 @@
     </div>
 </div>
 
+<!-- 토스페이먼츠 SDK -->
+<script src="https://js.tosspayments.com/v1/payment"></script>
+
 <script th:inline="javascript">
     // 서버에서 받은 데이터
     const customerPoints = /*[[${customerPoints}]]*/ 5000;
-    const customerId = /*[[${customerId}]]*/ 'customer_123';
+    const customerId = /*[[${customerId}]]*/ '11111111-1111-1111-1111-111111111111';
 
-    // 메뉴 데이터
+    // 메뉴 데이터 (실제 DB 데이터)
     const menuData = {
-        kimchi: { name: '김치찌개', price: 8000 },
-        jeyuk: { name: '제육볶음', price: 12000 },
-        doenjang: { name: '된장찌개', price: 7000 }
+        '550e8400-e29b-41d4-a716-446655440001': { name: '후라이드치킨', price: 18000 },
+        '550e8400-e29b-41d4-a716-446655440002': { name: '양념치킨', price: 19000 },
+        '550e8400-e29b-41d4-a716-446655440003': { name: '콜라 1.25L', price: 3000 },
+        '550e8400-e29b-41d4-a716-446655440004': { name: '김치찌개', price: 8000 },
+        '550e8400-e29b-41d4-a716-446655440005': { name: '제육볶음', price: 12000 },
+        '550e8400-e29b-41d4-a716-446655440006': { name: '된장찌개', price: 7000 }
     };
 
     // 주문 상태
@@ -564,22 +612,42 @@
                 console.warn(data.warning);
             }
             
-            // 결제 페이지로 이동 또는 결제 SDK 호출
             console.log('결제 정보:', data);
             
-            // 여기서 실제 결제 SDK (토스페이먼츠 등)를 호출하거나
-            // 결제 페이지로 리다이렉트 처리
-            if (data.amount > 0) {
-                // 실제 결제가 필요한 경우
-                alert('결제 페이지로 이동합니다. (결제금액: ' + data.amount.toLocaleString() + '원)');
-            } else {
-                // 포인트로 전액 결제된 경우
+            // 포인트로 전액 결제된 경우
+            if (data.amount === 0) {
                 alert('포인트로 결제가 완료되었습니다!');
+                return;
             }
+            
+            // 토스페이먼츠 결제 SDK 호출
+            requestTossPayment(data);
         })
         .catch(error => {
             console.error('결제 요청 오류:', error);
             alert('결제 요청 중 오류가 발생했습니다.');
+        });
+    }
+
+    // 토스페이먼츠 결제 요청
+    function requestTossPayment(paymentData) {
+        const clientKey = paymentData.clientKey;
+        const tossPayment = new TossPayments(clientKey);
+        
+        tossPayment.requestPayment('카드', {
+            amount: paymentData.amount,
+            orderId: paymentData.orderId,
+            orderName: '맛있는 한식당 주문',
+            customerName: paymentData.customerName,
+            customerEmail: 'test@example.com',
+            successUrl: window.location.origin + '/api/v1/payment/success',
+            failUrl: window.location.origin + '/api/v1/payment/fail',
+        }).catch(function (error) {
+            if (error.code === 'USER_CANCEL') {
+                alert('결제가 취소되었습니다.');
+            } else {
+                alert('결제 중 오류가 발생했습니다: ' + error.message);
+            }
         });
     }
 

@@ -23,7 +23,7 @@ import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Domain.Manager.Entity.Manager;
 import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
-import profect.eatcloud.Domain.Order.Repository.OrderRepository_hong;
+import profect.eatcloud.Domain.Order.Repository.OrderRepository;
 import profect.eatcloud.Domain.Store.Entity.Category;
 import profect.eatcloud.Domain.Store.Entity.Store;
 import profect.eatcloud.Domain.Store.Repository.CategoryRepository_hong;
@@ -38,7 +38,7 @@ public class AdminService {
 	private final ManagerRepository managerRepository;
 	private final StoreRepository_hong storeRepository;        // p_stores
 	private final CategoryRepository_hong categoryRepository;  // p_categories
-	private final OrderRepository_hong orderRepository;        // p_orders
+	private final OrderRepository orderRepository;        // p_orders
 	private final PasswordEncoder passwordEncoder;
 
 	@Transactional(readOnly = true)
