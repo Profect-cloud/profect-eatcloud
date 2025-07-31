@@ -3,10 +3,10 @@ package profect.eatcloud.Domain.Customer.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import profect.eatcloud.Domain.Customer.Dto.request.CustomerProfileUpdateRequest;
-import profect.eatcloud.Domain.Customer.Dto.request.CustomerWithdrawRequest;
-import profect.eatcloud.Domain.Customer.Dto.response.CustomerProfileResponse;
-import profect.eatcloud.Domain.Customer.Dto.response.CustomerWithdrawResponse;
+import profect.eatcloud.Domain.Customer.Dto.request.CustomerProfileUpdateRequestDto;
+import profect.eatcloud.Domain.Customer.Dto.request.CustomerWithdrawRequestDto;
+import profect.eatcloud.Domain.Customer.Dto.response.CustomerProfileResponseDto;
+import profect.eatcloud.Domain.Customer.Dto.response.CustomerWithdrawResponseDto;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 
@@ -34,7 +34,7 @@ public class CustomerService {
 	}
 
 	@Transactional
-	public CustomerProfileResponse updateCustomer(UUID customerId, CustomerProfileUpdateRequest request) {
+	public CustomerProfileResponseDto updateCustomer(UUID customerId, CustomerProfileUpdateRequestDto request) {
 		Objects.requireNonNull(customerId, "Customer ID cannot be null");
 		Objects.requireNonNull(request, "Update request cannot be null");
 
@@ -43,11 +43,11 @@ public class CustomerService {
 
 		applyProfileUpdates(customer, request);
 		Customer savedCustomer = customerRepository.save(customer);
-		return CustomerProfileResponse.from(savedCustomer);
+		return CustomerProfileResponseDto.from(savedCustomer);
 	}
 
 	@Transactional
-	public CustomerWithdrawResponse withdrawCustomer(UUID customerId, CustomerWithdrawRequest request) {
+	public CustomerWithdrawResponseDto withdrawCustomer(UUID customerId, CustomerWithdrawRequestDto request) {
 		Objects.requireNonNull(customerId, "Customer ID cannot be null");
 		Objects.requireNonNull(request, "Withdraw request cannot be null");
 
@@ -55,10 +55,10 @@ public class CustomerService {
 			.orElseThrow(() -> new NoSuchElementException("Customer not found with ID: " + customerId));
 
 		customerRepository.deleteById(customerId);
-		return CustomerWithdrawResponse.of(LocalDateTime.now());
+		return CustomerWithdrawResponseDto.of(LocalDateTime.now());
 	}
 
-	private void applyProfileUpdates(Customer customer, CustomerProfileUpdateRequest request) {
+	private void applyProfileUpdates(Customer customer, CustomerProfileUpdateRequestDto request) {
 		Optional.ofNullable(request.getNickname())
 			.ifPresent(customer::setNickname);
 		Optional.ofNullable(request.getEmail())

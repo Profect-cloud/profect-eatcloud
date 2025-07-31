@@ -31,4 +31,14 @@ public class Address extends BaseTimeEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "customer_id", nullable = false)
 	private Customer customer;
+
+	public void updateAddress(String zipcode, String roadAddr, String detailAddr) {
+		this.zipcode = zipcode;
+		this.roadAddr = roadAddr;
+		this.detailAddr = detailAddr;
+	}
+
+	public void changeSelected(boolean isSelected) {
+		this.isSelected = isSelected;
+	}
 }
