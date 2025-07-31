@@ -58,6 +58,8 @@ public class SecurityConfig {
 		"/api/v1/payment/order",
 		"/api/v1/payment/fail",
 		"/api/v1/payment/charge",
+
+		"/api/v1/customers/**"
     };
 
 	@Bean
