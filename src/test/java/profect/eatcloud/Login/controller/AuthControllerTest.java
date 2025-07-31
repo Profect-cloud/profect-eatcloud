@@ -1,5 +1,6 @@
 package profect.eatcloud.Login.controller;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,15 +8,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import profect.eatcloud.Login.dto.LoginResponseDto;
 import profect.eatcloud.Login.dto.SignupRequestDto;
 import profect.eatcloud.Login.service.AuthService;
 
+import java.security.Principal;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -33,10 +41,17 @@ class AuthControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+        Authentication auth = new UsernamePasswordAuthenticationToken("user@example.com", null, null);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @AfterEach
+    void clearAuthentication() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
-    void 로그인_성공() throws Exception {
+    void login_Success() throws Exception {
         String email = "test@example.com";
         String password = "Password123!";
 
@@ -63,7 +78,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void 회원가입_성공() throws Exception {
+    void register_Success() throws Exception {
         String json = """
             {
                 "email": "test@example.com",
@@ -81,5 +96,22 @@ class AuthControllerTest {
                 .andExpect(content().string("Register Success"));
 
         verify(authService).signup(any(SignupRequestDto.class));
+    }
+
+    @Test
+    public void changePassword_Success() throws Exception {
+        String json = "{ \"currentPassword\": \"oldPass123!\", \"newPassword\": \"newPass456!\" }";
+
+        Principal principal = () -> "user@example.com";
+
+        doNothing().when(authService).changePassword(anyString(), anyString(), anyString());
+
+        mockMvc.perform(patch("/api/v1/auth/password")
+                        .principal(principal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk());
+
+        verify(authService, times(1)).changePassword("user@example.com", "oldPass123!", "newPass456!");
     }
 }
