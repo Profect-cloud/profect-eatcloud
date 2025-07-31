@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import profect.eatcloud.Domain.Customer.Entity.Customer;
 
-public record CustomerProfileResponse(
+public record CustomerProfileResponseDto(
 	UUID id,
 	String name,
 	String nickname,
@@ -13,10 +13,10 @@ public record CustomerProfileResponse(
 	String phoneNumber,
 	Integer points
 ) {
-	public static CustomerProfileResponse from(Customer customer) {
+	public static CustomerProfileResponseDto from(Customer customer) {
 		Objects.requireNonNull(customer, "Customer cannot be null");
 
-		return new CustomerProfileResponse(
+		return new CustomerProfileResponseDto(
 			customer.getId(),
 			customer.getName(),
 			customer.getNickname(),
