@@ -1,18 +1,19 @@
 package profect.eatcloud.Login.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import profect.eatcloud.Login.dto.LoginRequestDto;
 import profect.eatcloud.Login.dto.LoginResponseDto;
+import profect.eatcloud.Login.dto.PasswordChangeRequestDto;
 import profect.eatcloud.Login.dto.SignupRequestDto;
 import profect.eatcloud.Login.service.AuthService;
+import profect.eatcloud.Security.SecurityUtil;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,5 +37,13 @@ public class AuthController {
 	public ResponseEntity<String> register(@RequestBody SignupRequestDto request) {
 		authService.signup(request);
 		return ResponseEntity.ok("Register Success");
+	}
+
+	@Operation(summary = "비밀번호 변경")
+	@PatchMapping("/password")
+	public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequestDto request) {
+		String id = SecurityUtil.getCurrentUsername();
+		authService.changePassword(id, request.getCurrentPassword(), request.getNewPassword());
+		return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
 	}
 }
