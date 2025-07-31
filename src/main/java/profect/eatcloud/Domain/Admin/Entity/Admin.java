@@ -7,10 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import jakarta.persistence.*;
 
@@ -20,6 +17,7 @@ import profect.eatcloud.Global.TimeData.TimeData;
 @Entity
 @Table(name = "p_admins")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

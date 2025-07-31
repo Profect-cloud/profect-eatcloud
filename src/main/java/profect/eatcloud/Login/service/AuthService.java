@@ -15,6 +15,8 @@ import profect.eatcloud.Login.dto.LoginResponseDto;
 import profect.eatcloud.Login.dto.SignupRequestDto;
 import profect.eatcloud.Security.jwt.JwtTokenProvider;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -93,4 +95,35 @@ public class AuthService {
 		customerRepository.save(customer);
 	}
 
+	public void changePassword(String userId, String currentPassword, String newPassword) {
+		Admin admin = adminRepository.findById(UUID.fromString(userId)).orElse(null);
+		if (admin != null) {
+			if (!passwordEncoder.matches(currentPassword, admin.getPassword())) {
+				throw new IllegalArgumentException("기존 비밀번호가 일치하지 않습니다.");
+			}
+			admin.setPassword(passwordEncoder.encode(newPassword));
+			adminRepository.save(admin);
+			return;
+		}
+
+		Manager manager = managerRepository.findById(UUID.fromString(userId)).orElse(null);
+		if (manager != null) {
+			if (!passwordEncoder.matches(currentPassword, manager.getPassword())) {
+				throw new IllegalArgumentException("기존 비밀번호가 일치하지 않습니다.");
+			}
+			manager.setPassword(passwordEncoder.encode(newPassword));
+			managerRepository.save(manager);
+			return;
+		}
+
+		Customer customer = customerRepository.findById(UUID.fromString(userId))
+				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
+
+		if (!passwordEncoder.matches(currentPassword, customer.getPassword())) {
+			throw new IllegalArgumentException("기존 비밀번호가 일치하지 않습니다.");
+		}
+
+		customer.setPassword(passwordEncoder.encode(newPassword));
+		customerRepository.save(customer);
+	}
 }
