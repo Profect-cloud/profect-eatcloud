@@ -16,7 +16,7 @@ public class ManagerController {
 
     private final ManagerService managerService;
 
-    
+
     // 메뉴 관리
     @Operation(summary = "1. 메뉴 생성")
     @PostMapping("/stores/{store_id}/menus")

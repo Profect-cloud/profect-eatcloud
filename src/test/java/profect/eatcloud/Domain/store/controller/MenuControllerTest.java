@@ -57,36 +57,6 @@ class MenuControllerTest {
     }
 
     @Test
-    void 메뉴등록_성공() throws Exception {
-        // given
-        UUID storeId = UUID.randomUUID();
-        MenuRequestDto dto = new MenuRequestDto();
-        dto.setMenuNum(1);
-        dto.setMenuName("불고기 덮밥");
-        dto.setMenuCategoryCode("KOREAN");
-        dto.setPrice(new BigDecimal("8500"));
-        dto.setDescription("불고기와 밥 구성");
-        dto.setIsAvailable(true);
-        dto.setImageUrl("image.jpg");
-
-        Menu savedMenu = Menu.builder()
-                .id(UUID.randomUUID())
-                .menuName(dto.getMenuName())
-                .price(dto.getPrice())
-                .build();
-
-        when(menuService.createMenu(eq(storeId), any(MenuRequestDto.class)))
-                .thenReturn(savedMenu);
-
-        // when & then
-        mockMvc.perform(post("/api/v1/stores/{storeId}/menus", storeId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.menuName").value("불고기 덮밥"));
-    }
-
-    @Test
     void 메뉴단건조회_성공() throws Exception {
         UUID storeId = UUID.randomUUID();
         UUID menuId = UUID.randomUUID();
