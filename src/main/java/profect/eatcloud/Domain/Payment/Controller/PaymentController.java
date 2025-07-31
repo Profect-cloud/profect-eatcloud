@@ -322,6 +322,74 @@ public class PaymentController {
     }
 
     /**
+     * 결제 취소 콜백
+     */
+    @Operation(summary = "결제 취소 콜백", description = "토스페이먼츠 결제 취소 콜백을 처리합니다.")
+    @GetMapping("/cancel")
+    public String paymentCancel(@RequestParam(required = false) String paymentKey,
+                               @RequestParam(required = false) String orderId,
+                               @RequestParam(required = false) Integer amount,
+                               @RequestParam(required = false) String message,
+                               @RequestParam(required = false) String code,
+                               Model model) {
+
+        // ========== 결제 취소 시 상태 업데이트 ==========
+        if (orderId != null) {
+            try {
+                // 저장된 결제 요청 찾기
+                Optional<PaymentRequest> savedRequest = paymentValidationService.findByTossOrderId(orderId);
+                
+                if (savedRequest.isPresent()) {
+                    PaymentRequest paymentRequest = savedRequest.get();
+                    
+                    // 1. 결제 요청 상태를 CANCELED로 변경
+                    paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "CANCELED");
+                    
+                    // 2. 주문 상태를 CANCELED로 변경
+                    orderService.cancelOrder(paymentRequest.getOrderId());
+                    
+                    // 3. 포인트 롤백 처리 (필요시)
+                    try {
+                        Order order = orderService.findById(paymentRequest.getOrderId())
+                                .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없습니다."));
+                        
+                        Customer customer = customerRepository.findById(order.getCustomerId())
+                                .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
+                        
+                        // 사용된 포인트가 있다면 롤백 (포인트 사용 내역을 추적해야 함)
+                        // TODO: 포인트 사용 내역 추적 로직 구현 필요
+                        // pointService.refundPoints(customer.getId(), usedPoints);
+                        
+                    } catch (Exception pointRollbackException) {
+                        System.err.println("포인트 롤백 처리 실패: " + pointRollbackException.getMessage());
+                    }
+                    
+                    model.addAttribute("internalOrderId", paymentRequest.getOrderId().toString());
+                    model.addAttribute("rollbackCompleted", true);
+                } else {
+                    model.addAttribute("rollbackCompleted", false);
+                    model.addAttribute("rollbackError", "결제 요청을 찾을 수 없습니다.");
+                }
+                
+            } catch (Exception e) {
+                // 롤백 실패시 로그 기록
+                System.err.println("결제 취소 롤백 처리 실패: " + e.getMessage());
+                model.addAttribute("rollbackCompleted", false);
+                model.addAttribute("rollbackError", e.getMessage());
+            }
+        }
+
+        model.addAttribute("message", message != null ? message : "결제가 취소되었습니다.");
+        model.addAttribute("code", code);
+        model.addAttribute("orderId", orderId);
+        model.addAttribute("paymentKey", paymentKey);
+        model.addAttribute("amount", amount);
+        model.addAttribute("status", "CANCELED");
+
+        return "payment/cancel";
+    }
+
+    /**
      * 결제 실패 콜백
      */
     @Operation(summary = "결제 실패 콜백", description = "토스페이먼츠 결제 실패 콜백을 처리합니다.")

@@ -237,6 +237,17 @@
             border-color: #ff6b35;
         }
 
+        .point-input:invalid {
+            border-color: #dc3545;
+        }
+
+        .point-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
         .max-btn {
             background: #ff6b35;
             color: white;
@@ -416,9 +427,10 @@
             </div>
 
             <div class="point-input-group" id="point-input-group" style="display: none;">
-                <input type="number" id="pointAmount" class="point-input" placeholder="사용할 포인트" min="0" th:max="${customerPoints}" onchange="calculatePaymentAmount()">
+                <input type="number" id="pointAmount" class="point-input" placeholder="사용할 포인트" min="0" th:max="${customerPoints}" oninput="validateAndCalculatePoints()" onchange="calculatePaymentAmount()">
                 <button class="max-btn" onclick="useMaxPoints()">전액사용</button>
             </div>
+            <div class="point-error" id="point-error">포인트 입력값이 유효하지 않습니다.</div>
 
             <div class="point-discount" id="point-discount" style="display: none;">
                 포인트 할인: -<span id="discount-amount">0</span>원
@@ -516,12 +528,15 @@
     function togglePointUse() {
         const usePoints = document.getElementById('usePoints').checked;
         const pointInputGroup = document.getElementById('point-input-group');
+        const pointInput = document.getElementById('pointAmount');
 
         if (usePoints) {
             pointInputGroup.style.display = 'flex';
+            // 포인트 사용 체크시 기존 입력값 유지하고 재계산
+            calculatePaymentAmount();
         } else {
             pointInputGroup.style.display = 'none';
-            document.getElementById('pointAmount').value = '';
+            pointInput.value = '';
             pointsToUse = 0;
             calculatePaymentAmount();
         }
@@ -529,21 +544,79 @@
 
     // 최대 포인트 사용
     function useMaxPoints() {
+        if (totalAmount === 0) {
+            alert('먼저 메뉴를 선택해주세요.');
+            return;
+        }
+        
         const maxPoints = Math.min(customerPoints, totalAmount);
-        document.getElementById('pointAmount').value = maxPoints;
+        const pointInput = document.getElementById('pointAmount');
+        pointInput.value = maxPoints;
         calculatePaymentAmount();
+    }
+
+    // 포인트 입력 유효성 검사 및 계산
+    function validateAndCalculatePoints() {
+        const pointInput = document.getElementById('pointAmount');
+        const pointError = document.getElementById('point-error');
+        const inputValue = parseInt(pointInput.value) || 0;
+        
+        // 유효성 검사
+        if (inputValue < 0) {
+            pointInput.value = 0;
+            showPointError('포인트는 0 이상이어야 합니다.');
+            return;
+        }
+        
+        if (inputValue > customerPoints) {
+            pointInput.value = customerPoints;
+            showPointError(`보유 포인트(${customerPoints.toLocaleString()}원)를 초과할 수 없습니다.`);
+            setTimeout(() => hidePointError(), 2000);
+        } else if (inputValue > totalAmount) {
+            pointInput.value = totalAmount;
+            showPointError(`주문금액(${totalAmount.toLocaleString()}원)을 초과할 수 없습니다.`);
+            setTimeout(() => hidePointError(), 2000);
+        } else {
+            hidePointError();
+        }
+        
+        calculatePaymentAmount();
+    }
+    
+    function showPointError(message) {
+        const pointError = document.getElementById('point-error');
+        pointError.textContent = message;
+        pointError.style.display = 'block';
+    }
+    
+    function hidePointError() {
+        const pointError = document.getElementById('point-error');
+        pointError.style.display = 'none';
     }
 
     // 결제 금액 계산
     function calculatePaymentAmount() {
         const pointInput = document.getElementById('pointAmount');
-        pointsToUse = parseInt(pointInput.value) || 0;
-
-        // 포인트 제한
-        pointsToUse = Math.min(pointsToUse, customerPoints, totalAmount);
-        pointInput.value = pointsToUse;
-
-        finalPaymentAmount = totalAmount - pointsToUse;
+        const usePointsCheckbox = document.getElementById('usePoints');
+        
+        // 포인트 사용이 체크되어 있고, 총 주문금액이 있을 때만 계산
+        if (!usePointsCheckbox.checked || totalAmount === 0) {
+            pointsToUse = 0;
+            finalPaymentAmount = totalAmount;
+        } else {
+            pointsToUse = parseInt(pointInput.value) || 0;
+            
+            // 포인트 제한 (보유 포인트, 총 주문금액 중 작은 값)
+            const maxUsablePoints = Math.min(customerPoints, totalAmount);
+            pointsToUse = Math.min(pointsToUse, maxUsablePoints);
+            
+            // 입력값 업데이트 (제한값 초과시 자동 조정)
+            if (pointsToUse !== parseInt(pointInput.value)) {
+                pointInput.value = pointsToUse;
+            }
+            
+            finalPaymentAmount = Math.max(0, totalAmount - pointsToUse);
+        }
 
         // UI 업데이트
         const paymentAmountDiv = document.getElementById('payment-amount');
@@ -560,6 +633,13 @@
             document.getElementById('final-amount').textContent = finalPaymentAmount.toLocaleString();
             paymentAmountDiv.style.display = 'block';
         }
+        
+        console.log('포인트 계산:', {
+            totalAmount,
+            pointsToUse,
+            finalPaymentAmount,
+            customerPoints
+        });
     }
 
     // 결제 진행
@@ -642,9 +722,11 @@
             customerEmail: 'test@example.com',
             successUrl: window.location.origin + '/api/v1/payment/success',
             failUrl: window.location.origin + '/api/v1/payment/fail',
+            cancelUrl: window.location.origin + '/api/v1/payment/cancel',  // 결제 취소 URL 추가
         }).catch(function (error) {
             if (error.code === 'USER_CANCEL') {
-                alert('결제가 취소되었습니다.');
+                // 사용자가 직접 취소한 경우 취소 페이지로 이동
+                window.location.href = '/api/v1/payment/cancel?orderId=' + paymentData.orderId + '&message=' + encodeURIComponent('고객이 결제를 취소하였습니다');
             } else {
                 alert('결제 중 오류가 발생했습니다: ' + error.message);
             }
