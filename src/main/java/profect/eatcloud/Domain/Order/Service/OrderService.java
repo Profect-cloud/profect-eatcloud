@@ -70,19 +70,11 @@ public class OrderService {
         OrderStatusCode paidStatus = orderStatusCodeRepository.findByCode("PAID")
                 .orElseThrow(() -> new RuntimeException("주문 상태 코드를 찾을 수 없습니다: PAID"));
 
-        // 주문에 결제 정보 연결 및 상태 변경
-        Order updatedOrder = Order.builder()
-                .orderId(order.getOrderId())
-                .orderNumber(order.getOrderNumber())
-                .customerId(order.getCustomerId())
-                .storeId(order.getStoreId())
-                .orderMenuList(order.getOrderMenuList())
-                .paymentId(paymentId)
-                .orderStatusCode(paidStatus)
-                .orderTypeCode(order.getOrderTypeCode())
-                .build();
+        // 기존 엔티티를 직접 수정 (timeData 유지)
+        order.setPaymentId(paymentId);
+        order.setOrderStatusCode(paidStatus);
 
-        orderRepository.save(updatedOrder);
+        orderRepository.save(order);
     }
 
     /**
@@ -95,18 +87,10 @@ public class OrderService {
         OrderStatusCode canceledStatus = orderStatusCodeRepository.findByCode("CANCELED")
                 .orElseThrow(() -> new RuntimeException("주문 상태 코드를 찾을 수 없습니다: CANCELED"));
 
-        Order canceledOrder = Order.builder()
-                .orderId(order.getOrderId())
-                .orderNumber(order.getOrderNumber())
-                .customerId(order.getCustomerId())
-                .storeId(order.getStoreId())
-                .orderMenuList(order.getOrderMenuList())
-                .paymentId(order.getPaymentId())
-                .orderStatusCode(canceledStatus)
-                .orderTypeCode(order.getOrderTypeCode())
-                .build();
+        // 기존 엔티티를 직접 수정 (timeData 유지)
+        order.setOrderStatusCode(canceledStatus);
 
-        orderRepository.save(canceledOrder);
+        orderRepository.save(order);
     }
 
     /**
