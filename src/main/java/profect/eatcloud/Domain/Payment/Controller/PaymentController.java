@@ -113,7 +113,8 @@ public class PaymentController {
             Integer pointsToUse = (Integer) orderData.get("pointsToUse");
             Integer finalPaymentAmount = (Integer) orderData.get("finalPaymentAmount");
             String orderType = (String) orderData.getOrDefault("orderType", "DELIVERY"); // 기본값 설정
-            UUID storeId = UUID.fromString((String) orderData.getOrDefault("storeId", UUID.randomUUID().toString()));
+            // 첫 번째 Store ID 고정 (맛있는 한식당)
+            UUID storeId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
 
             // 주문 메뉴 리스트 변환
             List<Map<String, Object>> itemsData = (List<Map<String, Object>>) orderData.get("items");

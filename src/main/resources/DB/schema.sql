@@ -227,7 +227,7 @@ CREATE TABLE p_orders
     order_number    VARCHAR(50) UNIQUE NOT NULL,
     customer_id     UUID               NOT NULL,
     store_id        UUID               NOT NULL,
-    payment_id      UUID               NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000',
+    payment_id      UUID,
     order_status    VARCHAR(30)        NOT NULL,
     order_type      VARCHAR(30)        NOT NULL,
     order_menu_list JSONB              NOT NULL,

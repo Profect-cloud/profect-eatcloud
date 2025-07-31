@@ -1,6 +1,7 @@
 // Domain/Order/Dto/OrderMenu.java
 package profect.eatcloud.Domain.Order.Dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.AllArgsConstructor;
 import java.util.UUID;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
