@@ -17,6 +17,7 @@ import java.util.Collections;
 public class PaymentValidationService {
 
     private final PaymentRequestRepository paymentRequestRepository;
+    private final PaymentService paymentService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // 상수
@@ -38,7 +39,12 @@ public class PaymentValidationService {
         }
         String requestPayload = String.format("{\"tossOrderId\":\"%s\",\"amount\":%d}", tossOrderId, amount);
         PaymentRequest paymentRequest = new PaymentRequest(orderId, "TOSS", requestPayload);
-        return paymentRequestRepository.save(paymentRequest);
+        PaymentRequest savedRequest = paymentRequestRepository.save(paymentRequest);
+        
+        // 5분 후 자동 취소 스케줄링
+        paymentService.schedulePaymentTimeout(savedRequest.getPaymentRequestId());
+        
+        return savedRequest;
     }
 
     /**
@@ -96,8 +102,17 @@ public class PaymentValidationService {
             return requests.stream()
                     .filter(req -> {
                         try {
-                            return req.getRequestPayload() != null &&
-                                    req.getRequestPayload().contains("\"tossOrderId\":\"" + tossOrderId + "\"");
+                            if (req.getRequestPayload() == null) {
+                                return false;
+                            }
+                            
+                            // JSON 파싱을 통한 정확한 검색
+                            JsonNode jsonNode = objectMapper.readTree(req.getRequestPayload());
+                            if (jsonNode.has("tossOrderId")) {
+                                String savedTossOrderId = jsonNode.get("tossOrderId").asText();
+                                return tossOrderId.equals(savedTossOrderId);
+                            }
+                            return false;
                         } catch (Exception e) {
                             return false;
                         }
@@ -126,11 +141,17 @@ public class PaymentValidationService {
     }
 
     public void updatePaymentStatus(UUID paymentRequestId, String status) {
-        paymentRequestRepository.findById(paymentRequestId)
-                .ifPresent(request -> {
-                    request.setStatus(status);
-                    paymentRequestRepository.save(request);
-                });
+        if ("COMPLETED".equals(status)) {
+            // 성공한 경우 PAID로 업데이트
+            paymentService.updatePaymentRequestToPaid(paymentRequestId);
+        } else {
+            // 실패한 경우 해당 상태로 업데이트
+            paymentRequestRepository.findById(paymentRequestId)
+                    .ifPresent(request -> {
+                        request.setStatus(status);
+                        paymentRequestRepository.save(request);
+                    });
+        }
     }
 
     // ValidationResult 클래스는 동일

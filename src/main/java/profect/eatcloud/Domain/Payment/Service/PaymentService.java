@@ -1,0 +1,161 @@
+package profect.eatcloud.Domain.Payment.Service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import profect.eatcloud.Domain.Customer.Entity.Customer;
+import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
+import profect.eatcloud.Domain.Payment.Entity.Payment;
+import profect.eatcloud.Domain.Payment.Entity.PaymentRequest;
+import profect.eatcloud.Domain.Payment.Repository.PaymentRepository;
+import profect.eatcloud.Domain.Payment.Repository.PaymentRequestRepository;
+import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
+import profect.eatcloud.Domain.GlobalCategory.Entity.PaymentStatusCode;
+import profect.eatcloud.Domain.GlobalCategory.Entity.PaymentMethodCode;
+import profect.eatcloud.Domain.GlobalCategory.Repository.PaymentStatusCodeRepository;
+import profect.eatcloud.Domain.GlobalCategory.Repository.PaymentMethodCodeRepository;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+@Service
+@RequiredArgsConstructor
+public class PaymentService {
+
+    private final PaymentRepository paymentRepository;
+    private final PaymentRequestRepository paymentRequestRepository;
+    private final CustomerRepository customerRepository;
+    private final PaymentStatusCodeRepository paymentStatusCodeRepository;
+    private final PaymentMethodCodeRepository paymentMethodCodeRepository;
+    private static final long PAYMENT_TIMEOUT_MS = 5 * 60 * 1000;
+    private static final long TEST_PAYMENT_TIMEOUT_MS = 10 * 1000;
+
+    /**
+     * 결제 완료 시 Payment 엔티티 저장
+     */
+    @Transactional
+    public Payment saveSuccessfulPayment(PaymentRequest paymentRequest, Customer customer, TossPaymentResponse tossResponse) {
+        Timestamp approvedTime;
+        try {
+            if (tossResponse.getApprovedAt() != null) {
+                // ISO 8601 형식 파싱 (예: "2024-12-01T14:30:05+09:00")
+                String approvedAtStr = tossResponse.getApprovedAt();
+                if (approvedAtStr.contains("+") || approvedAtStr.contains("Z")) {
+                    // 타임존 정보가 포함된 경우 19자리까지만 사용
+                    approvedAtStr = approvedAtStr.substring(0, 19);
+                }
+                approvedTime = Timestamp.valueOf(LocalDateTime.parse(approvedAtStr));
+            } else {
+                approvedTime = Timestamp.valueOf(LocalDateTime.now());
+            }
+        } catch (Exception e) {
+            // 파싱 실패시 현재 시간 사용
+            approvedTime = Timestamp.valueOf(LocalDateTime.now());
+        }
+
+        // 결제 상태 코드 조회 (PAID)
+        PaymentStatusCode paidStatus = paymentStatusCodeRepository.findByCode("PAID")
+                .orElseThrow(() -> new RuntimeException("결제 상태 코드를 찾을 수 없습니다: PAID"));
+
+        // 결제 방법 코드 조회 (토스페이먼츠 응답의 method 필드 사용)
+        String methodCode = mapTossMethodToCode(tossResponse.getMethod());
+        PaymentMethodCode paymentMethod = paymentMethodCodeRepository.findByCode(methodCode)
+                .orElse(paymentMethodCodeRepository.findByCode("CARD")
+                        .orElseThrow(() -> new RuntimeException("기본 결제 방법 코드를 찾을 수 없습니다: CARD")));
+
+        Payment payment = Payment.builder()
+                .totalAmount(tossResponse.getTotalAmount())
+                .pgTransactionId(tossResponse.getPaymentKey())
+                .approvalCode(tossResponse.getOrderId())
+                .paymentRequest(paymentRequest)
+                .customer(customer)
+                .paymentStatusCode(paidStatus)
+                .paymentMethodCode(paymentMethod)
+                .approvedAt(approvedTime)
+                .requestedAt(Timestamp.valueOf(paymentRequest.getRequestedAt()))
+                .build();
+
+        return paymentRepository.save(payment);
+    }
+
+    /**
+     * 토스페이먼츠 결제 방법을 내부 코드로 매핑
+     */
+    private String mapTossMethodToCode(String tossMethod) {
+        if (tossMethod == null) return "CARD";
+        
+        return switch (tossMethod) {
+            case "카드" -> "CARD";
+            case "가상계좌" -> "VIRTUAL_ACCOUNT";
+            case "계좌이체" -> "TRANSFER";
+            case "휴대폰" -> "PHONE";
+            case "상품권", "도서문화상품권", "게임문화상품권" -> "GIFT_CERTIFICATE";
+            default -> "CARD";
+        };
+    }
+
+    /**
+     * 5분 후 PENDING 상태의 PaymentRequest를 CANCELED로 변경하는 비동기 작업
+     */
+    @Async
+    public CompletableFuture<Void> schedulePaymentTimeout(UUID paymentRequestId) {
+        return schedulePaymentTimeout(paymentRequestId, false);
+    }
+
+    /**
+     * PENDING 상태의 PaymentRequest를 CANCELED로 변경하는 비동기 작업
+     * @param paymentRequestId 결제 요청 ID
+     * @param testMode true일 경우 10초, false일 경우 5분 후 타임아웃
+     */
+    @Async
+    public CompletableFuture<Void> schedulePaymentTimeout(UUID paymentRequestId, boolean testMode) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                long timeoutMs = testMode ? TEST_PAYMENT_TIMEOUT_MS : PAYMENT_TIMEOUT_MS;
+                Thread.sleep(timeoutMs);
+                updateExpiredPaymentRequest(paymentRequestId);
+                
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Payment timeout task interrupted: " + e.getMessage());
+            } catch (Exception e) {
+                System.err.println("Error in payment timeout task: " + e.getMessage());
+            }
+        });
+    }
+
+    /**
+     * 만료된 결제 요청 처리
+     */
+    @Transactional
+    public void updateExpiredPaymentRequest(UUID paymentRequestId) {
+        paymentRequestRepository.findById(paymentRequestId)
+                .ifPresent(paymentRequest -> {
+                    // PENDING 상태인 경우에만 CANCELED로 변경
+                    if ("PENDING".equals(paymentRequest.getStatus())) {
+                        paymentRequest.setStatus("CANCELED");
+                        paymentRequest.setRespondedAt(LocalDateTime.now());
+                        paymentRequest.setFailureReason("Payment timeout - No response within 5 minutes");
+                        paymentRequestRepository.save(paymentRequest);
+                        
+                        System.out.println("Payment request " + paymentRequestId + " expired and set to CANCELED");
+                    }
+                });
+    }
+
+    /**
+     * 결제 요청 상태를 PAID로 업데이트
+     */
+    @Transactional
+    public void updatePaymentRequestToPaid(UUID paymentRequestId) {
+        paymentRequestRepository.findById(paymentRequestId)
+                .ifPresent(paymentRequest -> {
+                    paymentRequest.setStatus("PAID");
+                    paymentRequest.setRespondedAt(LocalDateTime.now());
+                    paymentRequestRepository.save(paymentRequest);
+                });
+    }
+}

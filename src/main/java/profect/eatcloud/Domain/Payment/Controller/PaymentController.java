@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Domain.Payment.Entity.PaymentRequest;
+import profect.eatcloud.Domain.Payment.Entity.Payment;
 import profect.eatcloud.Domain.Payment.Service.TossPaymentService;
 import profect.eatcloud.Domain.Payment.Service.PaymentValidationService;
 import profect.eatcloud.Domain.Payment.Service.PointService;
+import profect.eatcloud.Domain.Payment.Service.PaymentService;
 import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
 import profect.eatcloud.Domain.Order.Service.OrderService;
 import profect.eatcloud.Domain.Order.Entity.Order;
@@ -45,6 +47,7 @@ public class PaymentController {
     private final PointService pointService;
     private final CustomerRepository customerRepository;
     private final OrderService orderService;
+    private final PaymentService paymentService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -244,7 +247,7 @@ public class PaymentController {
      * 결제 성공 콜백
      */
     @Operation(summary = "결제 성공 콜백", description = "토스페이먼츠 결제 성공 콜백을 처리합니다.")
-    @PostMapping("/success")
+    @GetMapping("/success")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> paymentSuccess(@RequestParam String paymentKey,
                                  @RequestParam String orderId,
@@ -267,13 +270,20 @@ public class PaymentController {
             PaymentRequest paymentRequest = validationResult.getPaymentRequest();
             UUID internalOrderId = paymentRequest.getOrderId();
             
-            // 결제 정보를 Payment 엔티티로 저장 (필요시)
-            // UUID paymentId = savePaymentEntity(tossResponse);
+            // 주문 정보를 통해 고객 정보 조회
+            Order order = orderService.findById(internalOrderId)
+                    .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없습니다."));
             
-            // 주문 상태를 PAID로 변경하고 결제 정보 연결
-            // orderService.completePayment(internalOrderId, paymentId);
+            Customer customer = customerRepository.findById(order.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
             
-            // 결제 요청 상태 업데이트
+            // 결제 정보를 Payment 엔티티로 저장
+            Payment savedPayment = paymentService.saveSuccessfulPayment(paymentRequest, customer, tossResponse);
+            
+            // 주문 상태를 PAID로 변경
+            orderService.completePayment(internalOrderId, savedPayment.getPaymentId());
+            
+            // 결제 요청 상태 업데이트 (PAID로 변경됨)
             paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "COMPLETED");
 
             // 성공 응답 데이터
@@ -316,7 +326,7 @@ public class PaymentController {
      * 결제 실패 콜백
      */
     @Operation(summary = "결제 실패 콜백", description = "토스페이먼츠 결제 실패 콜백을 처리합니다.")
-    @PostMapping("/fail")
+    @GetMapping("/fail")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> paymentFail(@RequestParam(required = false) String message,
                               @RequestParam(required = false) String code,
