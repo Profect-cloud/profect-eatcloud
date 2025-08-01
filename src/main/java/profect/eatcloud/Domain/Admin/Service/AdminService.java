@@ -14,11 +14,15 @@ import profect.eatcloud.Domain.Admin.Dto.CategoryDto;
 import profect.eatcloud.Domain.Admin.Dto.DashboardDto;
 import profect.eatcloud.Domain.Admin.Dto.ManagerCreateRequestDto;
 import profect.eatcloud.Domain.Admin.Dto.ManagerDto;
+import profect.eatcloud.Domain.Admin.Dto.ManagerStoreApplicationDetailDto;
+import profect.eatcloud.Domain.Admin.Dto.ManagerStoreApplicationSummaryDto;
 import profect.eatcloud.Domain.Admin.Dto.OrderDto;
 import profect.eatcloud.Domain.Admin.Dto.OrderStatusDto;
 import profect.eatcloud.Domain.Admin.Dto.StoreDto;
 import profect.eatcloud.Domain.Admin.Dto.UserDto;
+import profect.eatcloud.Domain.Admin.Entity.ManagerStoreApplication;
 import profect.eatcloud.Domain.Admin.Repository.AdminRepository;
+import profect.eatcloud.Domain.Admin.Repository.ManagerStoreApplicationRepository;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Domain.Manager.Entity.Manager;
@@ -40,6 +44,7 @@ public class AdminService {
 	private final CategoryRepository_hong categoryRepository;  // p_categories
 	private final OrderRepository_hong orderRepository;        // p_orders
 	private final PasswordEncoder passwordEncoder;
+	private final ManagerStoreApplicationRepository managerStoreApplicationRepository;
 
 	@Transactional(readOnly = true)
 	public List<UserDto> getAllCustomers(UUID adminUuid) {
@@ -180,6 +185,148 @@ public class AdminService {
 			.build();
 	}
 
+	@Transactional(readOnly = true)
+	public List<ManagerStoreApplicationSummaryDto> getAllApplications(UUID adminId) {
+		// 1) Admin 검증
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
+
+		// 2) 전체 신청서 조회 및 DTO 매핑
+		return managerStoreApplicationRepository.findAll().stream()
+			.map(app -> ManagerStoreApplicationSummaryDto.builder()
+				.applicationId(app.getApplicationId())
+				.managerName(app.getManagerName())
+				.managerEmail(app.getManagerEmail())
+				.storeName(app.getStoreName())
+				.status(app.getStatus())
+				.appliedAt(app.getTimeData().getCreatedAt())
+				.build())
+			.collect(Collectors.toList());
+	}
+
+	@Transactional(readOnly = true)
+	public ManagerStoreApplicationDetailDto getApplicationDetail(UUID adminId, UUID applicationId) {
+		// 1) Admin 검증
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
+
+		// 2) 신청서 조회
+		ManagerStoreApplication app = managerStoreApplicationRepository.findById(applicationId)
+			.orElseThrow(() -> new NoSuchElementException("Application not found: " + applicationId));
+
+		// 3) DTO 변환
+		return ManagerStoreApplicationDetailDto.builder()
+			.applicationId(app.getApplicationId())
+			.managerName(app.getManagerName())
+			.managerEmail(app.getManagerEmail())
+			.managerPhoneNumber(app.getManagerPhoneNumber())
+			.storeName(app.getStoreName())
+			.storeAddress(app.getStoreAddress())
+			.storePhoneNumber(app.getStorePhoneNumber())
+			.categoryId(app.getCategoryId())
+			.description(app.getDescription())
+			.status(app.getStatus())
+			.reviewerAdminId(app.getReviewerAdminId())
+			.reviewComment(app.getReviewComment())
+			.appliedAt(app.getTimeData().getCreatedAt())
+			.updatedAt(app.getTimeData().getUpdatedAt())
+			.build();
+	}
+
+	@Transactional
+	public void approveApplication(UUID adminId, UUID applicationId) {
+		// 1) Admin 검증
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
+
+		// 2) Pending된 신청서만 조회
+		ManagerStoreApplication app = managerStoreApplicationRepository.findById(applicationId)
+			.orElseThrow(() -> new NoSuchElementException("Application not found: " + applicationId));
+		if (!"PENDING".equals(app.getStatus())) {
+			throw new IllegalStateException("이미 처리된 신청서입니다: " + app.getStatus());
+		}
+
+		// 3) Store 생성
+		Store store = Store.builder()
+			.storeId(UUID.randomUUID())
+			.storeName(app.getStoreName())
+			.storeAddress(app.getStoreAddress())
+			.phoneNumber(app.getStorePhoneNumber())
+			.category(app.getCategoryId() != null
+				? categoryRepository.findById(app.getCategoryId())
+				.orElseThrow(() -> new NoSuchElementException("Category not found: " + app.getCategoryId()))
+				: null)
+			.minCost(0)
+			.description(app.getDescription())
+			.openStatus(false)
+			.openTime(null)
+			.closeTime(null)
+			.build();
+		storeRepository.save(store);
+
+		// 4) Manager 생성
+		Manager mgr = Manager.builder()
+			.id(UUID.randomUUID())
+			.email(app.getManagerEmail())
+			.password(passwordEncoder.encode(app.getManagerPassword()))
+			.name(app.getManagerName())
+			.phoneNumber(app.getManagerPhoneNumber())
+			.store(store)
+			.build();
+		managerRepository.save(mgr);
+
+		// 5) 신청서 상태 업데이트
+		app.setStatus("APPROVED");
+		app.setReviewerAdminId(adminId);
+		managerStoreApplicationRepository.save(app);
+		// BaseTimeEntity가 updatedAt/updatedBy 자동 처리
+	}
+
+	@Transactional
+	public void rejectApplication(UUID adminId, UUID applicationId) {
+		// 1) Admin 검증
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
+
+		// 2) Pending된 신청서만 조회
+		ManagerStoreApplication application = managerStoreApplicationRepository.findById(applicationId)
+			.orElseThrow(() -> new NoSuchElementException("Application not found: " + applicationId));
+		if (!"PENDING".equals(application.getStatus())) {
+			throw new IllegalStateException("이미 처리된 신청서입니다: " + application.getStatus());
+		}
+
+		// 3) 신청서 상태만 REJECTED로 변경
+		application.setStatus("REJECTED");
+		application.setReviewerAdminId(adminId);
+
+		// 4) 변경사항 저장 (updatedAt/updatedBy는 BaseTimeEntity가 자동 처리)
+		managerStoreApplicationRepository.save(application);
+	}
+
+	@Transactional(readOnly = true)
+	public List<StoreDto> getStores(UUID adminId) {
+		// 1) Admin 검증
+		adminRepository.findById(adminId)
+			.orElseThrow(() -> new NoSuchElementException("Admin not found: " + adminId));
+
+		// 2) 모든 가게 조회 및 DTO 매핑
+		return storeRepository.findAll().stream()
+			.map(s -> StoreDto.builder()
+				.storeId(s.getStoreId())
+				.storeName(s.getStoreName())
+				.categoryId(s.getCategory() != null ? s.getCategory().getCategoryId() : null)
+				.minCost(s.getMinCost())
+				.description(s.getDescription())
+				.storeLat(s.getStoreLat())
+				.storeLon(s.getStoreLon())
+				.openStatus(s.getOpenStatus())
+				.openTime(s.getOpenTime())
+				.closeTime(s.getCloseTime())
+				.build()
+			)
+			.collect(Collectors.toList());
+	}
+
 	@Transactional
 	public StoreDto createStore(String adminId, StoreDto storeDto) {
 		// 1) 관리자 검증
@@ -222,12 +369,6 @@ public class AdminService {
 			.openTime(saved.getOpenTime())
 			.closeTime(saved.getCloseTime())
 			.build();
-	}
-
-	@Transactional(readOnly = true)
-	public List<StoreDto> getStores(String adminId) {
-		// TODO: 관리자의 권한 확인 후 가게 목록 조회
-		return null;
 	}
 
 	@Transactional

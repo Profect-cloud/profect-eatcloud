@@ -337,3 +337,33 @@ CREATE TABLE daily_menu_sales
     CONSTRAINT fk_dms_menu FOREIGN KEY (menu_id) REFERENCES p_menus (menu_id),
     CONSTRAINT fk_dms_p_time FOREIGN KEY (p_time_id) REFERENCES p_time (p_time_id)
 );
+
+
+-- added at 8/1
+CREATE TABLE p_manager_store_applications
+(
+    application_id       UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+
+    -- ■ Manager 신청 정보
+    manager_name         VARCHAR(20)  NOT NULL,
+    manager_email        VARCHAR(255) NOT NULL,
+    manager_password     VARCHAR(255) NOT NULL,
+    manager_phone_number VARCHAR(18),
+
+    -- ■ Store 신청 정보
+    store_name           VARCHAR(200) NOT NULL,
+    store_address        VARCHAR(300),
+    store_phone_number   VARCHAR(18),
+    category_id          UUID,
+    description          TEXT,
+
+    -- ■ 심사 상태
+    status               VARCHAR(20)  NOT NULL DEFAULT 'PENDING', -- PENDING, APPROVED, REJECTED
+    reviewer_admin_id    UUID,                                    -- 처리한 Admin ID
+    review_comment       TEXT,                                    -- Admin 코멘트
+
+    -- ■ BaseTimeEntity 공통 시간 관리
+    p_time_id            UUID         NOT NULL,
+    CONSTRAINT fk_applications_p_time FOREIGN KEY (p_time_id) REFERENCES p_time (p_time_id)
+);
+
