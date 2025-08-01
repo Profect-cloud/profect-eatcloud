@@ -2,14 +2,32 @@ package profect.eatcloud.Domain.Store.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import profect.eatcloud.Domain.Store.Dto.StoreSearchResponseDto;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 
 import java.time.LocalTime;
 import java.util.UUID;
 import java.sql.Time;
 
+
+
 @Entity
 @Table(name = "p_stores")
+@SqlResultSetMapping(
+        name = "StoreSearchResponseMapping",
+        classes = @ConstructorResult(
+                targetClass = StoreSearchResponseDto.class,
+                columns = {
+                        @ColumnResult(name = "store_id", type = UUID.class),
+                        @ColumnResult(name = "store_name", type = String.class),
+                        @ColumnResult(name = "store_address", type = String.class),
+                        @ColumnResult(name = "store_lat", type = Double.class),
+                        @ColumnResult(name = "store_lon", type = Double.class),
+                        @ColumnResult(name = "min_cost", type = Integer.class),
+                        @ColumnResult(name = "open_status", type = Boolean.class)
+                }
+        )
+)
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

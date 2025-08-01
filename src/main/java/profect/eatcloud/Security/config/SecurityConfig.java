@@ -57,7 +57,12 @@ public class SecurityConfig {
 		"/api/v1/payment/success",
 		"/api/v1/payment/order",
 		"/api/v1/payment/fail",
-		"/api/v1/payment/charge"
+		"/api/v1/payment/charge",
+
+
+		"/api/v1/stores/**",
+		"/api/v1/manager/**"
+
     };
 
 	@Bean
