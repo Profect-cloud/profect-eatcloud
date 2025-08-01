@@ -7,6 +7,8 @@ import profect.eatcloud.Domain.Store.Dto.AiDescriptionRequestDto;
 import profect.eatcloud.Domain.Store.Dto.AiDescriptionResponseDto;
 import profect.eatcloud.Domain.Store.Service.AiDescriptionService;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/stores/{storeId}/menus")
@@ -16,7 +18,7 @@ public class AiDescriptionController {
 
     @PostMapping("/ai-description")
     public ResponseEntity<AiDescriptionResponseDto> generateDescription(
-            @PathVariable Long storeId,
+            @PathVariable UUID storeId,
             @RequestBody AiDescriptionRequestDto requestDto) {
 
         String description = aiDescriptionService.generateDescription(requestDto);

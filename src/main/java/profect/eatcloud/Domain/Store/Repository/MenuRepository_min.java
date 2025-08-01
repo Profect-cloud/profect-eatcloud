@@ -1,7 +1,9 @@
 package profect.eatcloud.Domain.Store.Repository;
 
 
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import profect.eatcloud.Domain.Store.Entity.Menu;
 import profect.eatcloud.Domain.Store.Entity.Store;
 import profect.eatcloud.Global.TimeData.BaseTimeRepository;
@@ -21,4 +23,6 @@ public interface MenuRepository_min extends BaseTimeRepository<Menu, UUID> {
 
     Optional<Menu> findByIdAndStoreAndTimeData_DeletedAtIsNull(UUID menuId, Store store);
 
+    @Query("SELECT DISTINCT m.store FROM Menu m WHERE m.menuCategoryCode = :code AND m.isAvailable = true")
+    List<Store> findDistinctStoresByMenuCategoryCode(@Param("code") String code);
 }

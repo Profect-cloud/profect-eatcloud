@@ -2,19 +2,34 @@ package profect.eatcloud.Domain.Store.Dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import profect.eatcloud.Domain.Store.Entity.Menu;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Getter
+
 @Builder
-public class MenuResponseDto {
-    private UUID menuId;
-    private int menuNum;
-    private String menuName;
-    private String menuCategoryCode;
-    private BigDecimal price;
-    private String description;
-    private Boolean isAvailable;
-    private String imageUrl;
-    private UUID pTimeId;
+// MenuResponseDto 만들기
+public record MenuResponseDto(
+        UUID id,
+        int menuNum,
+        String menuName,
+        String menuCategoryCode,
+        BigDecimal price,
+        String description,
+        Boolean isAvailable,
+        String imageUrl
+) {
+    public static MenuResponseDto from(Menu menu) {
+        return new MenuResponseDto(
+                menu.getId(),
+                menu.getMenuNum(),
+                menu.getMenuName(),
+                menu.getMenuCategoryCode(),
+                menu.getPrice(),
+                menu.getDescription(),
+                menu.getIsAvailable(),
+                menu.getImageUrl()
+        );
+    }
 }

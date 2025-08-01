@@ -1,6 +1,7 @@
 services:
   postgres:
-    image: postgres:latest
+    platform: linux/amd64
+    image: postgis/postgis:latest
     container_name: sample-postgres
     ports:
       - "5432:5432"

@@ -1,4 +1,7 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
 ---- Table Type 1 : Enum To Table
+
+
 CREATE TABLE p_time
 (
     p_time_id  UUID PRIMARY KEY,
