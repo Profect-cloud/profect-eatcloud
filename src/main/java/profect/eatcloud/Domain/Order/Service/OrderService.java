@@ -1,6 +1,7 @@
 package profect.eatcloud.Domain.Order.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import profect.eatcloud.Domain.Order.Entity.Order;
@@ -10,6 +11,7 @@ import profect.eatcloud.Domain.GlobalCategory.Entity.OrderStatusCode;
 import profect.eatcloud.Domain.GlobalCategory.Entity.OrderTypeCode;
 import profect.eatcloud.Domain.GlobalCategory.Repository.OrderStatusCodeRepository;
 import profect.eatcloud.Domain.GlobalCategory.Repository.OrderTypeCodeRepository;
+import profect.eatcloud.Domain.Customer.Service.CartService;
 import profect.eatcloud.Domain.Store.Entity.Menu;
 import profect.eatcloud.Domain.Store.Repository.MenuRepository_min;
 
@@ -20,17 +22,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderStatusCodeRepository orderStatusCodeRepository;
     private final OrderTypeCodeRepository orderTypeCodeRepository;
+    private final CartService cartService;
     private final MenuRepository_min menuRepository;
 
     public Order createPendingOrder(UUID customerId, UUID storeId, List<OrderMenu> orderMenuList, String orderType,
                                    Boolean usePoints, Integer pointsToUse) {
         String orderNumber = generateOrderNumber();
-        
+
         OrderStatusCode statusCode = orderStatusCodeRepository.findByCode("PENDING")
                 .orElseThrow(() -> new RuntimeException("주문 상태 코드를 찾을 수 없습니다: PENDING"));
         
@@ -44,14 +48,14 @@ public class OrderService {
         }
 
         Integer totalPrice = calculateTotalAmount(orderMenuList);
-        
+
         if (usePoints == null) {
             usePoints = false;
         }
         if (pointsToUse == null) {
             pointsToUse = 0;
         }
-        
+
         Integer finalPaymentAmount = Math.max(totalPrice - pointsToUse, 0);
 
         Order order = Order.builder()
@@ -91,6 +95,15 @@ public class OrderService {
         order.setOrderStatusCode(paidStatus);
 
         orderRepository.save(order);
+
+        try {
+            cartService.invalidateCartAfterOrder(order.getCustomerId());
+            log.info("Cart invalidated after successful payment for customer: {}, order: {}",
+                    order.getCustomerId(), order.getOrderNumber());
+        } catch (Exception e) {
+            log.error("Failed to invalidate cart after payment completion for customer: {}, order: {}",
+                    order.getCustomerId(), order.getOrderNumber(), e);
+        }
     }
 
     public void cancelOrder(UUID orderId) {
