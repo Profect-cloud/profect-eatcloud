@@ -1,5 +1,7 @@
 package profect.eatcloud.Domain.Customer.Controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +15,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/customers/orders")
 @RequiredArgsConstructor
+@Tag(name = "2. CustomerOrderController", description = "고객 주문 생성 API")
 public class CustomerOrderController {
 
     private final CustomerOrderService customerOrderService;
 
+    @Operation(summary = "고객 주문 생성", description = "고객의 장바구니에서 주문을 생성합니다.")
     @PostMapping
     public ResponseEntity<CustomerOrderResponse> createOrder(
             @RequestParam String orderTypeCode,
