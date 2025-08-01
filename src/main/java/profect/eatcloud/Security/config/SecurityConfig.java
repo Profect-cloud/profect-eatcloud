@@ -57,6 +57,7 @@ public class SecurityConfig {
 		"/api/v1/payment/success",
 		"/api/v1/payment/order",
 		"/api/v1/payment/fail",
+
 		"/api/v1/payment/cancel",  // 결제 취소 엔드포인트 추가
 		"/api/v1/payment/charge",
 
@@ -84,6 +85,9 @@ public class SecurityConfig {
 			.formLogin(form -> form.disable())
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(PERMIT_URLS).permitAll()
+				.requestMatchers("/api/v1/customers/**").hasRole("CUSTOMER")
+				.requestMatchers("/api/v1/manager/**").hasRole("MANAGER")
+				.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated()
 			)
 			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
