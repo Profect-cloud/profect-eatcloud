@@ -1,4 +1,3 @@
-// Domain/Order/Dto/OrderMenu.java
 package profect.eatcloud.Domain.Order.Dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

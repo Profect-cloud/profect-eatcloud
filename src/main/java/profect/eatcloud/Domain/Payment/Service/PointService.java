@@ -64,7 +64,6 @@ public class PointService {
         Customer customer = customerOpt.get();
         Integer currentPoints = customer.getPoints() != null ? customer.getPoints() : 0;
 
-        // 포인트 적립
         customer.setPoints(currentPoints + pointsToRefund);
         customerRepository.save(customer);
 

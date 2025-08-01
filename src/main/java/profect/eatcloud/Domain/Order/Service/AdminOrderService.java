@@ -26,12 +26,10 @@ public class AdminOrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다: " + orderId));
 
-        // 현재 상태가 PAID인지 확인
         if (!"PAID".equals(order.getOrderStatusCode().getCode())) {
             throw new RuntimeException("결제 완료된 주문만 수락할 수 있습니다. 현재 상태: " + order.getOrderStatusCode().getCode());
         }
 
-        // CONFIRMED 상태로 변경
         OrderStatusCode confirmedStatus = orderStatusCodeRepository.findByCode("CONFIRMED")
                 .orElseThrow(() -> new RuntimeException("주문 상태 코드를 찾을 수 없습니다: CONFIRMED"));
 
@@ -53,12 +51,10 @@ public class AdminOrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다: " + orderId));
 
-        // 현재 상태가 CONFIRMED인지 확인
         if (!"CONFIRMED".equals(order.getOrderStatusCode().getCode())) {
             throw new RuntimeException("수락된 주문만 완료할 수 있습니다. 현재 상태: " + order.getOrderStatusCode().getCode());
         }
 
-        // COMPLETED 상태로 변경
         OrderStatusCode completedStatus = orderStatusCodeRepository.findByCode("COMPLETED")
                 .orElseThrow(() -> new RuntimeException("주문 상태 코드를 찾을 수 없습니다: COMPLETED"));
 

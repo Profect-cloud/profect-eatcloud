@@ -1,4 +1,3 @@
-// 1. DeliveryOrder.java
 package profect.eatcloud.Domain.Order.Entity;
 
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;

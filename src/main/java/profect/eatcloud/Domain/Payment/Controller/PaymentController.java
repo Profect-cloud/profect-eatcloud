@@ -56,7 +56,7 @@ public class PaymentController {
         var authResult = paymentAuthenticationService.validateCustomerForOrderPage();
         
         if (!authResult.isSuccess()) {
-            return "redirect:/error/unauthorized?error=" + java.net.URLEncoder.encode(authResult.getErrorMessage(), java.nio.charset.StandardCharsets.UTF_8);
+            throw new RuntimeException("인증에 실패했습니다: " + authResult.getErrorMessage());
         }
         
         model.addAttribute("customerId", authResult.getCustomerIdAsString());
@@ -89,7 +89,7 @@ public class PaymentController {
                 storeId = UUID.fromString((String) orderData.get("storeId"));
             }
             else {
-                storeId = UUID.fromString("00000000-0000-0000-0000-000000000000");
+                storeId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
             }
 
             List<Map<String, Object>> itemsData = (List<Map<String, Object>>) orderData.get("orderMenuList");
@@ -125,17 +125,8 @@ public class PaymentController {
                 if (!pointResult.isSuccess()) {
                     orderService.cancelOrder(createdOrder.getOrderId());
                     
-                    if (pointResult.getErrorMessage().contains("부족")) {
-                        response.put("error", pointResult.getErrorMessage());
-                        response.put("errorType", "INSUFFICIENT_POINTS");
-                        response.put("currentPoints", authResult.getCustomerPoints());
-                        response.put("requestedPoints", pointsToUse);
-                        response.put("redirectUrl", "/error/insufficient-points?currentPoints=" + 
-                                   authResult.getCustomerPoints() + "&requestedPoints=" + pointsToUse);
-                    } else {
-                        response.put("error", pointResult.getErrorMessage());
-                        response.put("errorType", "POINT_ERROR");
-                    }
+                    response.put("error", pointResult.getErrorMessage());
+                    response.put("errorType", "POINT_ERROR");
                     
                     return ResponseEntity.badRequest().body(response);
                 }
@@ -241,8 +232,8 @@ public class PaymentController {
             paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "COMPLETED");
 
             model.addAttribute("paymentKey", paymentKey);
-            model.addAttribute("orderId", orderId);  // 토스 주문 ID
-            model.addAttribute("internalOrderId", internalOrderId.toString());  // 내부 주문 ID
+            model.addAttribute("orderId", orderId);
+            model.addAttribute("internalOrderId", internalOrderId.toString());
             model.addAttribute("amount", amount);
             model.addAttribute("status", tossResponse.getStatus());
             model.addAttribute("method", tossResponse.getMethod());

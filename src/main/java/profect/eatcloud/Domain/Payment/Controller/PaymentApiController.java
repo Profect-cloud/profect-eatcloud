@@ -40,10 +40,8 @@ public class PaymentApiController {
             return ResponseEntity.ok(result);
             
         } catch (PaymentValidationException e) {
-            // GlobalExceptionHandler가 처리하므로 여기서는 그냥 던짐
             throw e;
         } catch (Exception e) {
-            // GlobalExceptionHandler가 처리하므로 여기서는 그냥 던짐
             throw e;
         }
     }
@@ -51,7 +49,6 @@ public class PaymentApiController {
     @Operation(summary = "결제 상태 확인", description = "주문 ID로 결제 상태를 조회합니다.")
     @GetMapping("/status/{orderId}")
     public ResponseEntity<?> getPaymentStatus(@PathVariable String orderId) {
-        // TODO: DB에서 주문 상태 조회 로직 구현
         Map<String, Object> result = new HashMap<>();
         result.put("orderId", orderId);
         result.put("status", "pending");
@@ -68,7 +65,6 @@ public class PaymentApiController {
             String orderId = (String) request.get("orderId");
             Integer amount = (Integer) request.get("amount");
             
-            // 검증 로직 실행 (TossPaymentService의 validatePaymentRequest 메서드 호출)
             tossPaymentService.confirmPayment(paymentKey, orderId, amount);
             
             Map<String, Object> result = new HashMap<>();

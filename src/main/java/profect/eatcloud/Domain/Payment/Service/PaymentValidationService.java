@@ -19,7 +19,7 @@ public class PaymentValidationService {
     private final PaymentRequestRepository paymentRequestRepository;
     private final PaymentService paymentService;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Integer MAX_AMOUNT = 100_000_000;  // 1억원
+    private static final Integer MAX_AMOUNT = 100_000_000;
 
     public PaymentRequest savePaymentRequest(UUID orderId, String tossOrderId, Integer amount) {
         if (orderId == null) {
@@ -52,7 +52,7 @@ public class PaymentValidationService {
 
         Optional<PaymentRequest> savedRequest = findByTossOrderId(tossOrderId);
         if (savedRequest.isEmpty()) {
-            return ValidationResult.fail("저장된 결제 요청을 찾을 수 없습니다: " + tossOrderId);  // 주문 ID 포함
+            return ValidationResult.fail("저장된 결제 요청을 찾을 수 없습니다: " + tossOrderId);
         }
 
         PaymentRequest request = savedRequest.get();
