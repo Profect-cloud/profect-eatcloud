@@ -18,17 +18,7 @@ public class CustomerOrderController {
     private final CustomerOrderService customerOrderService;
 
     @PostMapping
-    public ResponseEntity<CustomerOrderResponse> createOrder(@RequestParam String orderTypeCode) {
-        String customerIdStr = SecurityUtil.getCurrentUsername();
-        UUID customerId = UUID.fromString(customerIdStr);
-
-        Order order = customerOrderService.createOrder(customerId, orderTypeCode);
-        CustomerOrderResponse dto = new CustomerOrderResponse(order);
-        return ResponseEntity.ok(dto);
-    }
-
-    @PostMapping("/with-points")
-    public ResponseEntity<CustomerOrderResponse> createOrderWithPoints(
+    public ResponseEntity<CustomerOrderResponse> createOrder(
             @RequestParam String orderTypeCode,
             @RequestParam(required = false, defaultValue = "false") Boolean usePoints,
             @RequestParam(required = false, defaultValue = "0") Integer pointsToUse) {
@@ -36,7 +26,7 @@ public class CustomerOrderController {
         String customerIdStr = SecurityUtil.getCurrentUsername();
         UUID customerId = UUID.fromString(customerIdStr);
 
-        Order order = customerOrderService.createOrderWithPoints(customerId, orderTypeCode, usePoints, pointsToUse);
+        Order order = customerOrderService.createOrder(customerId, orderTypeCode, usePoints, pointsToUse);
         CustomerOrderResponse dto = new CustomerOrderResponse(order, usePoints, pointsToUse);
         return ResponseEntity.ok(dto);
     }

@@ -300,6 +300,11 @@
                     <div class="label">내부 주문번호</div>
                     <div class="value" th:text="${internalOrderId}">INTERNAL_ORDER_ID</div>
                 </div>
+                
+                <div class="info-row" th:if="${refundedPoints != null and refundedPoints > 0}">
+                    <div class="label">환불된 포인트</div>
+                    <div class="value" th:text="${refundedPoints} + 'P'" style="color: #4caf50; font-weight: bold;">0P</div>
+                </div>
             </div>
             
             <!-- 롤백 성공시 -->
@@ -308,7 +313,8 @@
                 <ul class="status-list">
                     <li>결제 요청이 취소되었습니다</li>
                     <li>주문이 취소되었습니다</li>
-                    <li>사용된 포인트가 반환되었습니다</li>
+                    <li th:if="${refundedPoints != null and refundedPoints > 0}" th:text="'사용된 포인트 ' + ${refundedPoints} + 'P가 반환되었습니다'">사용된 포인트가 반환되었습니다</li>
+                    <li th:if="${refundedPoints == null or refundedPoints == 0}">사용된 포인트가 없습니다</li>
                     <li>모든 데이터가 정상적으로 복구되었습니다</li>
                 </ul>
             </div>

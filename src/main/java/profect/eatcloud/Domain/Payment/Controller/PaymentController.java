@@ -11,11 +11,8 @@ import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Domain.Payment.Entity.PaymentRequest;
 import profect.eatcloud.Domain.Payment.Entity.Payment;
-import profect.eatcloud.Domain.Payment.Service.TossPaymentService;
-import profect.eatcloud.Domain.Payment.Service.PaymentValidationService;
-import profect.eatcloud.Domain.Payment.Service.PaymentAuthenticationService;
-import profect.eatcloud.Domain.Payment.Service.PointService;
-import profect.eatcloud.Domain.Payment.Service.PaymentService;
+import profect.eatcloud.Domain.Payment.Service.*;
+import lombok.extern.slf4j.Slf4j;
 import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
 import profect.eatcloud.Domain.Order.Service.OrderService;
 import profect.eatcloud.Domain.Order.Entity.Order;
@@ -39,11 +36,13 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/payment")
 @Tag(name = "9. PaymentViewController")
+@Slf4j
 public class PaymentController {
 
     private final TossPaymentService tossPaymentService;
     private final PaymentValidationService paymentValidationService;
     private final PaymentAuthenticationService paymentAuthenticationService;
+    private final PaymentRollbackService paymentRollbackService;
     private final PointService pointService;
     private final CustomerRepository customerRepository;
     private final OrderService orderService;
@@ -264,23 +263,18 @@ public class PaymentController {
                 var validationResult = paymentValidationService.validateCallback(orderId, amount, paymentKey);
                 if (validationResult.isSuccess()) {
                     PaymentRequest paymentRequest = validationResult.getPaymentRequest();
-                    paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "FAILED");
-
-                    orderService.cancelOrder(paymentRequest.getOrderId());
-
-                    try {
-                        Order order = orderService.findById(paymentRequest.getOrderId())
-                                .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없습니다."));
-                        Customer customer = customerRepository.findById(order.getCustomerId())
-                                .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
-                        var usedPoints = paymentRequest.getUsedPoints();
-                        pointService.refundPoints(customer.getId(), usedPoints);
-                    } catch (Exception pointRollbackException) {
-                        System.err.println("포인트 롤백 처리 실패: " + pointRollbackException.getMessage());
+                    var rollbackResult = paymentRollbackService.rollbackPayment(paymentRequest, "FAILED");
+                    
+                    if (rollbackResult.isSuccess()) {
+                        model.addAttribute("rollbackCompleted", true);
+                        model.addAttribute("refundedPoints", rollbackResult.getRefundedPoints());
+                    } else {
+                        model.addAttribute("rollbackCompleted", false);
+                        model.addAttribute("rollbackError", rollbackResult.getErrorMessage());
                     }
                 }
             } catch (Exception rollbackException) {
-                System.err.println("롤백 처리 실패: " + rollbackException.getMessage());
+                log.error("결제 성공 처리 중 롤백 실패", rollbackException);
             }
 
             model.addAttribute("error", "결제 처리 중 오류가 발생했습니다: " + e.getMessage());
@@ -303,37 +297,30 @@ public class PaymentController {
                 
                 if (savedRequest.isPresent()) {
                     PaymentRequest paymentRequest = savedRequest.get();
-
-                    paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "CANCELED");
                     
-                    orderService.cancelOrder(paymentRequest.getOrderId());
+                    // 롤백 서비스를 통한 통합 롤백 처리
+                    var rollbackResult = paymentRollbackService.rollbackPayment(paymentRequest, "CANCELED");
                     
-                    try {
-                        Order order = orderService.findById(paymentRequest.getOrderId())
-                                .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없습니다."));
+                    if (rollbackResult.isSuccess()) {
+                        model.addAttribute("internalOrderId", rollbackResult.getOrderId().toString());
+                        model.addAttribute("rollbackCompleted", true);
+                        model.addAttribute("refundedPoints", rollbackResult.getRefundedPoints());
                         
-                        Customer customer = customerRepository.findById(order.getCustomerId())
-                                .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
-                        
-                        Integer usedPoints = paymentRequest.getUsedPoints();
-                        if (usedPoints != null && usedPoints > 0) {
-                            pointService.refundPoints(customer.getId(), usedPoints);
+                        if (rollbackResult.hasRefundedPoints()) {
+                            model.addAttribute("pointRefundMessage", 
+                                rollbackResult.getRefundedPoints() + "P가 환불되었습니다.");
                         }
-                        
-                    } catch (Exception pointRollbackException) {
-                        System.err.println("포인트 롤백 처리 실패: " + pointRollbackException.getMessage());
+                    } else {
+                        model.addAttribute("rollbackCompleted", false);
+                        model.addAttribute("rollbackError", rollbackResult.getErrorMessage());
                     }
-                    
-                    model.addAttribute("internalOrderId", paymentRequest.getOrderId().toString());
-                    model.addAttribute("rollbackCompleted", true);
                 } else {
                     model.addAttribute("rollbackCompleted", false);
                     model.addAttribute("rollbackError", "결제 요청을 찾을 수 없습니다.");
                 }
                 
             } catch (Exception e) {
-                // 롤백 실패시 로그 기록
-                System.err.println("결제 취소 롤백 처리 실패: " + e.getMessage());
+                log.error("결제 취소 롤백 처리 실패", e);
                 model.addAttribute("rollbackCompleted", false);
                 model.addAttribute("rollbackError", e.getMessage());
             }
@@ -366,33 +353,29 @@ public class PaymentController {
                 if (savedRequest.isPresent()) {
                     PaymentRequest paymentRequest = savedRequest.get();
                     
-                    paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "FAILED");
+                    // 롤백 서비스를 통한 통합 롤백 처리
+                    var rollbackResult = paymentRollbackService.rollbackPayment(paymentRequest, "FAILED");
                     
-                    orderService.cancelOrder(paymentRequest.getOrderId());
-                    
-                    try {
-                        Order order = order
-                                .findById(paymentRequest.getOrderId())
-                                .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없습니다."));
-                        Customer customer = customerRepository.findById(order.getCustomerId())
-                                .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
-                        Integer usedPoints = paymentRequest.getUsedPoints();
-                        if (usedPoints != null && usedPoints > 0) {
-                            pointService.refundPoints(customer.getId(), usedPoints);
+                    if (rollbackResult.isSuccess()) {
+                        model.addAttribute("internalOrderId", rollbackResult.getOrderId().toString());
+                        model.addAttribute("rollbackCompleted", true);
+                        model.addAttribute("refundedPoints", rollbackResult.getRefundedPoints());
+                        
+                        if (rollbackResult.hasRefundedPoints()) {
+                            model.addAttribute("pointRefundMessage", 
+                                rollbackResult.getRefundedPoints() + "P가 환불되었습니다.");
                         }
-                    } catch (Exception pointRollbackException) {
-                        System.err.println("포인트 롤백 처리 실패: " + pointRollbackException.getMessage());
+                    } else {
+                        model.addAttribute("rollbackCompleted", false);
+                        model.addAttribute("rollbackError", rollbackResult.getErrorMessage());
                     }
-                    
-                    model.addAttribute("internalOrderId", paymentRequest.getOrderId().toString());
-                    model.addAttribute("rollbackCompleted", true);
                 } else {
                     model.addAttribute("rollbackCompleted", false);
                     model.addAttribute("rollbackError", "결제 요청을 찾을 수 없습니다.");
                 }
                 
             } catch (Exception e) {
-                System.err.println("결제 실패 롤백 처리 실패: " + e.getMessage());
+                log.error("결제 실패 롤백 처리 실패", e);
                 model.addAttribute("rollbackCompleted", false);
                 model.addAttribute("rollbackError", e.getMessage());
             }

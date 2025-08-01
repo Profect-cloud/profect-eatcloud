@@ -265,6 +265,21 @@
                     <div class="label">상세 오류</div>
                     <div class="value" th:text="${error}">상세 오류 메시지</div>
                 </div>
+                
+                <div class="error-row" th:if="${refundedPoints != null and refundedPoints > 0}">
+                    <div class="label">환불된 포인트</div>
+                    <div class="value" th:text="${refundedPoints} + 'P'" style="color: #28a745; font-weight: bold;">0P</div>
+                </div>
+                
+                <div class="error-row" th:if="${rollbackCompleted == true}">
+                    <div class="label">데이터 복구 상태</div>
+                    <div class="value" style="color: #28a745; font-weight: bold;">✓ 주문 및 포인트가 정상적으로 복구되었습니다</div>
+                </div>
+                
+                <div class="error-row" th:if="${rollbackCompleted == false}">
+                    <div class="label">데이터 복구 상태</div>
+                    <div class="value" style="color: #dc3545; font-weight: bold;">⚠️ 일부 데이터 복구에 실패했습니다</div>
+                </div>
             </div>
             
             <div class="help-section">
