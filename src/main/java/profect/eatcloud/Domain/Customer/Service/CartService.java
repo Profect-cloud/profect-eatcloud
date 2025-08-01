@@ -229,7 +229,8 @@ public class CartService {
 
     private boolean isRedisAvailable() {
         try {
-            redisTemplate.getConnectionFactory().getConnection().ping();
+			assert redisTemplate.getConnectionFactory() != null;
+			redisTemplate.getConnectionFactory().getConnection().ping();
             return true;
         } catch (RedisConnectionFailureException e) {
             log.debug("Redis connection failed: {}", e.getMessage());
