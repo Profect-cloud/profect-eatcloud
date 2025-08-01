@@ -51,7 +51,7 @@ class AuthServiceTest {
         given(passwordEncoder.encode(req.getPassword())).willReturn("encodedPassword");
 
         // when
-        authService.signup(req);
+        authService.tempSignup(req);
 
         // then
         verify(customerRepository).save(customerCaptor.capture());
@@ -70,7 +70,7 @@ class AuthServiceTest {
         given(customerRepository.findByEmail(req.getEmail())).willReturn(Optional.of(mock(Customer.class)));
 
         // when & then
-        assertThatThrownBy(() -> authService.signup(req))
+        assertThatThrownBy(() -> authService.tempSignup(req))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("이미 존재하는 이메일");
     }

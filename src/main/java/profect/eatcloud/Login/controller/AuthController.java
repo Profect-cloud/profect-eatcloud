@@ -32,11 +32,18 @@ public class AuthController {
 	}
 
 	// 고객 회원가입
-	@Operation(summary = "회원가입", description = "이메일과 비밀번호를 받아 새로운 회원을 등록합니다.")
+	@Operation(summary = "회원가입 요청", description = "이메일과 비밀번호를 받아 새로운 회원 가입을 요청합니다.")
 	@PostMapping("/register")
 	public ResponseEntity<String> register(@RequestBody SignupRequestDto request) {
-		authService.signup(request);
+		authService.tempSignup(request);
 		return ResponseEntity.ok("Register Success");
+	}
+
+	@Operation(summary = "이메일 인증", description = "이메일에 발송된 코드로 인증하여 회원을 등록합니다.")
+	@GetMapping("/confirm-email")
+	public ResponseEntity<String> confirmEmail(@RequestParam String email, @RequestParam String code) {
+		authService.confirmEmail(email, code);
+		return ResponseEntity.ok("회원가입이 완료되었습니다.");
 	}
 
 	@Operation(summary = "비밀번호 변경")

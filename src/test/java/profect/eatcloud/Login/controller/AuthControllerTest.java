@@ -95,7 +95,7 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Register Success"));
 
-        verify(authService).signup(any(SignupRequestDto.class));
+        verify(authService).tempSignup(any(SignupRequestDto.class));
     }
 
     @Test

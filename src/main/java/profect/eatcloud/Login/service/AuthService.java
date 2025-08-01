@@ -1,5 +1,7 @@
 package profect.eatcloud.Login.service;
 
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.mail.MailException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,10 +14,12 @@ import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Domain.Manager.Entity.Manager;
 import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
 import profect.eatcloud.Login.dto.LoginResponseDto;
+import profect.eatcloud.Login.dto.SignupRedisData;
 import profect.eatcloud.Login.dto.SignupRequestDto;
 import profect.eatcloud.Security.jwt.JwtTokenProvider;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,8 @@ public class AuthService {
 	private final ManagerRepository managerRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtTokenProvider;
+	private final RedisTemplate<String, Object> redisTemplate;
+	private final MailService mailService;
 
 	// 1) 로그인
 	public LoginResponseDto login(String email, String password) {
@@ -81,18 +87,52 @@ public class AuthService {
 	}
 
 	// 2) 회원가입 (Customer 예시)
-	public void signup(SignupRequestDto req) {
+	public void tempSignup(SignupRequestDto req) {
 		if (customerRepository.findByEmail(req.getEmail()).isPresent()) {
 			throw new RuntimeException("이미 존재하는 이메일입니다.");
 		}
-		Customer customer = Customer.builder()
-			.email(req.getEmail())
-			.password(passwordEncoder.encode(req.getPassword()))
-			.name(req.getName())
-			.nickname(req.getNickname())
-			.build();
 
+		String verificationCode = UUID.randomUUID().toString().substring(0, 6); // 간단한 코드
+
+		// 이메일 본문 작성
+		String subject = "이메일 인증 코드";
+		String text = "회원가입 인증 코드: " + verificationCode;
+
+		// 이메일 전송
+		try {
+			mailService.sendMail(req.getEmail(), subject, text);
+		} catch (MailException e) {
+			throw new RuntimeException("이메일 전송에 실패했습니다. 다시 시도해주세요.", e);
+		}
+
+		// Redis에 저장 (key: "signup:{email}", value: SignupRequestDto+코드)
+		SignupRedisData data = new SignupRedisData(req, verificationCode);
+		redisTemplate.opsForValue().set("signup:" + req.getEmail(), data, 10, TimeUnit.MINUTES); // 10분 유효
+	}
+
+	public void confirmEmail(String email, String code) {
+		String key = "signup:" + email;
+		SignupRedisData data = (SignupRedisData) redisTemplate.opsForValue().get(key);
+
+		if (data == null) {
+			throw new RuntimeException("만료되었거나 존재하지 않는 인증 요청입니다.");
+		}
+
+		if (!data.getCode().equals(code)) {
+			throw new RuntimeException("인증 코드가 일치하지 않습니다.");
+		}
+
+		// 최종 가입 처리
+		Customer customer = Customer.builder()
+				.email(data.getRequest().getEmail())
+				.password(passwordEncoder.encode(data.getRequest().getPassword()))
+				.name(data.getRequest().getName())
+				.nickname(data.getRequest().getNickname())
+				.build();
 		customerRepository.save(customer);
+
+		// Redis에서 제거
+		redisTemplate.delete(key);
 	}
 
 	public void changePassword(String userId, String currentPassword, String newPassword) {
