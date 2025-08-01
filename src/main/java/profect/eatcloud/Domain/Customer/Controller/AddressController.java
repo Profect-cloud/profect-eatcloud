@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/mypage/addresses")
+@RequestMapping("/api/v1/customers/addresses")
 @RequiredArgsConstructor
-@Tag(name = "Address", description = "배송지 관리 API")
+@Tag(name = "2. AddressController", description = "배송지 관리 API")
 public class AddressController {
 
 	private final AddressService addressService;
