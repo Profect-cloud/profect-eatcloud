@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Payment;
+package profect.eatcloud.Domain.Payment.Service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import profect.eatcloud.Domain.Payment.Entity.PaymentRequest;
 import profect.eatcloud.Domain.Payment.Repository.PaymentRequestRepository;
-import profect.eatcloud.Domain.Payment.Service.PaymentValidationService;
 import profect.eatcloud.Domain.Payment.Service.PaymentValidationService.ValidationResult;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,36 +25,41 @@ class PaymentValidationServiceTest {
     @Mock
     private PaymentRequestRepository paymentRequestRepository;
 
+    @Mock
+    private PaymentService paymentService;
+
     @InjectMocks
     private PaymentValidationService paymentValidationService;
 
     @DisplayName("결제 요청 저장 성공")
     @Test
     void givenPaymentInfo_whenSavePaymentRequest_thenReturnSavedRequest() {
-        // given
         UUID orderId = UUID.randomUUID();
         String tossOrderId = "ORDER_123456";
         Integer amount = 10000;
 
         PaymentRequest savedRequest = new PaymentRequest(orderId, "TOSS", "{\"tossOrderId\":\"ORDER_123456\",\"amount\":10000}");
+        UUID paymentRequestId = UUID.randomUUID();
+        savedRequest.setPaymentRequestId(paymentRequestId);
+        
         given(paymentRequestRepository.save(any(PaymentRequest.class)))
                 .willReturn(savedRequest);
+        given(paymentService.schedulePaymentTimeout(paymentRequestId))
+                .willReturn(CompletableFuture.completedFuture(null));
 
-        // when
         PaymentRequest result = paymentValidationService.savePaymentRequest(orderId, tossOrderId, amount);
 
-        // then
         assertThat(result).isNotNull();
         assertThat(result.getOrderId()).isEqualTo(orderId);
         assertThat(result.getPgProvider()).isEqualTo("TOSS");
         assertThat(result.getStatus()).isEqualTo("PENDING");
         then(paymentRequestRepository).should().save(any(PaymentRequest.class));
+        then(paymentService).should().schedulePaymentTimeout(paymentRequestId);
     }
 
     @DisplayName("중복 결제 방지 - 이미 승인된 결제")
     @Test
     void givenConfirmedPayment_whenValidateCallback_thenReturnFailure() {
-        // given
         String tossOrderId = "ORDER_ALREADY_CONFIRMED";
         Integer amount = 15000;
         String paymentKey = "payment_key_123";
@@ -65,10 +70,8 @@ class PaymentValidationServiceTest {
         given(paymentRequestRepository.findAll())
                 .willReturn(Arrays.asList(confirmedRequest));
 
-        // when
         ValidationResult result = paymentValidationService.validateCallback(tossOrderId, amount, paymentKey);
 
-        // then
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getErrorMessage()).contains("이미 처리된 결제입니다");
     }
@@ -76,7 +79,6 @@ class PaymentValidationServiceTest {
     @DisplayName("금액 불일치 검증 실패")
     @Test
     void givenAmountMismatch_whenValidateCallback_thenReturnFailure() {
-        // given
         String tossOrderId = "ORDER_AMOUNT_MISMATCH";
         Integer savedAmount = 10000;
         Integer callbackAmount = 15000;
@@ -88,10 +90,8 @@ class PaymentValidationServiceTest {
         given(paymentRequestRepository.findAll())
                 .willReturn(Arrays.asList(savedRequest));
 
-        // when
         ValidationResult result = paymentValidationService.validateCallback(tossOrderId, callbackAmount, paymentKey);
 
-        // then
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getErrorMessage()).contains("결제 금액이 일치하지 않습니다");
         assertThat(result.getErrorMessage()).contains("저장된 금액: 10000");
@@ -101,7 +101,6 @@ class PaymentValidationServiceTest {
     @DisplayName("존재하지 않는 주문 검증 실패")
     @Test
     void givenNonExistentOrder_whenValidateCallback_thenReturnFailure() {
-        // given
         String nonExistentOrderId = "ORDER_NOT_FOUND";
         Integer amount = 20000;
         String paymentKey = "payment_key_not_found";
@@ -109,10 +108,8 @@ class PaymentValidationServiceTest {
         given(paymentRequestRepository.findAll())
                 .willReturn(Arrays.asList());
 
-        // when
         ValidationResult result = paymentValidationService.validateCallback(nonExistentOrderId, amount, paymentKey);
 
-        // then
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getErrorMessage()).contains("저장된 결제 요청을 찾을 수 없습니다");
         assertThat(result.getErrorMessage()).contains("ORDER_NOT_FOUND");
@@ -121,7 +118,6 @@ class PaymentValidationServiceTest {
     @DisplayName("정상 검증 성공")
     @Test
     void givenValidCallback_whenValidateCallback_thenReturnSuccess() {
-        // given
         String tossOrderId = "ORDER_SUCCESS";
         Integer amount = 25000;
         String paymentKey = "payment_key_success";
@@ -132,10 +128,8 @@ class PaymentValidationServiceTest {
         given(paymentRequestRepository.findAll())
                 .willReturn(Arrays.asList(savedRequest));
 
-        // when
         ValidationResult result = paymentValidationService.validateCallback(tossOrderId, amount, paymentKey);
 
-        // then
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getPaymentRequest()).isNotNull();
         assertThat(result.getPaymentRequest().getStatus()).isEqualTo("PENDING");
@@ -144,7 +138,6 @@ class PaymentValidationServiceTest {
     @DisplayName("해킹 시도 차단 - 금액 조작 감지")
     @Test
     void givenHackedAmount_whenValidateCallback_thenBlockPayment() {
-        // given
         String tossOrderId = "ORDER_HACK_ATTEMPT";
         Integer originalAmount = 100000;
         Integer hackedAmount = 1000;
@@ -156,10 +149,8 @@ class PaymentValidationServiceTest {
         given(paymentRequestRepository.findAll())
                 .willReturn(Arrays.asList(originalRequest));
 
-        // when
         ValidationResult result = paymentValidationService.validateCallback(tossOrderId, hackedAmount, paymentKey);
 
-        // then
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getErrorMessage()).contains("결제 금액이 일치하지 않습니다");
     }
@@ -167,15 +158,12 @@ class PaymentValidationServiceTest {
     @DisplayName("결제 한도 초과 검증")
     @Test
     void givenOverLimitAmount_whenValidateCallback_thenReturnFailure() {
-        // given
         String tossOrderId = "ORDER_123";
-        Integer overLimitAmount = 100_000_001; // 1억 1원
+        Integer overLimitAmount = 100_000_001;
         String paymentKey = "payment_key";
 
-        // when
         ValidationResult result = paymentValidationService.validateCallback(tossOrderId, overLimitAmount, paymentKey);
 
-        // then
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getErrorMessage()).contains("결제 한도 초과");
     }
@@ -183,7 +171,6 @@ class PaymentValidationServiceTest {
     @DisplayName("Null 파라미터 예외 처리")
     @Test
     void givenNullParameters_whenSavePaymentRequest_thenThrowException() {
-        // when & then
         assertThatThrownBy(() -> {
             paymentValidationService.savePaymentRequest(null, null, null);
         }).isInstanceOf(IllegalArgumentException.class);
@@ -192,7 +179,6 @@ class PaymentValidationServiceTest {
     @DisplayName("결제 상태 업데이트 성공")
     @Test
     void givenPaymentRequestId_whenUpdatePaymentStatus_thenUpdateStatus() {
-        // given
         UUID paymentRequestId = UUID.randomUUID();
         PaymentRequest paymentRequest = new PaymentRequest(UUID.randomUUID(), "TOSS", "{\"amount\":10000}");
         paymentRequest.setStatus("PENDING");
@@ -202,10 +188,8 @@ class PaymentValidationServiceTest {
         given(paymentRequestRepository.save(any(PaymentRequest.class)))
                 .willReturn(paymentRequest);
 
-        // when
         paymentValidationService.updatePaymentStatus(paymentRequestId, "CONFIRMED");
 
-        // then
         assertThat(paymentRequest.getStatus()).isEqualTo("CONFIRMED");
         then(paymentRequestRepository).should().save(paymentRequest);
     }
@@ -213,16 +197,13 @@ class PaymentValidationServiceTest {
     @DisplayName("존재하지 않는 결제 요청 상태 업데이트")
     @Test
     void givenNonExistentPaymentRequestId_whenUpdatePaymentStatus_thenDoNothing() {
-        // given
         UUID nonExistentPaymentRequestId = UUID.randomUUID();
 
         given(paymentRequestRepository.findById(nonExistentPaymentRequestId))
                 .willReturn(Optional.empty());
 
-        // when
         paymentValidationService.updatePaymentStatus(nonExistentPaymentRequestId, "CONFIRMED");
 
-        // then
         then(paymentRequestRepository).should(never()).save(any(PaymentRequest.class));
     }
 }

@@ -22,40 +22,30 @@ public class TossPaymentService {
     @Value("${toss.secret-key}")
     private String secretKey;
 
-    /**
-     * 토스페이먼츠 결제 승인 API 호출 (표준 결제용)
-     */
     public TossPaymentResponse confirmPayment(String paymentKey, String orderId, Integer amount) {
-        // 입력값 검증
         validatePaymentRequest(paymentKey, orderId, amount);
         
-        // 1. 시크릿 키 Base64 인코딩 (토스 API 인증 방식)
         String encodedAuth = Base64.getEncoder()
             .encodeToString((secretKey + ":").getBytes());
         
-        // 2. 요청 데이터 생성
         TossPaymentRequest request = new TossPaymentRequest(paymentKey, orderId, amount);
         
         try {
-            // 3. WebClient로 POST 요청
             TossPaymentResponse response = tossWebClient
                 .post()
-                .uri("/payments/confirm")  // 토스 결제 승인 API 엔드포인트
-                .header("Authorization", "Basic " + encodedAuth)  // 인증 헤더
-                .bodyValue(request)  // 요청 데이터 (JSON으로 자동 변환)
-                .retrieve()  // 응답 받기
-                .bodyToMono(TossPaymentResponse.class)  // 응답을 TossPaymentResponse 객체로 변환
-                .block();  // 동기 방식으로 결과 기다리기
+                .uri("/payments/confirm")
+                .header("Authorization", "Basic " + encodedAuth)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(TossPaymentResponse.class)
+                .block();
             return response;
             
         } catch (Exception e) {
             throw new PaymentException("결제 승인 중 오류가 발생했습니다: " + e.getMessage(), "PAYMENT_CONFIRM_ERROR", e);
         }
     }
-    
-    /**
-     * 결제 요청 데이터 검증
-     */
+
     private void validatePaymentRequest(String paymentKey, String orderId, Integer amount) {
         if (paymentKey == null || paymentKey.trim().isEmpty()) {
             throw new PaymentValidationException("paymentKey", "결제 키는 필수입니다.");

@@ -80,6 +80,15 @@
             align-items: center;
         }
 
+        .category-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin: 20px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
         .menu-item {
             display: flex;
             align-items: center;
@@ -237,6 +246,17 @@
             border-color: #ff6b35;
         }
 
+        .point-input:invalid {
+            border-color: #dc3545;
+        }
+
+        .point-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
         .max-btn {
             background: #ff6b35;
             color: white;
@@ -303,6 +323,9 @@
         <div class="menu-section">
             <div class="section-title">🍜 메뉴 선택</div>
 
+            <!-- 메인 메뉴 -->
+            <div class="category-title">🍗 메인 메뉴</div>
+            
             <div class="menu-item">
                 <div class="menu-image">🍗</div>
                 <div class="menu-info">
@@ -328,20 +351,6 @@
                     <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440002', -1)">-</button>
                     <span class="quantity-display" id="550e8400-e29b-41d4-a716-446655440002-qty">0</span>
                     <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440002', 1)">+</button>
-                </div>
-            </div>
-
-            <div class="menu-item">
-                <div class="menu-image">🥤</div>
-                <div class="menu-info">
-                    <div class="menu-name">콜라 1.25L</div>
-                    <div class="menu-desc">시원한 콜라</div>
-                    <div class="menu-price">3,000원</div>
-                </div>
-                <div class="quantity-control">
-                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440003', -1)">-</button>
-                    <span class="quantity-display" id="550e8400-e29b-41d4-a716-446655440003-qty">0</span>
-                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440003', 1)">+</button>
                 </div>
             </div>
 
@@ -386,6 +395,23 @@
                     <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440006', 1)">+</button>
                 </div>
             </div>
+
+            <!-- 음료 -->
+            <div class="category-title">🥤 음료</div>
+            
+            <div class="menu-item">
+                <div class="menu-image">🥤</div>
+                <div class="menu-info">
+                    <div class="menu-name">콜라 1.25L</div>
+                    <div class="menu-desc">시원한 콜라</div>
+                    <div class="menu-price">3,000원</div>
+                </div>
+                <div class="quantity-control">
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440003', -1)">-</button>
+                    <span class="quantity-display" id="550e8400-e29b-41d4-a716-446655440003-qty">0</span>
+                    <button class="quantity-btn" onclick="updateQuantity('550e8400-e29b-41d4-a716-446655440003', 1)">+</button>
+                </div>
+            </div>
         </div>
 
         <!-- 주문 요약 -->
@@ -416,9 +442,10 @@
             </div>
 
             <div class="point-input-group" id="point-input-group" style="display: none;">
-                <input type="number" id="pointAmount" class="point-input" placeholder="사용할 포인트" min="0" th:max="${customerPoints}" onchange="calculatePaymentAmount()">
+                <input type="number" id="pointAmount" class="point-input" placeholder="사용할 포인트" min="0" th:max="${customerPoints}" oninput="validateAndCalculatePoints()" onchange="calculatePaymentAmount()">
                 <button class="max-btn" onclick="useMaxPoints()">전액사용</button>
             </div>
+            <div class="point-error" id="point-error">포인트 입력값이 유효하지 않습니다.</div>
 
             <div class="point-discount" id="point-discount" style="display: none;">
                 포인트 할인: -<span id="discount-amount">0</span>원
@@ -444,14 +471,44 @@
     const customerPoints = /*[[${customerPoints}]]*/ 5000;
     const customerId = /*[[${customerId}]]*/ '11111111-1111-1111-1111-111111111111';
 
-    // 메뉴 데이터 (실제 DB 데이터)
+    // 메뉴 데이터 (실제 DB 데이터 기반)
     const menuData = {
-        '550e8400-e29b-41d4-a716-446655440001': { name: '후라이드치킨', price: 18000 },
-        '550e8400-e29b-41d4-a716-446655440002': { name: '양념치킨', price: 19000 },
-        '550e8400-e29b-41d4-a716-446655440003': { name: '콜라 1.25L', price: 3000 },
-        '550e8400-e29b-41d4-a716-446655440004': { name: '김치찌개', price: 8000 },
-        '550e8400-e29b-41d4-a716-446655440005': { name: '제육볶음', price: 12000 },
-        '550e8400-e29b-41d4-a716-446655440006': { name: '된장찌개', price: 7000 }
+        '550e8400-e29b-41d4-a716-446655440001': { 
+            name: '후라이드치킨', 
+            price: 18000, 
+            category: 'MAIN',
+            description: '바삭바삭한 후라이드치킨'
+        },
+        '550e8400-e29b-41d4-a716-446655440002': { 
+            name: '양념치킨', 
+            price: 19000, 
+            category: 'MAIN',
+            description: '매콤달콤한 양념치킨'
+        },
+        '550e8400-e29b-41d4-a716-446655440003': { 
+            name: '콜라 1.25L', 
+            price: 3000, 
+            category: 'DRINK',
+            description: '시원한 콜라'
+        },
+        '550e8400-e29b-41d4-a716-446655440004': { 
+            name: '김치찌개', 
+            price: 8000, 
+            category: 'MAIN',
+            description: '진짜 맛있는 김치찌개'
+        },
+        '550e8400-e29b-41d4-a716-446655440005': { 
+            name: '제육볶음', 
+            price: 12000, 
+            category: 'MAIN',
+            description: '매콤달콤한 제육볶음'
+        },
+        '550e8400-e29b-41d4-a716-446655440006': { 
+            name: '된장찌개', 
+            price: 7000, 
+            category: 'MAIN',
+            description: '구수한 된장찌개'
+        }
     };
 
     // 주문 상태
@@ -516,12 +573,14 @@
     function togglePointUse() {
         const usePoints = document.getElementById('usePoints').checked;
         const pointInputGroup = document.getElementById('point-input-group');
+        const pointInput = document.getElementById('pointAmount');
 
         if (usePoints) {
             pointInputGroup.style.display = 'flex';
+            calculatePaymentAmount();
         } else {
             pointInputGroup.style.display = 'none';
-            document.getElementById('pointAmount').value = '';
+            pointInput.value = '';
             pointsToUse = 0;
             calculatePaymentAmount();
         }
@@ -529,23 +588,76 @@
 
     // 최대 포인트 사용
     function useMaxPoints() {
+        if (totalAmount === 0) {
+            alert('먼저 메뉴를 선택해주세요.');
+            return;
+        }
+        
         const maxPoints = Math.min(customerPoints, totalAmount);
-        document.getElementById('pointAmount').value = maxPoints;
+        const pointInput = document.getElementById('pointAmount');
+        pointInput.value = maxPoints;
         calculatePaymentAmount();
+    }
+
+    // 포인트 입력 유효성 검사 및 계산
+    function validateAndCalculatePoints() {
+        const pointInput = document.getElementById('pointAmount');
+        const pointError = document.getElementById('point-error');
+        const inputValue = parseInt(pointInput.value) || 0;
+        
+        if (inputValue < 0) {
+            pointInput.value = 0;
+            showPointError('포인트는 0 이상이어야 합니다.');
+            return;
+        }
+        
+        if (inputValue > customerPoints) {
+            pointInput.value = customerPoints;
+            showPointError(`보유 포인트(${customerPoints.toLocaleString()}원)를 초과할 수 없습니다.`);
+            setTimeout(() => hidePointError(), 2000);
+        } else if (inputValue > totalAmount) {
+            pointInput.value = totalAmount;
+            showPointError(`주문금액(${totalAmount.toLocaleString()}원)을 초과할 수 없습니다.`);
+            setTimeout(() => hidePointError(), 2000);
+        } else {
+            hidePointError();
+        }
+        
+        calculatePaymentAmount();
+    }
+    
+    function showPointError(message) {
+        const pointError = document.getElementById('point-error');
+        pointError.textContent = message;
+        pointError.style.display = 'block';
+    }
+    
+    function hidePointError() {
+        const pointError = document.getElementById('point-error');
+        pointError.style.display = 'none';
     }
 
     // 결제 금액 계산
     function calculatePaymentAmount() {
         const pointInput = document.getElementById('pointAmount');
-        pointsToUse = parseInt(pointInput.value) || 0;
+        const usePointsCheckbox = document.getElementById('usePoints');
+        
+        if (!usePointsCheckbox.checked || totalAmount === 0) {
+            pointsToUse = 0;
+            finalPaymentAmount = totalAmount;
+        } else {
+            pointsToUse = parseInt(pointInput.value) || 0;
+            
+            const maxUsablePoints = Math.min(customerPoints, totalAmount);
+            pointsToUse = Math.min(pointsToUse, maxUsablePoints);
+            
+            if (pointsToUse !== parseInt(pointInput.value)) {
+                pointInput.value = pointsToUse;
+            }
+            
+            finalPaymentAmount = Math.max(0, totalAmount - pointsToUse);
+        }
 
-        // 포인트 제한
-        pointsToUse = Math.min(pointsToUse, customerPoints, totalAmount);
-        pointInput.value = pointsToUse;
-
-        finalPaymentAmount = totalAmount - pointsToUse;
-
-        // UI 업데이트
         const paymentAmountDiv = document.getElementById('payment-amount');
         const pointDiscountDiv = document.getElementById('point-discount');
 
@@ -560,6 +672,13 @@
             document.getElementById('final-amount').textContent = finalPaymentAmount.toLocaleString();
             paymentAmountDiv.style.display = 'block';
         }
+        
+        console.log('포인트 계산:', {
+            totalAmount,
+            pointsToUse,
+            finalPaymentAmount,
+            customerPoints
+        });
     }
 
     // 결제 진행
@@ -569,22 +688,21 @@
             return;
         }
 
-        // 주문 데이터 생성
         const orderData = {
             customerId: customerId,
-            items: [],
-            totalAmount: totalAmount,
+            orderMenuList: [],
+            totalPrice: totalAmount,
             usePoints: document.getElementById('usePoints').checked,
             pointsToUse: pointsToUse,
-            finalPaymentAmount: finalPaymentAmount
+            finalPaymentAmount: finalPaymentAmount,
+            orderType: '배달'
         };
 
-        // 주문 항목 추가
         for (const [menuId, quantity] of Object.entries(cart)) {
             if (quantity > 0) {
-                orderData.items.push({
+                orderData.orderMenuList.push({
                     menuId: menuId,
-                    name: menuData[menuId].name,
+                    menuName: menuData[menuId].name,
                     price: menuData[menuId].price,
                     quantity: quantity
                 });
@@ -593,7 +711,6 @@
 
         console.log('주문 데이터:', orderData);
 
-        // AJAX로 결제 요청 처리
         fetch('/api/v1/payment/checkout', {
             method: 'POST',
             headers: {
@@ -614,13 +731,11 @@
             
             console.log('결제 정보:', data);
             
-            // 포인트로 전액 결제된 경우
             if (data.amount === 0) {
                 alert('포인트로 결제가 완료되었습니다!');
                 return;
             }
             
-            // 토스페이먼츠 결제 SDK 호출
             requestTossPayment(data);
         })
         .catch(error => {
@@ -642,9 +757,10 @@
             customerEmail: 'test@example.com',
             successUrl: window.location.origin + '/api/v1/payment/success',
             failUrl: window.location.origin + '/api/v1/payment/fail',
+            cancelUrl: window.location.origin + '/api/v1/payment/cancel',
         }).catch(function (error) {
             if (error.code === 'USER_CANCEL') {
-                alert('결제가 취소되었습니다.');
+                window.location.href = '/api/v1/payment/cancel?orderId=' + paymentData.orderId + '&message=' + encodeURIComponent('고객이 결제를 취소하였습니다');
             } else {
                 alert('결제 중 오류가 발생했습니다: ' + error.message);
             }
@@ -655,6 +771,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         console.log('주문 페이지 로드 완료');
         console.log('고객 포인트:', customerPoints);
+        console.log('메뉴 데이터:', menuData);
     });
 </script>
 </body>

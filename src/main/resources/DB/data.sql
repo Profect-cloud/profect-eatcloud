@@ -61,6 +61,23 @@ VALUES ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin1@example.com', 'Admin One
         '010-3456-7890', 'CFO',
         '00000000-0000-0000-0000-000000000003');
 
+-- 4-1) 결제 상태 코드
+INSERT INTO payment_status_codes (code, display_name, sort_order, is_active, p_time_id)
+VALUES ('PENDING', '결제 대기', 1, true, '00000000-0000-0000-0000-000000000001'),
+       ('PAID', '결제 완료', 2, true, '00000000-0000-0000-0000-000000000002'),
+       ('CANCELED', '결제 취소', 3, true, '00000000-0000-0000-0000-000000000003'),
+       ('FAILED', '결제 실패', 4, true, '00000000-0000-0000-0000-000000000004'),
+       ('REFUNDED', '환불 완료', 5, true, '00000000-0000-0000-0000-000000000005');
+
+-- 4-2) 결제 방법 코드
+INSERT INTO payment_method_codes (code, display_name, sort_order, is_active, p_time_id)
+VALUES ('CARD', '카드', 1, true, '00000000-0000-0000-0000-000000000001'),
+       ('VIRTUAL_ACCOUNT', '가상계좌', 2, true, '00000000-0000-0000-0000-000000000002'),
+       ('TRANSFER', '계좌이체', 3, true, '00000000-0000-0000-0000-000000000003'),
+       ('PHONE', '휴대폰', 4, true, '00000000-0000-0000-0000-000000000004'),
+       ('GIFT_CERTIFICATE', '상품권', 5, true, '00000000-0000-0000-0000-000000000005'),
+       ('POINT', '포인트', 6, true, '00000000-0000-0000-0000-000000000006');
+
 -- 5) Customer 계정 10개
 INSERT INTO p_customer (id, name, nickname, email, password, phone_number, points, p_time_id)
 VALUES 

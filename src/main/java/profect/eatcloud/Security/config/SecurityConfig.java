@@ -57,7 +57,11 @@ public class SecurityConfig {
 		"/api/v1/payment/success",
 		"/api/v1/payment/order",
 		"/api/v1/payment/fail",
-		"/api/v1/payment/charge"
+
+		"/api/v1/payment/cancel",  // 결제 취소 엔드포인트 추가
+		"/api/v1/payment/charge",
+
+		"/api/v1/customers/**"
     };
 
 	@Bean

@@ -28,7 +28,7 @@ public class PaymentRequest extends BaseTimeEntity {
 
     @Column(name = "request_payload", columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
-    private String requestPayload;  // JSON 문자열로 저장
+    private String requestPayload;
 
     @Column(name = "redirect_url", columnDefinition = "text")
     private String redirectUrl;

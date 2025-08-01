@@ -27,7 +27,7 @@ public class CustomerOrderService {
     private final OrderTypeCodeRepository orderTypeCodeRepository;
 
     @Transactional
-    public Order createOrder(UUID customerId, String orderTypeCodeStr) {
+    public Order createOrder(UUID customerId, String orderTypeCodeStr, Boolean usePoints, Integer pointsToUse) {
         Cart cart = cartRepository.findByCustomerId(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("장바구니가 존재하지 않습니다."));
 
@@ -42,10 +42,15 @@ public class CustomerOrderService {
                 .map(item -> new OrderMenu(item.getMenuId(), item.getMenuName(), item.getQuantity(), item.getPrice()))
                 .collect(Collectors.toList());
 
-        // 주문 번호 생성
-        String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
+        // 주문번호 생성 (날짜 형식 변경)
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String randomPart = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
         String orderNumber = "ORD-" + date + "-" + randomPart;
+
+        // 총 금액 계산
+        Integer totalPrice = orderMenuList.stream()
+                .mapToInt(menu -> menu.getPrice() * menu.getQuantity())
+                .sum();
 
         Order newOrder = Order.builder()
                 .orderNumber(orderNumber)
@@ -55,10 +60,15 @@ public class CustomerOrderService {
                 .orderStatusCode(orderStatusCodeRepository.findByCode("PENDING").orElseThrow()) // 기본 상태
                 .orderTypeCode(orderTypeCodeRepository.findByCode(orderTypeCodeStr).orElseThrow(() ->
                         new IllegalArgumentException("유효하지 않은 주문 타입 코드입니다.")))
+                .totalPrice(totalPrice)
+                .usePoints(usePoints != null ? usePoints : false)
+                .pointsToUse(pointsToUse != null ? pointsToUse : 0)
+                .finalPaymentAmount(totalPrice)
                 .build();
 
         orderRepository.save(newOrder);
 
+        // 장바구니 비우기
         cart.getCartItems().clear();
         cartRepository.save(cart);
 

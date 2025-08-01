@@ -5,7 +5,7 @@
     <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>결제 실패</title>
+    <title>결제 취소</title>
     <style>
         * {
             box-sizing: border-box;
@@ -15,7 +15,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -45,28 +45,27 @@
         }
         
         .header {
-            background: linear-gradient(135deg, #dc3545, #c82333);
+            background: linear-gradient(135deg, #ff9800, #f57c00);
             color: white;
             padding: 40px 30px;
             text-align: center;
             position: relative;
         }
         
-        .fail-icon {
+        .cancel-icon {
             font-size: 64px;
             margin-bottom: 16px;
-            animation: shake 0.5s ease-in-out;
+            animation: fadeIn 0.8s ease-out;
         }
         
-        @keyframes shake {
-            0%, 100% {
-                transform: translateX(0);
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
             }
-            25% {
-                transform: translateX(-5px);
-            }
-            75% {
-                transform: translateX(5px);
+            to {
+                opacity: 1;
+                transform: scale(1);
             }
         }
         
@@ -85,86 +84,112 @@
             padding: 40px 30px;
         }
         
-        .error-info {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-left: 4px solid #dc3545;
+        .cancel-info {
+            background: #fff3e0;
+            border: 1px solid #ffcc02;
+            border-left: 4px solid #ff9800;
             border-radius: 12px;
             padding: 24px;
             margin-bottom: 30px;
         }
         
-        .error-info h3 {
+        .cancel-info h3 {
             font-size: 18px;
-            color: #721c24;
+            color: #e65100;
             margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
-        .error-row {
+        .info-row {
             margin-bottom: 12px;
             padding: 8px 0;
         }
         
-        .error-row:last-child {
+        .info-row:last-child {
             margin-bottom: 0;
         }
         
-        .error-row .label {
+        .info-row .label {
             font-size: 14px;
-            color: #721c24;
+            color: #e65100;
             font-weight: 600;
             margin-bottom: 4px;
         }
         
-        .error-row .value {
+        .info-row .value {
             font-size: 14px;
-            color: #721c24;
+            color: #e65100;
             line-height: 1.5;
             background: #fff;
             padding: 8px 12px;
             border-radius: 6px;
-            border: 1px solid #f5c6cb;
+            border: 1px solid #ffcc02;
         }
         
-        .help-section {
-            background: #d1ecf1;
-            border: 1px solid #bee5eb;
-            border-left: 4px solid #17a2b8;
+        .status-section {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-left: 4px solid #4caf50;
             border-radius: 12px;
             padding: 24px;
             margin-bottom: 30px;
         }
         
-        .help-section h3 {
+        .status-section h3 {
             font-size: 18px;
-            color: #0c5460;
+            color: #2e7d32;
             margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
-        .help-list {
+        .status-list {
             list-style: none;
             padding: 0;
         }
         
-        .help-list li {
-            color: #0c5460;
+        .status-list li {
+            color: #2e7d32;
             margin-bottom: 8px;
-            padding-left: 20px;
+            padding-left: 24px;
             position: relative;
+            font-size: 14px;
         }
         
-        .help-list li:before {
-            content: "•";
-            color: #17a2b8;
+        .status-list li:before {
+            content: "✓";
+            color: #4caf50;
             font-weight: bold;
             position: absolute;
             left: 0;
+            font-size: 16px;
+        }
+        
+        .rollback-error {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            border-left: 4px solid #f44336;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+        
+        .rollback-error h3 {
+            font-size: 18px;
+            color: #c62828;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .rollback-error p {
+            color: #c62828;
+            font-size: 14px;
+            line-height: 1.5;
         }
         
         .actions {
@@ -208,8 +233,8 @@
         }
         
         .contact-info {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
             border-radius: 8px;
             padding: 16px;
             text-align: center;
@@ -222,13 +247,13 @@
         
         .contact-info p {
             font-size: 14px;
-            color: #856404;
+            color: #1565c0;
             margin: 0;
             line-height: 1.5;
         }
         
         .contact-info a {
-            color: #856404;
+            color: #1565c0;
             text-decoration: underline;
         }
     </style>
@@ -237,64 +262,71 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="fail-icon">😞</div>
-            <h1>결제에 실패했습니다</h1>
-            <p>결제 처리 중 문제가 발생했습니다</p>
+            <div class="cancel-icon">🛑</div>
+            <h1>결제가 취소되었습니다</h1>
+            <p>고객님의 요청에 따라 결제가 취소되었습니다</p>
         </div>
         
         <div class="content">
-            <div class="error-info">
-                <h3>⚠️ 오류 정보</h3>
+            <div class="cancel-info">
+                <h3>📋 취소 정보</h3>
                 
-                <div class="error-row">
-                    <div class="label">오류 메시지</div>
-                    <div class="value" th:text="${message}">알 수 없는 오류가 발생했습니다.</div>
+                <div class="info-row">
+                    <div class="label">취소 사유</div>
+                    <div class="value" th:text="${message}">고객 요청에 의한 취소</div>
                 </div>
                 
-                <div class="error-row" th:if="${code}">
-                    <div class="label">오류 코드</div>
-                    <div class="value" th:text="${code}">ERROR_CODE</div>
+                <div class="info-row" th:if="${code}">
+                    <div class="label">취소 코드</div>
+                    <div class="value" th:text="${code}">CANCEL_CODE</div>
                 </div>
                 
-                <div class="error-row" th:if="${orderId}">
+                <div class="info-row" th:if="${orderId}">
                     <div class="label">주문번호</div>
                     <div class="value" th:text="${orderId}">ORDER_123456</div>
                 </div>
                 
-                <div class="error-row" th:if="${error}">
-                    <div class="label">상세 오류</div>
-                    <div class="value" th:text="${error}">상세 오류 메시지</div>
+                <div class="info-row" th:if="${paymentKey}">
+                    <div class="label">결제키</div>
+                    <div class="value" th:text="${paymentKey}">PAYMENT_KEY</div>
                 </div>
                 
-                <div class="error-row" th:if="${refundedPoints != null and refundedPoints > 0}">
+                <div class="info-row" th:if="${amount}">
+                    <div class="label">취소금액</div>
+                    <div class="value" th:text="${#numbers.formatInteger(amount, 0, 'COMMA')} + '원'">0원</div>
+                </div>
+                
+                <div class="info-row" th:if="${internalOrderId}">
+                    <div class="label">내부 주문번호</div>
+                    <div class="value" th:text="${internalOrderId}">INTERNAL_ORDER_ID</div>
+                </div>
+                
+                <div class="info-row" th:if="${refundedPoints != null and refundedPoints > 0}">
                     <div class="label">환불된 포인트</div>
-                    <div class="value" th:text="${refundedPoints} + 'P'" style="color: #28a745; font-weight: bold;">0P</div>
-                </div>
-                
-                <div class="error-row" th:if="${rollbackCompleted == true}">
-                    <div class="label">데이터 복구 상태</div>
-                    <div class="value" style="color: #28a745; font-weight: bold;">✓ 주문 및 포인트가 정상적으로 복구되었습니다</div>
-                </div>
-                
-                <div class="error-row" th:if="${rollbackCompleted == false}">
-                    <div class="label">데이터 복구 상태</div>
-                    <div class="value" style="color: #dc3545; font-weight: bold;">⚠️ 일부 데이터 복구에 실패했습니다</div>
+                    <div class="value" th:text="${refundedPoints} + 'P'" style="color: #4caf50; font-weight: bold;">0P</div>
                 </div>
             </div>
             
-            <div class="help-section">
-                <h3>💡 해결 방법</h3>
-                <ul class="help-list">
-                    <li>카드 정보를 다시 확인해 주세요</li>
-                    <li>카드 한도나 잔액을 확인해 주세요</li>
-                    <li>다른 결제 수단을 이용해 보세요</li>
-                    <li>잠시 후 다시 시도해 주세요</li>
-                    <li>문제가 지속되면 고객센터에 문의해 주세요</li>
+            <!-- 롤백 성공시 -->
+            <div class="status-section" th:if="${rollbackCompleted == true}">
+                <h3>✅ 처리 완료</h3>
+                <ul class="status-list">
+                    <li>결제 요청이 취소되었습니다</li>
+                    <li>주문이 취소되었습니다</li>
+                    <li th:if="${refundedPoints != null and refundedPoints > 0}" th:text="'사용된 포인트 ' + ${refundedPoints} + 'P가 반환되었습니다'">사용된 포인트가 반환되었습니다</li>
+                    <li th:if="${refundedPoints == null or refundedPoints == 0}">사용된 포인트가 없습니다</li>
+                    <li>모든 데이터가 정상적으로 복구되었습니다</li>
                 </ul>
             </div>
             
+            <!-- 롤백 실패시 -->
+            <div class="rollback-error" th:if="${rollbackCompleted == false}">
+                <h3>⚠️ 처리 중 오류 발생</h3>
+                <p th:text="${rollbackError}">일부 데이터 복구 중 오류가 발생했습니다. 고객센터에 문의해 주세요.</p>
+            </div>
+            
             <div class="actions">
-                <button class="btn btn-primary" onclick="history.back()">다시 시도</button>
+                <a href="/api/v1/payment/order" class="btn btn-primary">다시 주문하기</a>
                 <a href="/" class="btn btn-secondary">메인으로 이동</a>
             </div>
             
@@ -309,31 +341,24 @@
     </div>
 
     <script th:inline="javascript">
-        console.log('=== 결제 실패 페이지 ===');
-        console.log('오류 메시지:', /*[[${message}]]*/ '알 수 없는 오류');
-        console.log('오류 코드:', /*[[${code}]]*/ 'ERROR_CODE');
+        console.log('=== 결제 취소 페이지 ===');
+        console.log('취소 메시지:', /*[[${message}]]*/ '고객 요청에 의한 취소');
+        console.log('취소 코드:', /*[[${code}]]*/ 'CANCEL_CODE');
         console.log('주문번호:', /*[[${orderId}]]*/ 'ORDER_123456');
-        console.log('상세 오류:', /*[[${error}]]*/ '상세 오류');
+        console.log('결제키:', /*[[${paymentKey}]]*/ 'PAYMENT_KEY');
+        console.log('취소금액:', /*[[${amount}]]*/ 0);
+        console.log('내부 주문번호:', /*[[${internalOrderId}]]*/ 'INTERNAL_ORDER_ID');
+        console.log('롤백 완료:', /*[[${rollbackCompleted}]]*/ false);
         
         // 페이지 로드 완료 시
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('결제 실패 페이지 로드 완료');
+            console.log('결제 취소 페이지 로드 완료');
             
             // TODO: 여기서 추가 작업 가능
-            // - 오류 로그 전송
+            // - 취소 통계 수집
             // - 사용자 피드백 수집
-            // - 대안 결제 수단 추천 등
+            // - 대안 제안 등
         });
-        
-        // 뒤로가기 버튼 클릭 시 결제 페이지로 이동
-        function goBack() {
-            // 이전 페이지가 있으면 뒤로가기, 없으면 결제 페이지로 이동
-            if (document.referrer) {
-                history.back();
-            } else {
-                window.location.href = '/payments/charge';
-            }
-        }
     </script>
 </body>
-</html> 
+</html>

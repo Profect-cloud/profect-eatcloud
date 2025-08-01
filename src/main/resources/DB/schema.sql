@@ -226,15 +226,19 @@ CREATE TABLE p_payments
 
 CREATE TABLE p_orders
 (
-    order_id        UUID PRIMARY KEY,
-    order_number    VARCHAR(50) UNIQUE NOT NULL,
-    customer_id     UUID               NOT NULL,
-    store_id        UUID               NOT NULL,
-    payment_id      UUID,
-    order_status    VARCHAR(30)        NOT NULL,
-    order_type      VARCHAR(30)        NOT NULL,
-    order_menu_list JSONB              NOT NULL,
-    p_time_id       UUID               NOT NULL,
+    order_id             UUID PRIMARY KEY,
+    order_number         VARCHAR(50) UNIQUE NOT NULL,
+    customer_id          UUID               NOT NULL,
+    store_id             UUID               NOT NULL,
+    payment_id           UUID,
+    order_status         VARCHAR(30)        NOT NULL,
+    order_type           VARCHAR(30)        NOT NULL,
+    order_menu_list      JSONB              NOT NULL,
+    total_price          INTEGER            NOT NULL DEFAULT 0,
+    use_points           BOOLEAN            NOT NULL DEFAULT false,
+    points_to_use        INTEGER            NOT NULL DEFAULT 0,
+    final_payment_amount INTEGER            NOT NULL DEFAULT 0,
+    p_time_id            UUID               NOT NULL,
     CONSTRAINT fk_orders_user FOREIGN KEY (customer_id) REFERENCES p_customer (id),
     CONSTRAINT fk_orders_store FOREIGN KEY (store_id) REFERENCES p_stores (store_id),
     CONSTRAINT fk_orders_p_time FOREIGN KEY (p_time_id) REFERENCES p_time (p_time_id)

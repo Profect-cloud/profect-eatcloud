@@ -10,6 +10,8 @@ import profect.eatcloud.Domain.GlobalCategory.Entity.OrderStatusCode;
 import profect.eatcloud.Domain.GlobalCategory.Entity.OrderTypeCode;
 import profect.eatcloud.Domain.GlobalCategory.Repository.OrderStatusCodeRepository;
 import profect.eatcloud.Domain.GlobalCategory.Repository.OrderTypeCodeRepository;
+import profect.eatcloud.Domain.Store.Entity.Menu;
+import profect.eatcloud.Domain.Store.Repository.MenuRepository_min;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,41 +25,56 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderStatusCodeRepository orderStatusCodeRepository;
     private final OrderTypeCodeRepository orderTypeCodeRepository;
+    private final MenuRepository_min menuRepository;
 
-    /**
-     * 주문 생성 (결제 전 단계)
-     */
-    public Order createPendingOrder(UUID customerId, UUID storeId, List<OrderMenu> orderMenuList, String orderType) {
-        // 주문번호 생성
+    public Order createPendingOrder(UUID customerId, UUID storeId, List<OrderMenu> orderMenuList, String orderType,
+                                   Boolean usePoints, Integer pointsToUse) {
         String orderNumber = generateOrderNumber();
         
-        // 주문 상태 및 타입 조회
         OrderStatusCode statusCode = orderStatusCodeRepository.findByCode("PENDING")
                 .orElseThrow(() -> new RuntimeException("주문 상태 코드를 찾을 수 없습니다: PENDING"));
         
         OrderTypeCode typeCode = orderTypeCodeRepository.findByCode(orderType)
                 .orElseThrow(() -> new RuntimeException("주문 타입 코드를 찾을 수 없습니다: " + orderType));
 
-        // 주문 생성
+        for (OrderMenu orderMenu : orderMenuList) {
+            Menu menu = menuRepository.findById(orderMenu.getMenuId())
+                    .orElseThrow(() -> new RuntimeException("메뉴를 찾을 수 없습니다: " + orderMenu.getMenuId()));
+            orderMenu.setPrice(menu.getPrice().intValue());
+        }
+
+        Integer totalPrice = calculateTotalAmount(orderMenuList);
+        
+        if (usePoints == null) {
+            usePoints = false;
+        }
+        if (pointsToUse == null) {
+            pointsToUse = 0;
+        }
+        
+        Integer finalPaymentAmount = Math.max(totalPrice - pointsToUse, 0);
+
         Order order = Order.builder()
                 .orderNumber(orderNumber)
+                .orderMenuList(orderMenuList)
                 .customerId(customerId)
                 .storeId(storeId)
-                .orderMenuList(orderMenuList)
                 .orderStatusCode(statusCode)
                 .orderTypeCode(typeCode)
+                .totalPrice(totalPrice)
+                .usePoints(usePoints)
+                .pointsToUse(pointsToUse)
+                .finalPaymentAmount(finalPaymentAmount)
                 .build();
 
         return orderRepository.save(order);
     }
-
 
     @Transactional(readOnly = true)
     public Optional<Order> findById(UUID orderId) {
         return orderRepository.findById(orderId);
     }
 
-    //findOrderByNumber
     @Transactional(readOnly = true)
     public Optional<Order> findOrderByNumber(String orderNumber) {
         return orderRepository.findByOrderNumber(orderNumber);
@@ -70,48 +87,23 @@ public class OrderService {
         OrderStatusCode paidStatus = orderStatusCodeRepository.findByCode("PAID")
                 .orElseThrow(() -> new RuntimeException("주문 상태 코드를 찾을 수 없습니다: PAID"));
 
-        // 주문에 결제 정보 연결 및 상태 변경
-        Order updatedOrder = Order.builder()
-                .orderId(order.getOrderId())
-                .orderNumber(order.getOrderNumber())
-                .customerId(order.getCustomerId())
-                .storeId(order.getStoreId())
-                .orderMenuList(order.getOrderMenuList())
-                .paymentId(paymentId)
-                .orderStatusCode(paidStatus)
-                .orderTypeCode(order.getOrderTypeCode())
-                .build();
+        order.setPaymentId(paymentId);
+        order.setOrderStatusCode(paidStatus);
 
-        orderRepository.save(updatedOrder);
+        orderRepository.save(order);
     }
 
-    /**
-     * 결제 실패 시 주문 취소
-     */
     public void cancelOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다: " + orderId));
 
         OrderStatusCode canceledStatus = orderStatusCodeRepository.findByCode("CANCELED")
                 .orElseThrow(() -> new RuntimeException("주문 상태 코드를 찾을 수 없습니다: CANCELED"));
+        order.setOrderStatusCode(canceledStatus);
 
-        Order canceledOrder = Order.builder()
-                .orderId(order.getOrderId())
-                .orderNumber(order.getOrderNumber())
-                .customerId(order.getCustomerId())
-                .storeId(order.getStoreId())
-                .orderMenuList(order.getOrderMenuList())
-                .paymentId(order.getPaymentId())
-                .orderStatusCode(canceledStatus)
-                .orderTypeCode(order.getOrderTypeCode())
-                .build();
-
-        orderRepository.save(canceledOrder);
+        orderRepository.save(order);
     }
 
-    /**
-     * 주문 총 금액 계산
-     */
     @Transactional(readOnly = true)
     public Integer calculateTotalAmount(List<OrderMenu> orderMenuList) {
         return orderMenuList.stream()
@@ -119,10 +111,9 @@ public class OrderService {
                 .sum();
     }
 
-    /**
-     * 주문 번호 생성
-     */
     private String generateOrderNumber() {
-        return "ORD" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        String date = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String randomPart = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+        return "ORD-" + date + "-" + randomPart;
     }
 }

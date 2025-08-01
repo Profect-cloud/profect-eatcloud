@@ -15,10 +15,9 @@ import profect.eatcloud.Domain.Payment.Exception.PaymentNotFoundException;
 import profect.eatcloud.Domain.Payment.Exception.PaymentValidationException;
 import profect.eatcloud.Domain.Store.Exception.MenuNotFoundException;
 
-@RestControllerAdvice    // 모든 @RestController 에 적용
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // IllegalArgumentException, NoSuchElementException 은 400 Bad Request 로 응답
     @ExceptionHandler({ IllegalArgumentException.class, NoSuchElementException.class })
     public ResponseEntity<String> handleBadRequest(Exception e) {
         return ResponseEntity
@@ -33,7 +32,6 @@ public class GlobalExceptionHandler {
                 .body(e.getMessage());
     }
 
-    // Payment 관련 예외 처리
     @ExceptionHandler(PaymentNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handlePaymentNotFound(PaymentNotFoundException e) {
         Map<String, Object> response = new HashMap<>();
@@ -81,7 +79,6 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
-    // 그 외 모든 예외는 500 Internal Server Error 로 응답
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleInternalError(Exception e) {
         return ResponseEntity
