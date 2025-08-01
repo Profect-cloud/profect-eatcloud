@@ -70,25 +70,16 @@ public class ReviewService {
 	public void deleteReview(UUID customerId, UUID reviewId) {
 		Review review = reviewRepository.findByReviewIdAndOrderCustomerIdAndTimeData_DeletedAtIsNull(reviewId, customerId)
 			.orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없거나 접근 권한이 없습니다."));
-
-		reviewRepository.softDeleteByTimeId(
-			review.getTimeData().getPTimeId(),
-			LocalDateTime.now(),
-			SecurityUtil.getCurrentUsername()
-		);
+		reviewRepository.deleteById(reviewId);
 	}
 
-	// Private 검증 메서드
 	private Order validateAndGetOrder(UUID customerId, UUID orderId) {
-		// 고객 존재 확인
 		customerRepository.findById(customerId)
 			.orElseThrow(() -> new IllegalArgumentException("Customer not found: " + customerId));
 
-		// 주문 존재 및 소유권 확인
 		Order order = orderRepository.findByOrderIdAndCustomerIdAndTimeData_DeletedAtIsNull(orderId, customerId)
 			.orElseThrow(() -> new IllegalArgumentException("Order not found or not authorized"));
 
-		// 이미 리뷰가 존재하는지 확인
 		if (reviewRepository.existsByOrderOrderIdAndTimeData_DeletedAtIsNull(orderId)) {
 			throw new IllegalArgumentException("이미 해당 주문에 대한 리뷰가 존재합니다.");
 		}
