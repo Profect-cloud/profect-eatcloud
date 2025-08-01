@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Payment;
+package profect.eatcloud.Domain.Payment.Controller;
 
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import profect.eatcloud.Domain.Payment.Controller.PaymentApiController;
 import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
 import profect.eatcloud.Domain.Payment.Exception.PaymentValidationException;
 import profect.eatcloud.Domain.Payment.Service.TossPaymentService;
@@ -48,7 +47,6 @@ class PaymentControllerTest {
     @DisplayName("결제 승인 API 성공")
     @Test
     void givenValidPaymentRequest_whenConfirmPayment_thenReturnSuccess() throws Exception {
-        // given
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("paymentKey", "payment_key_123");
         requestBody.put("orderId", "ORDER_123456");
@@ -62,8 +60,7 @@ class PaymentControllerTest {
         given(tossPaymentService.confirmPayment(any(String.class), any(String.class), any(Integer.class)))
                 .willReturn(mockResponse);
 
-        // when & then
-        mockMvc.perform(post("/api/v1/payments/confirm")
+        mockMvc.perform(post("/api/v1/payment/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isOk())
@@ -77,7 +74,6 @@ class PaymentControllerTest {
     @DisplayName("결제 승인 API 실패 - 검증 오류")
     @Test
     void givenInvalidPaymentRequest_whenConfirmPayment_thenReturnError() throws Exception {
-        // given
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("paymentKey", "invalid_key");
         requestBody.put("orderId", "ORDER_123456");
@@ -86,11 +82,10 @@ class PaymentControllerTest {
         given(tossPaymentService.confirmPayment(any(String.class), any(String.class), any(Integer.class)))
                 .willThrow(new PaymentValidationException("잘못된 결제 정보입니다", "INVALID_PAYMENT"));
 
-        // when & then
-        mockMvc.perform(post("/api/v1/payments/confirm")
+        mockMvc.perform(post("/api/v1/payment/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(status().isBadRequest()); // GlobalExceptionHandler가 PaymentValidationException을 400으로 처리
+                .andExpect(status().isBadRequest());
 
         then(tossPaymentService).should().confirmPayment("invalid_key", "ORDER_123456", 15000);
     }
@@ -98,11 +93,9 @@ class PaymentControllerTest {
     @DisplayName("결제 상태 확인 API 성공")
     @Test
     void givenOrderId_whenGetPaymentStatus_thenReturnStatus() throws Exception {
-        // given
         String orderId = "ORDER_123456";
 
-        // when & then
-        mockMvc.perform(get("/api/v1/payments/status/{orderId}", orderId)
+        mockMvc.perform(get("/api/v1/payment/status/{orderId}", orderId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").value(orderId))
@@ -113,7 +106,6 @@ class PaymentControllerTest {
     @DisplayName("결제 검증 API 성공")
     @Test
     void givenValidPaymentInfo_whenValidatePayment_thenReturnSuccess() throws Exception {
-        // given
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("paymentKey", "payment_key_123");
         requestBody.put("orderId", "ORDER_123456");
@@ -125,8 +117,7 @@ class PaymentControllerTest {
         given(tossPaymentService.confirmPayment(any(String.class), any(String.class), any(Integer.class)))
                 .willReturn(mockResponse);
 
-        // when & then
-        mockMvc.perform(post("/api/v1/payments/validate")
+        mockMvc.perform(post("/api/v1/payment/validate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isOk())
@@ -139,7 +130,6 @@ class PaymentControllerTest {
     @DisplayName("결제 검증 API 실패 - 검증 오류")
     @Test
     void givenInvalidPaymentInfo_whenValidatePayment_thenReturnError() throws Exception {
-        // given
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("paymentKey", "invalid_key");
         requestBody.put("orderId", "ORDER_123456");
@@ -148,8 +138,7 @@ class PaymentControllerTest {
         given(tossPaymentService.confirmPayment(any(String.class), any(String.class), any(Integer.class)))
                 .willThrow(new PaymentValidationException("잘못된 결제 정보입니다", "INVALID_PAYMENT"));
 
-        // when & then
-        mockMvc.perform(post("/api/v1/payments/validate")
+        mockMvc.perform(post("/api/v1/payment/validate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest())
@@ -163,13 +152,11 @@ class PaymentControllerTest {
     @DisplayName("결제 승인 API - 필수 파라미터 누락")
     @Test
     void givenMissingRequiredParameters_whenConfirmPayment_thenReturnError() throws Exception {
-        // given - paymentKey 누락
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("orderId", "ORDER_123456");
         requestBody.put("amount", 15000);
 
-        // when & then
-        mockMvc.perform(post("/api/v1/payments/confirm")
+        mockMvc.perform(post("/api/v1/payment/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isOk()); // 실제로는 200을 반환함
@@ -178,11 +165,9 @@ class PaymentControllerTest {
     @DisplayName("결제 승인 API - 잘못된 JSON 형식")
     @Test
     void givenInvalidJson_whenConfirmPayment_thenReturnError() throws Exception {
-        // given
         String invalidJson = "{ invalid json }";
 
-        // when & then
-        mockMvc.perform(post("/api/v1/payments/confirm")
+        mockMvc.perform(post("/api/v1/payment/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson))
                 .andExpect(status().isInternalServerError()); // HttpMessageNotReadableException은 500으로 처리됨
