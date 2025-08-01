@@ -47,21 +47,6 @@ public class PaymentAuthenticationService {
         }
     }
 
-    public PaymentAuthResult validateOrderOwnership(UUID orderId, UUID customerId) {
-        try {
-            Customer currentCustomer = authenticationHelper.getCurrentCustomer();
-
-            if (!currentCustomer.getId().equals(customerId)) {
-                return PaymentAuthResult.failure("주문에 대한 권한이 없습니다.");
-            }
-            
-            return PaymentAuthResult.success(currentCustomer, "주문 소유자 검증 성공");
-            
-        } catch (AuthenticationHelper.AuthenticationException e) {
-            return PaymentAuthResult.failure("주문 처리를 위해서는 인증이 필요합니다: " + e.getMessage());
-        }
-    }
-
     @Getter
     public static class PaymentAuthResult {
         private final boolean success;
@@ -94,7 +79,7 @@ public class PaymentAuthenticationService {
         }
         
         public String getCustomerName() {
-            return customer != null ? customer.getName() : "테스트 고객";
+            return customer != null ? customer.getName() : "NULL";
         }
         
         public Integer getCustomerPoints() {

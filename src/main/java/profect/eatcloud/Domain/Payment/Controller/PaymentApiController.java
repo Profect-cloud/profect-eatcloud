@@ -14,9 +14,6 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 import java.util.HashMap;
 
-/**
- * Payment 관련 REST API 컨트롤러
- */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/payment")

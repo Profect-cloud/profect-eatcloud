@@ -22,9 +22,6 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    /**
-     * 주문 ID로 주문 조회
-     */
     @Operation(summary = "주문 조회", description = "주문 ID로 주문 정보를 조회합니다.")
     @GetMapping("/{orderId}")
     public ResponseEntity<Map<String, Object>> getOrder(@PathVariable UUID orderId) {
@@ -59,9 +56,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * 주문 번호로 주문 조회
-     */
     @Operation(summary = "주문 번호로 주문 조회", description = "주문 번호로 주문 정보를 조회합니다.")
     @GetMapping("/number/{orderNumber}")
     public ResponseEntity<Map<String, Object>> getOrderByNumber(@PathVariable String orderNumber) {

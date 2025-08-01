@@ -86,19 +86,11 @@ public class PaymentService {
         };
     }
 
-    /**
-     * 5분 후 PENDING 상태의 PaymentRequest를 CANCELED로 변경하는 비동기 작업
-     */
     @Async
     public CompletableFuture<Void> schedulePaymentTimeout(UUID paymentRequestId) {
         return schedulePaymentTimeout(paymentRequestId, false);
     }
 
-    /**
-     * PENDING 상태의 PaymentRequest를 CANCELED로 변경하는 비동기 작업
-     * @param paymentRequestId 결제 요청 ID
-     * @param testMode true일 경우 10초, false일 경우 5분 후 타임아웃
-     */
     @Async
     public CompletableFuture<Void> schedulePaymentTimeout(UUID paymentRequestId, boolean testMode) {
         return CompletableFuture.runAsync(() -> {
@@ -116,14 +108,10 @@ public class PaymentService {
         });
     }
 
-    /**
-     * 만료된 결제 요청 처리
-     */
     @Transactional
     public void updateExpiredPaymentRequest(UUID paymentRequestId) {
         paymentRequestRepository.findById(paymentRequestId)
                 .ifPresent(paymentRequest -> {
-                    // PENDING 상태인 경우에만 CANCELED로 변경
                     if ("PENDING".equals(paymentRequest.getStatus())) {
                         paymentRequest.setStatus("CANCELED");
                         paymentRequest.setRespondedAt(LocalDateTime.now());
@@ -135,9 +123,6 @@ public class PaymentService {
                 });
     }
 
-    /**
-     * 결제 요청 상태를 PAID로 업데이트
-     */
     @Transactional
     public void updatePaymentRequestToPaid(UUID paymentRequestId) {
         paymentRequestRepository.findById(paymentRequestId)

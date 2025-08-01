@@ -29,9 +29,6 @@ import java.util.Optional;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- * 토스페이먼츠 표준 결제 컨트롤러
- */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/payment")
@@ -53,9 +50,6 @@ public class PaymentController {
     @Value("${toss.client-key}")
     private String clientKey;
 
-    /**
-     * 주문 페이지 표시
-     */
     @Operation(summary = "주문 페이지", description = "결제 주문 페이지를 표시합니다.")
     @GetMapping("/order")
     public String orderPage(Model model) {
@@ -87,7 +81,8 @@ public class PaymentController {
             Boolean usePoints = (Boolean) orderData.getOrDefault("usePoints", false);
             Integer pointsToUse = (Integer) orderData.getOrDefault("pointsToUse", 0);
             Integer finalPaymentAmount = (Integer) orderData.getOrDefault("finalPaymentAmount", totalAmount);
-            String orderType = (String) orderData.getOrDefault("orderType", "DELIVERY");
+            String orderTypeInput = (String) orderData.getOrDefault("orderType", "배달");
+            String orderType = convertOrderTypeToCode(orderTypeInput);
             
             UUID storeId;
             if (orderData.get("storeId") != null) {
@@ -112,7 +107,6 @@ public class PaymentController {
                 }
             }
 
-            // 고객 인증 및 검증
             var authResult = paymentAuthenticationService.validateCustomerForPayment(customerIdFromForm);
             
             if (!authResult.isSuccess()) {
@@ -131,7 +125,6 @@ public class PaymentController {
                 if (!pointResult.isSuccess()) {
                     orderService.cancelOrder(createdOrder.getOrderId());
                     
-                    // 포인트 부족인 경우 상세 정보와 함께 에러 응답
                     if (pointResult.getErrorMessage().contains("부족")) {
                         response.put("error", pointResult.getErrorMessage());
                         response.put("errorType", "INSUFFICIENT_POINTS");
@@ -298,7 +291,6 @@ public class PaymentController {
                 if (savedRequest.isPresent()) {
                     PaymentRequest paymentRequest = savedRequest.get();
                     
-                    // 롤백 서비스를 통한 통합 롤백 처리
                     var rollbackResult = paymentRollbackService.rollbackPayment(paymentRequest, "CANCELED");
                     
                     if (rollbackResult.isSuccess()) {
@@ -336,9 +328,6 @@ public class PaymentController {
         return "payment/cancel";
     }
 
-    /**
-     * 결제 실패 콜백
-     */
     @Operation(summary = "결제 실패 콜백", description = "토스페이먼츠 결제 실패 콜백을 처리합니다.")
     @GetMapping("/fail")
     public String paymentFail(@RequestParam(required = false) String message,
@@ -353,7 +342,6 @@ public class PaymentController {
                 if (savedRequest.isPresent()) {
                     PaymentRequest paymentRequest = savedRequest.get();
                     
-                    // 롤백 서비스를 통한 통합 롤백 처리
                     var rollbackResult = paymentRollbackService.rollbackPayment(paymentRequest, "FAILED");
                     
                     if (rollbackResult.isSuccess()) {
@@ -388,4 +376,14 @@ public class PaymentController {
 
         return "payment/fail";
     }
+
+    private String convertOrderTypeToCode(String displayName) {
+        return switch (displayName) {
+            case "배달" -> "DELIVERY";
+            case "픽업" -> "PICKUP";
+            case "매장 식사" -> "DINE_IN";
+            default -> displayName;
+        };
+    }
 }
+
