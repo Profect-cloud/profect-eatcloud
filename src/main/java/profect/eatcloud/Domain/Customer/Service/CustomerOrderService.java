@@ -1,0 +1,67 @@
+package profect.eatcloud.Domain.Customer.Service;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import profect.eatcloud.Domain.Customer.Entity.Cart;
+import profect.eatcloud.Domain.Customer.Repository.CartRepository;
+import profect.eatcloud.Domain.GlobalCategory.Repository.OrderStatusCodeRepository;
+import profect.eatcloud.Domain.GlobalCategory.Repository.OrderTypeCodeRepository;
+import profect.eatcloud.Domain.Order.Dto.OrderMenu;
+import profect.eatcloud.Domain.Order.Entity.Order;
+import profect.eatcloud.Domain.Order.Repository.OrderRepository;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class CustomerOrderService {
+
+    private final CartRepository cartRepository;
+    private final OrderRepository orderRepository;
+    private final OrderStatusCodeRepository orderStatusCodeRepository;
+    private final OrderTypeCodeRepository orderTypeCodeRepository;
+
+    @Transactional
+    public Order createOrder(UUID customerId, String orderTypeCodeStr) {
+        Cart cart = cartRepository.findByCustomerId(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("장바구니가 존재하지 않습니다."));
+
+        if (cart.getCartItems().isEmpty()) {
+            throw new IllegalArgumentException("장바구니가 비어 있습니다.");
+        }
+
+        UUID storeId = cart.getCartItems().get(0).getStoreId(); // 모든 아이템은 같은 storeId를 가져야 함
+
+        // OrderMenu 리스트로 변환
+        List<OrderMenu> orderMenuList = cart.getCartItems().stream()
+                .map(item -> new OrderMenu(item.getMenuId(), item.getMenuName(), item.getQuantity(), item.getPrice()))
+                .collect(Collectors.toList());
+
+        // 주문 번호 생성
+        String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
+        String randomPart = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+        String orderNumber = "ORD-" + date + "-" + randomPart;
+
+        Order newOrder = Order.builder()
+                .orderNumber(orderNumber)
+                .orderMenuList(orderMenuList)
+                .customerId(customerId)
+                .storeId(storeId)
+                .orderStatusCode(orderStatusCodeRepository.findByCode("PENDING").orElseThrow()) // 기본 상태
+                .orderTypeCode(orderTypeCodeRepository.findByCode(orderTypeCodeStr).orElseThrow(() ->
+                        new IllegalArgumentException("유효하지 않은 주문 타입 코드입니다.")))
+                .build();
+
+        orderRepository.save(newOrder);
+
+        cart.getCartItems().clear();
+        cartRepository.save(cart);
+
+        return newOrder;
+    }
+}

@@ -62,6 +62,7 @@ public class SecurityConfig {
 
 		"/api/v1/stores/**",
 		"/api/v1/manager/**"
+
     };
 
 	@Bean
@@ -85,6 +86,9 @@ public class SecurityConfig {
 			.formLogin(form -> form.disable())
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(PERMIT_URLS).permitAll()
+				.requestMatchers("/api/v1/customers/**").hasRole("CUSTOMER")
+				.requestMatchers("/api/v1/manager/**").hasRole("MANAGER")
+				.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated()
 			)
 			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
