@@ -95,5 +95,6 @@ public class PointService {
             return new PointResult(false, errorMessage, 0, 0);
         }
 
+        // builder 메서드 제거 - static factory 메서드만 사용
     }
 }

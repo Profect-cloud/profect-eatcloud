@@ -7,6 +7,10 @@ import profect.eatcloud.Domain.Payment.Service.TossPaymentService;
 import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
 import profect.eatcloud.Domain.Payment.Exception.PaymentValidationException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -14,16 +18,14 @@ import java.util.HashMap;
  * Payment 관련 REST API 컨트롤러
  */
 @RestController
-@RequestMapping("/api/payments")
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/payment")
+@Tag(name = "9. PaymentController")
 public class PaymentApiController {
     
-    @Autowired
-    private TossPaymentService tossPaymentService;
-    
-    /**
-     * 결제 승인 API
-     * POST /api/payments/confirm
-     */
+    private final TossPaymentService tossPaymentService;
+
+    @Operation(summary = "결제 승인", description = "토스페이먼츠 결제 승인을 처리합니다.")
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmPayment(@RequestBody Map<String, Object> request) {
         try {
@@ -48,11 +50,8 @@ public class PaymentApiController {
             throw e;
         }
     }
-    
-    /**
-     * 결제 상태 확인 API
-     * GET /api/payments/status/{orderId}
-     */
+
+    @Operation(summary = "결제 상태 확인", description = "주문 ID로 결제 상태를 조회합니다.")
     @GetMapping("/status/{orderId}")
     public ResponseEntity<?> getPaymentStatus(@PathVariable String orderId) {
         // TODO: DB에서 주문 상태 조회 로직 구현
@@ -63,11 +62,8 @@ public class PaymentApiController {
         
         return ResponseEntity.ok(result);
     }
-    
-    /**
-     * 결제 검증 API
-     * POST /api/payments/validate
-     */
+
+    @Operation(summary = "결제 검증", description = "결제 정보의 유효성을 검증합니다.")
     @PostMapping("/validate")
     public ResponseEntity<?> validatePayment(@RequestBody Map<String, Object> request) {
         try {

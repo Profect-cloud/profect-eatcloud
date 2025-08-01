@@ -49,4 +49,9 @@ public class Order extends BaseTimeEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_type", referencedColumnName = "code")
 	private OrderTypeCode orderTypeCode;
+
+	//BaseTimeEntity->TimeData->GetCreatedAt
+
+
+
 }

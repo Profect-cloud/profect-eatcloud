@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "p_cart")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -25,7 +26,7 @@ public class Cart extends BaseTimeEntity {
 	@Column(name = "cart_items", nullable = false, columnDefinition = "jsonb")
 	private List<CartItem> cartItems;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "customer_id", nullable = false)
 	private Customer customer;
 }

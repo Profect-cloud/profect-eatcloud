@@ -1,5 +1,7 @@
 package profect.eatcloud.Domain.Store.Controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,40 +13,23 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/stores/{store_id}/menus")
+@RequestMapping("/api/v1/stores/{store_id}/menus")
 @RequiredArgsConstructor
+@Tag(name = "7. MenuController")
 public class MenuController {
     private final MenuService menuService;
 
-    @PostMapping
-    public ResponseEntity<Menu> createMenu(@PathVariable UUID store_id, @RequestBody MenuRequestDto dto) {
-        return ResponseEntity.ok(menuService.createMenu(store_id, dto));
-    }
-
+    @Operation(summary = "단일 매장 메뉴 리스트 조회")
     @GetMapping
     public ResponseEntity<List<Menu>> getMenus(@PathVariable UUID store_id) {
         return ResponseEntity.ok(menuService.getMenusByStore(store_id));
     }
 
+    @Operation(summary = "메뉴 상세 조회")
     @GetMapping("/{menu_id}")
     public ResponseEntity<Menu> getMenuDetail(@PathVariable UUID store_id, @PathVariable UUID menu_id) {
-        return ResponseEntity.ok(menuService.getMenu(menu_id));
+        return ResponseEntity.ok(menuService.getMenuById(store_id,menu_id));
     }
 
-    @PostMapping("/{menu_id}/ai-description")
-    public ResponseEntity<String> requestAIDescription(@PathVariable UUID store_id, @PathVariable UUID menu_id) {
-        return ResponseEntity.ok("AI 상품설명 요청 (미구현)");
-    }
-
-    @PutMapping("/{menu_id}")
-    public ResponseEntity<Menu> updateMenu(@PathVariable UUID menu_id, @RequestBody MenuRequestDto dto) {
-        return ResponseEntity.ok(menuService.updateMenu(menu_id, dto));
-    }
-
-    @DeleteMapping("/{menu_id}")
-    public ResponseEntity<Void> deleteMenu(@PathVariable UUID menu_id) {
-        menuService.deleteMenu(menu_id);
-        return ResponseEntity.noContent().build();
-    }
 }
 

@@ -48,7 +48,17 @@ public class SecurityConfig {
 		"/api/v1/auth/**",
 		"/api/v1/auth/login",
 		"/api/v1/auth/register",
-	};
+
+		// Payment
+		"/api/v1/payment/validate",
+		"/api/v1/payment/confirm",
+		"/api/v1/payment/status/{orderId}",
+		"/api/v1/payment/checkout",
+		"/api/v1/payment/success",
+		"/api/v1/payment/order",
+		"/api/v1/payment/fail",
+		"/api/v1/payment/charge"
+    };
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -62,6 +72,8 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthorizationFilter jwtAuthFilter) throws
 		Exception {
+		//boolean isTestProfile = "test".equals(System.getProperty("spring.profiles.active"));
+
 		http
 			.csrf(csrf -> csrf.disable())
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -69,6 +81,9 @@ public class SecurityConfig {
 			.formLogin(form -> form.disable())
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(PERMIT_URLS).permitAll()
+				.requestMatchers("/api/v1/customers/**").hasRole("CUSTOMER")
+				.requestMatchers("/api/v1/manager/**").hasRole("MANAGER")
+				.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated()
 			)
 			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -84,6 +99,11 @@ public class SecurityConfig {
 					res.getWriter().write("{\"error\": \"Forbidden: 권한이 없습니다.\"}");
 				})
 			);
+
+//		// ✅ 테스트가 아닐 때만 필터 등록
+//		if (!isTestProfile) {
+//			http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+//		}
 
 		return http.build();
 	}
