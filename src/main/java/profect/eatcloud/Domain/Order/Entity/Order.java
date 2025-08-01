@@ -51,7 +51,20 @@ public class Order extends BaseTimeEntity {
 	@JoinColumn(name = "order_type", referencedColumnName = "code")
 	private OrderTypeCode orderTypeCode;
 
-	//BaseTimeEntity->TimeData->GetCreatedAt
+	@Column(name = "total_price", nullable = false)
+	private Integer totalPrice;
+
+	@Column(name = "use_points", nullable = false)
+	@Builder.Default
+	private Boolean usePoints = false;
+
+	@Column(name = "points_to_use", nullable = false)
+	@Builder.Default
+	private Integer pointsToUse = 0;
+
+	@Column(name = "final_payment_amount", nullable = false)
+	private Integer finalPaymentAmount;
+
 
 
 

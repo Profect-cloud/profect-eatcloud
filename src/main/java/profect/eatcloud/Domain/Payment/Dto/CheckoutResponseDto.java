@@ -44,13 +44,13 @@ public class CheckoutResponseDto {
         description = "포인트 사용 여부",
         example = "true"
     )
-    private Boolean usePoints;
+    private Boolean usePoints = false; // 기본값 false
 
     @Schema(
         description = "사용한 포인트 금액",
         example = "5000"
     )
-    private Integer pointsUsed;
+    private Integer pointsUsed = 0; // 기본값 0
 
     @Schema(
         description = "원래 주문 금액",

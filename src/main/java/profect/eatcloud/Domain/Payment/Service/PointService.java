@@ -18,6 +18,10 @@ public class PointService {
      * 포인트 사용 가능 여부 확인
      */
     public boolean canUsePoints(UUID customerId, Integer pointsToUse) {
+        if (customerId == null || pointsToUse == null || pointsToUse <= 0) {
+            return false;
+        }
+        
         Optional<Customer> customer = customerRepository.findById(customerId);
         if (customer.isEmpty()) {
             return false;
@@ -31,6 +35,10 @@ public class PointService {
      * 포인트 차감
      */
     public PointResult usePoints(UUID customerId, Integer pointsToUse) {
+        if (customerId == null || pointsToUse == null || pointsToUse <= 0) {
+            return PointResult.fail("유효하지 않은 포인트 사용 요청입니다");
+        }
+        
         Optional<Customer> customerOpt = customerRepository.findById(customerId);
         if (customerOpt.isEmpty()) {
             return PointResult.fail("고객을 찾을 수 없습니다");
@@ -54,6 +62,10 @@ public class PointService {
      * 포인트 적립 (환불시 사용)
      */
     public PointResult refundPoints(UUID customerId, Integer pointsToRefund) {
+        if (customerId == null || pointsToRefund == null || pointsToRefund <= 0) {
+            return PointResult.fail("유효하지 않은 포인트 환불 요청입니다");
+        }
+        
         Optional<Customer> customerOpt = customerRepository.findById(customerId);
         if (customerOpt.isEmpty()) {
             return PointResult.fail("고객을 찾을 수 없습니다");

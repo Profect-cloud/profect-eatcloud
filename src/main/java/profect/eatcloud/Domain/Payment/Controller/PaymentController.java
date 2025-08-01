@@ -111,23 +111,30 @@ public class PaymentController {
 
             // 주문 정보 추출
             String customerIdFromForm = (String) orderData.get("customerId");
-            Integer totalAmount = (Integer) orderData.get("totalAmount");
-            Boolean usePoints = (Boolean) orderData.get("usePoints");
-            Integer pointsToUse = (Integer) orderData.get("pointsToUse");
-            Integer finalPaymentAmount = (Integer) orderData.get("finalPaymentAmount");
+            Integer totalAmount = (Integer) orderData.get("totalPrice"); // totalPrice로 변경
+            Boolean usePoints = (Boolean) orderData.getOrDefault("usePoints", false); // 기본값 false로 설정
+            Integer pointsToUse = (Integer) orderData.getOrDefault("pointsToUse", 0); // 기본값 0으로 설정
+            Integer finalPaymentAmount = (Integer) orderData.getOrDefault("finalPaymentAmount", totalAmount); // 기본값 totalAmount로 설정
             String orderType = (String) orderData.getOrDefault("orderType", "DELIVERY"); // 기본값 설정
-            // 첫 번째 Store ID 고정 (맛있는 한식당)
-            UUID storeId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            
+            // storeId 처리
+            UUID storeId;
+            if (orderData.get("storeId") != null) {
+                storeId = UUID.fromString((String) orderData.get("storeId"));
+            } else {
+                // 첫 번째 Store ID 고정 (맛있는 한식당)
+                storeId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            }
 
             // 주문 메뉴 리스트 변환
-            List<Map<String, Object>> itemsData = (List<Map<String, Object>>) orderData.get("items");
+            List<Map<String, Object>> itemsData = (List<Map<String, Object>>) orderData.get("orderMenuList"); // orderMenuList로 변경
             List<OrderMenu> orderMenuList = new ArrayList<>();
             
             if (itemsData != null) {
                 for (Map<String, Object> item : itemsData) {
                     OrderMenu orderMenu = OrderMenu.builder()
                             .menuId(UUID.fromString((String) item.get("menuId")))
-                            .menuName((String) item.get("name"))
+                            .menuName((String) item.get("menuName")) // menuName으로 변경
                             .price((Integer) item.get("price"))
                             .quantity((Integer) item.get("quantity"))
                             .build();
@@ -162,10 +169,11 @@ public class PaymentController {
             }
 
             // ========== 1. 주문을 먼저 DB에 생성 ==========
-            Order createdOrder = orderService.createPendingOrder(customerUuid, storeId, orderMenuList, orderType);
+            Order createdOrder = orderService.createPendingOrder(customerUuid, storeId, orderMenuList, orderType, 
+                                                                totalAmount, usePoints, pointsToUse, finalPaymentAmount);
             
             // 포인트 사용 처리
-            if (usePoints && pointsToUse > 0 && customer != null) {
+            if (usePoints != null && usePoints && pointsToUse != null && pointsToUse > 0 && customer != null) {
                 var pointResult = pointService.usePoints(customer.getId(), pointsToUse);
 
                 if (!pointResult.isSuccess()) {

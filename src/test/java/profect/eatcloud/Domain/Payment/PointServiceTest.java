@@ -93,38 +93,68 @@ class PointServiceTest {
         assertThat(result.getErrorMessage()).contains("고객을 찾을 수 없습니다");
     }
 
-    @DisplayName("0 포인트 사용 시 고객이 없어서 실패")
+    @DisplayName("0 포인트 사용 시 실패")
     @Test
     void givenZeroPoints_whenUsePoints_thenReturnFailure() {
         // given
         UUID customerId = UUID.randomUUID();
-
-        given(customerRepository.findById(customerId))
-                .willReturn(Optional.empty());
 
         // when
         PointResult result = pointService.usePoints(customerId, 0);
 
         // then
         assertThat(result.isSuccess()).isFalse();
-        assertThat(result.getErrorMessage()).contains("고객을 찾을 수 없습니다");
+        assertThat(result.getErrorMessage()).contains("유효하지 않은 포인트 사용 요청입니다");
+        then(customerRepository).should(never()).findById(any(UUID.class));
+        then(customerRepository).should(never()).save(any(Customer.class));
     }
 
-    @DisplayName("음수 포인트 사용 시 고객이 없어서 실패")
+    @DisplayName("음수 포인트 사용 시 실패")
     @Test
     void givenNegativePoints_whenUsePoints_thenReturnFailure() {
         // given
         UUID customerId = UUID.randomUUID();
-
-        given(customerRepository.findById(customerId))
-                .willReturn(Optional.empty());
 
         // when
         PointResult result = pointService.usePoints(customerId, -1000);
 
         // then
         assertThat(result.isSuccess()).isFalse();
-        assertThat(result.getErrorMessage()).contains("고객을 찾을 수 없습니다");
+        assertThat(result.getErrorMessage()).contains("유효하지 않은 포인트 사용 요청입니다");
+        then(customerRepository).should(never()).findById(any(UUID.class));
+        then(customerRepository).should(never()).save(any(Customer.class));
+    }
+
+    @DisplayName("null 포인트 사용 시 실패")
+    @Test
+    void givenNullPoints_whenUsePoints_thenReturnFailure() {
+        // given
+        UUID customerId = UUID.randomUUID();
+
+        // when
+        PointResult result = pointService.usePoints(customerId, null);
+
+        // then
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getErrorMessage()).contains("유효하지 않은 포인트 사용 요청입니다");
+        then(customerRepository).should(never()).findById(any(UUID.class));
+        then(customerRepository).should(never()).save(any(Customer.class));
+    }
+
+    @DisplayName("null 고객 ID로 포인트 사용 시 실패")
+    @Test
+    void givenNullCustomerId_whenUsePoints_thenReturnFailure() {
+        // given
+        Integer pointsToUse = 1000;
+
+        // when
+        PointResult result = pointService.usePoints(null, pointsToUse);
+
+        // then
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getErrorMessage()).contains("유효하지 않은 포인트 사용 요청입니다");
+        then(customerRepository).should(never()).findById(any(UUID.class));
+        then(customerRepository).should(never()).save(any(Customer.class));
     }
 
     @DisplayName("포인트 적립 성공")
@@ -191,5 +221,16 @@ class PointServiceTest {
 
         // then
         assertThat(canUse).isFalse();
+    }
+
+    @DisplayName("null 값으로 포인트 사용 가능 여부 확인 시 false 반환")
+    @Test
+    void givenNullValues_whenCanUsePoints_thenReturnFalse() {
+        // when & then
+        assertThat(pointService.canUsePoints(null, 1000)).isFalse();
+        assertThat(pointService.canUsePoints(UUID.randomUUID(), null)).isFalse();
+        assertThat(pointService.canUsePoints(null, null)).isFalse();
+        assertThat(pointService.canUsePoints(UUID.randomUUID(), 0)).isFalse();
+        assertThat(pointService.canUsePoints(UUID.randomUUID(), -1000)).isFalse();
     }
 }

@@ -28,6 +28,14 @@ public class OrderService {
      * 주문 생성 (결제 전 단계)
      */
     public Order createPendingOrder(UUID customerId, UUID storeId, List<OrderMenu> orderMenuList, String orderType) {
+        return createPendingOrder(customerId, storeId, orderMenuList, orderType, null, null, null, null);
+    }
+
+    /**
+     * 주문 생성 (결제 전 단계) - 포인트 정보 포함
+     */
+    public Order createPendingOrder(UUID customerId, UUID storeId, List<OrderMenu> orderMenuList, String orderType, 
+                                   Integer totalPrice, Boolean usePoints, Integer pointsToUse, Integer finalPaymentAmount) {
         // 주문번호 생성
         String orderNumber = generateOrderNumber();
         
@@ -38,6 +46,20 @@ public class OrderService {
         OrderTypeCode typeCode = orderTypeCodeRepository.findByCode(orderType)
                 .orElseThrow(() -> new RuntimeException("주문 타입 코드를 찾을 수 없습니다: " + orderType));
 
+        // 기본값 설정
+        if (totalPrice == null) {
+            totalPrice = calculateTotalAmount(orderMenuList);
+        }
+        if (usePoints == null) {
+            usePoints = false;
+        }
+        if (pointsToUse == null) {
+            pointsToUse = 0;
+        }
+        if (finalPaymentAmount == null) {
+            finalPaymentAmount = totalPrice - pointsToUse;
+        }
+
         // 주문 생성
         Order order = Order.builder()
                 .orderNumber(orderNumber)
@@ -46,6 +68,10 @@ public class OrderService {
                 .orderMenuList(orderMenuList)
                 .orderStatusCode(statusCode)
                 .orderTypeCode(typeCode)
+                .totalPrice(totalPrice)
+                .usePoints(usePoints)
+                .pointsToUse(pointsToUse)
+                .finalPaymentAmount(finalPaymentAmount)
                 .build();
 
         return orderRepository.save(order);
