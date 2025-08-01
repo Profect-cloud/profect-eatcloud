@@ -42,10 +42,15 @@ public class CustomerOrderService {
                 .map(item -> new OrderMenu(item.getMenuId(), item.getMenuName(), item.getQuantity(), item.getPrice()))
                 .collect(Collectors.toList());
 
-        // 주문 번호 생성
-        String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
+        // 주문번호 생성 (날짜 형식 변경)
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String randomPart = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
         String orderNumber = "ORD-" + date + "-" + randomPart;
+
+        // 총 금액 계산
+        Integer totalPrice = orderMenuList.stream()
+                .mapToInt(menu -> menu.getPrice() * menu.getQuantity())
+                .sum();
 
         Order newOrder = Order.builder()
                 .orderNumber(orderNumber)
@@ -55,10 +60,80 @@ public class CustomerOrderService {
                 .orderStatusCode(orderStatusCodeRepository.findByCode("PENDING").orElseThrow()) // 기본 상태
                 .orderTypeCode(orderTypeCodeRepository.findByCode(orderTypeCodeStr).orElseThrow(() ->
                         new IllegalArgumentException("유효하지 않은 주문 타입 코드입니다.")))
+                .totalPrice(totalPrice)
+                .usePoints(false)
+                .pointsToUse(0)
+                .finalPaymentAmount(totalPrice)
                 .build();
 
         orderRepository.save(newOrder);
 
+        // 장바구니 비우기
+        cart.getCartItems().clear();
+        cartRepository.save(cart);
+
+        return newOrder;
+    }
+
+    @Transactional
+    public Order createOrderWithPoints(UUID customerId, String orderTypeCodeStr, Boolean usePoints, Integer pointsToUse) {
+        Cart cart = cartRepository.findByCustomerId(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("장바구니가 존재하지 않습니다."));
+
+        if (cart.getCartItems().isEmpty()) {
+            throw new IllegalArgumentException("장바구니가 비어 있습니다.");
+        }
+
+        UUID storeId = cart.getCartItems().get(0).getStoreId(); // 모든 아이템은 같은 storeId를 가져야 함
+
+        // OrderMenu 리스트로 변환
+        List<OrderMenu> orderMenuList = cart.getCartItems().stream()
+                .map(item -> new OrderMenu(item.getMenuId(), item.getMenuName(), item.getQuantity(), item.getPrice()))
+                .collect(Collectors.toList());
+
+        // 주문번호 생성 (날짜 형식 변경)
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String randomPart = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+        String orderNumber = "ORD-" + date + "-" + randomPart;
+
+        // 총 금액 계산
+        Integer totalPrice = orderMenuList.stream()
+                .mapToInt(menu -> menu.getPrice() * menu.getQuantity())
+                .sum();
+
+        // 기본값 설정
+        if (usePoints == null) {
+            usePoints = false;
+        }
+        if (pointsToUse == null) {
+            pointsToUse = 0;
+        }
+
+        // 최종 결제 금액 계산
+        Integer finalPaymentAmount = totalPrice - pointsToUse;
+        
+        // 유효성 검증
+        if (finalPaymentAmount < 0) {
+            throw new IllegalArgumentException("포인트 사용 금액이 총 주문 금액을 초과할 수 없습니다.");
+        }
+
+        Order newOrder = Order.builder()
+                .orderNumber(orderNumber)
+                .orderMenuList(orderMenuList)
+                .customerId(customerId)
+                .storeId(storeId)
+                .orderStatusCode(orderStatusCodeRepository.findByCode("PENDING").orElseThrow()) // 기본 상태
+                .orderTypeCode(orderTypeCodeRepository.findByCode(orderTypeCodeStr).orElseThrow(() ->
+                        new IllegalArgumentException("유효하지 않은 주문 타입 코드입니다.")))
+                .totalPrice(totalPrice)
+                .usePoints(usePoints)
+                .pointsToUse(pointsToUse)
+                .finalPaymentAmount(finalPaymentAmount)
+                .build();
+
+        orderRepository.save(newOrder);
+
+        // 장바구니 비우기
         cart.getCartItems().clear();
         cartRepository.save(cart);
 

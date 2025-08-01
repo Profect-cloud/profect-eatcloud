@@ -33,18 +33,13 @@ public class PaymentService {
     private static final long PAYMENT_TIMEOUT_MS = 5 * 60 * 1000;
     private static final long TEST_PAYMENT_TIMEOUT_MS = 10 * 1000;
 
-    /**
-     * 결제 완료 시 Payment 엔티티 저장
-     */
     @Transactional
     public Payment saveSuccessfulPayment(PaymentRequest paymentRequest, Customer customer, TossPaymentResponse tossResponse) {
         Timestamp approvedTime;
         try {
             if (tossResponse.getApprovedAt() != null) {
-                // ISO 8601 형식 파싱 (예: "2024-12-01T14:30:05+09:00")
                 String approvedAtStr = tossResponse.getApprovedAt();
                 if (approvedAtStr.contains("+") || approvedAtStr.contains("Z")) {
-                    // 타임존 정보가 포함된 경우 19자리까지만 사용
                     approvedAtStr = approvedAtStr.substring(0, 19);
                 }
                 approvedTime = Timestamp.valueOf(LocalDateTime.parse(approvedAtStr));
@@ -52,15 +47,12 @@ public class PaymentService {
                 approvedTime = Timestamp.valueOf(LocalDateTime.now());
             }
         } catch (Exception e) {
-            // 파싱 실패시 현재 시간 사용
             approvedTime = Timestamp.valueOf(LocalDateTime.now());
         }
 
-        // 결제 상태 코드 조회 (PAID)
         PaymentStatusCode paidStatus = paymentStatusCodeRepository.findByCode("PAID")
                 .orElseThrow(() -> new RuntimeException("결제 상태 코드를 찾을 수 없습니다: PAID"));
 
-        // 결제 방법 코드 조회 (토스페이먼츠 응답의 method 필드 사용)
         String methodCode = mapTossMethodToCode(tossResponse.getMethod());
         PaymentMethodCode paymentMethod = paymentMethodCodeRepository.findByCode(methodCode)
                 .orElse(paymentMethodCodeRepository.findByCode("CARD")
@@ -81,9 +73,6 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
 
-    /**
-     * 토스페이먼츠 결제 방법을 내부 코드로 매핑
-     */
     private String mapTossMethodToCode(String tossMethod) {
         if (tossMethod == null) return "CARD";
         

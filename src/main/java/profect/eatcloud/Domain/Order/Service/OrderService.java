@@ -24,18 +24,8 @@ public class OrderService {
     private final OrderStatusCodeRepository orderStatusCodeRepository;
     private final OrderTypeCodeRepository orderTypeCodeRepository;
 
-    /**
-     * 주문 생성 (결제 전 단계)
-     */
+    // 메소드 오버로딩으로 포인트 사용 여부와 포인트 사용 금액을 선택적으로 받을 수 있도록 구현함. 추후 하나로 통합할 수 있음
     public Order createPendingOrder(UUID customerId, UUID storeId, List<OrderMenu> orderMenuList, String orderType) {
-        return createPendingOrder(customerId, storeId, orderMenuList, orderType, null, null, null, null);
-    }
-
-    /**
-     * 주문 생성 (결제 전 단계) - 포인트 정보 포함
-     */
-    public Order createPendingOrder(UUID customerId, UUID storeId, List<OrderMenu> orderMenuList, String orderType, 
-                                   Integer totalPrice, Boolean usePoints, Integer pointsToUse, Integer finalPaymentAmount) {
         // 주문번호 생성
         String orderNumber = generateOrderNumber();
         
@@ -46,26 +36,62 @@ public class OrderService {
         OrderTypeCode typeCode = orderTypeCodeRepository.findByCode(orderType)
                 .orElseThrow(() -> new RuntimeException("주문 타입 코드를 찾을 수 없습니다: " + orderType));
 
+        // 총 금액 계산
+        Integer totalPrice = calculateTotalAmount(orderMenuList);
+
+        // 주문 생성
+        Order order = Order.builder()
+                .orderNumber(orderNumber)
+                .orderMenuList(orderMenuList)
+                .customerId(customerId)
+                .storeId(storeId)
+                .orderStatusCode(statusCode)
+                .orderTypeCode(typeCode)
+                .totalPrice(totalPrice)
+                .usePoints(false)
+                .pointsToUse(0)
+                .finalPaymentAmount(totalPrice)
+                .build();
+
+        return orderRepository.save(order);
+    }
+    public Order createPendingOrder(UUID customerId, UUID storeId, List<OrderMenu> orderMenuList, String orderType, 
+                                   Boolean usePoints, Integer pointsToUse) {
+        // 주문번호 생성
+        String orderNumber = generateOrderNumber();
+        
+        // 주문 상태 및 타입 조회
+        OrderStatusCode statusCode = orderStatusCodeRepository.findByCode("PENDING")
+                .orElseThrow(() -> new RuntimeException("주문 상태 코드를 찾을 수 없습니다: PENDING"));
+        
+        OrderTypeCode typeCode = orderTypeCodeRepository.findByCode(orderType)
+                .orElseThrow(() -> new RuntimeException("주문 타입 코드를 찾을 수 없습니다: " + orderType));
+
+        // 총 금액 계산
+        Integer totalPrice = calculateTotalAmount(orderMenuList);
+        
         // 기본값 설정
-        if (totalPrice == null) {
-            totalPrice = calculateTotalAmount(orderMenuList);
-        }
         if (usePoints == null) {
             usePoints = false;
         }
         if (pointsToUse == null) {
             pointsToUse = 0;
         }
-        if (finalPaymentAmount == null) {
-            finalPaymentAmount = totalPrice - pointsToUse;
+        
+        // 최종 결제 금액 계산
+        Integer finalPaymentAmount = totalPrice - pointsToUse;
+        
+        // 유효성 검증
+        if (finalPaymentAmount < 0) {
+            throw new RuntimeException("포인트 사용 금액이 총 주문 금액을 초과할 수 없습니다.");
         }
 
         // 주문 생성
         Order order = Order.builder()
                 .orderNumber(orderNumber)
+                .orderMenuList(orderMenuList)
                 .customerId(customerId)
                 .storeId(storeId)
-                .orderMenuList(orderMenuList)
                 .orderStatusCode(statusCode)
                 .orderTypeCode(typeCode)
                 .totalPrice(totalPrice)
@@ -133,6 +159,8 @@ public class OrderService {
      * 주문 번호 생성
      */
     private String generateOrderNumber() {
-        return "ORD" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        String date = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String randomPart = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+        return "ORD-" + date + "-" + randomPart;
     }
 }

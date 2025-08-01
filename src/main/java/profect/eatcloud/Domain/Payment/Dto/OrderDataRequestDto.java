@@ -39,13 +39,13 @@ public class OrderDataRequestDto {
         description = "포인트 사용 여부",
         example = "true"
     )
-    private Boolean usePoints = false; // 기본값 false
+    private Boolean usePoints = false;
 
     @Schema(
         description = "사용할 포인트 금액",
         example = "5000"
     )
-    private Integer pointsToUse = 0; // 기본값 0
+    private Integer pointsToUse = 0;
 
     @Schema(
         description = "최종 결제 금액 (포인트 차감 후)",

@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +13,7 @@ import profect.eatcloud.Domain.Payment.Entity.PaymentRequest;
 import profect.eatcloud.Domain.Payment.Entity.Payment;
 import profect.eatcloud.Domain.Payment.Service.TossPaymentService;
 import profect.eatcloud.Domain.Payment.Service.PaymentValidationService;
+import profect.eatcloud.Domain.Payment.Service.PaymentAuthenticationService;
 import profect.eatcloud.Domain.Payment.Service.PointService;
 import profect.eatcloud.Domain.Payment.Service.PaymentService;
 import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
@@ -44,6 +43,7 @@ public class PaymentController {
 
     private final TossPaymentService tossPaymentService;
     private final PaymentValidationService paymentValidationService;
+    private final PaymentAuthenticationService paymentAuthenticationService;
     private final PointService pointService;
     private final CustomerRepository customerRepository;
     private final OrderService orderService;
@@ -55,49 +55,24 @@ public class PaymentController {
     private String clientKey;
 
     /**
-     * 현재 인증된 고객 정보 조회
-     */
-    private Customer getCurrentCustomer() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("인증되지 않은 사용자입니다.");
-        }
-
-        String customerIdStr = authentication.getName();
-        try {
-            UUID customerId = UUID.fromString(customerIdStr);
-            return customerRepository.findById(customerId)
-                    .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("유효하지 않은 고객 ID 형식입니다.");
-        }
-    }
-
-    /**
      * 주문 페이지 표시
      */
     @Operation(summary = "주문 페이지", description = "결제 주문 페이지를 표시합니다.")
     @GetMapping("/order")
     public String orderPage(Model model) {
-        try {
-            Customer customer = getCurrentCustomer();
-            model.addAttribute("customerId", customer.getId().toString());
-            model.addAttribute("customerPoints", customer.getPoints() != null ? customer.getPoints() : 0);
-            model.addAttribute("customerName", customer.getName());
-        } catch (Exception e) {
-            // 인증 실패시 기본값 설정 (개발/테스트용)
-            model.addAttribute("customerId", "test-customer");
-            model.addAttribute("customerPoints", 0);
-            model.addAttribute("customerName", "테스트 고객");
-            model.addAttribute("authError", "인증 정보를 가져올 수 없습니다: " + e.getMessage());
+        var authResult = paymentAuthenticationService.validateCustomerForOrderPage();
+        
+        if (!authResult.isSuccess()) {
+            return "redirect:/error/unauthorized?error=" + java.net.URLEncoder.encode(authResult.getErrorMessage(), java.nio.charset.StandardCharsets.UTF_8);
         }
-
+        
+        model.addAttribute("customerId", authResult.getCustomerIdAsString());
+        model.addAttribute("customerPoints", authResult.getCustomerPoints());
+        model.addAttribute("customerName", authResult.getCustomerName());
+        
         return "order/order";
     }
 
-    /**
-     * 주문 → 결제 페이지 이동
-     */
     @Operation(summary = "결제 페이지", description = "주문 정보를 받아 결제 페이지로 이동합니다.")
     @PostMapping("/checkout")
     @ResponseBody
@@ -106,35 +81,31 @@ public class PaymentController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // JSON 파싱
             Map<String, Object> orderData = objectMapper.readValue(orderDataJson, Map.class);
 
-            // 주문 정보 추출
             String customerIdFromForm = (String) orderData.get("customerId");
-            Integer totalAmount = (Integer) orderData.get("totalPrice"); // totalPrice로 변경
-            Boolean usePoints = (Boolean) orderData.getOrDefault("usePoints", false); // 기본값 false로 설정
-            Integer pointsToUse = (Integer) orderData.getOrDefault("pointsToUse", 0); // 기본값 0으로 설정
-            Integer finalPaymentAmount = (Integer) orderData.getOrDefault("finalPaymentAmount", totalAmount); // 기본값 totalAmount로 설정
-            String orderType = (String) orderData.getOrDefault("orderType", "DELIVERY"); // 기본값 설정
+            Integer totalAmount = (Integer) orderData.get("totalPrice");
+            Boolean usePoints = (Boolean) orderData.getOrDefault("usePoints", false);
+            Integer pointsToUse = (Integer) orderData.getOrDefault("pointsToUse", 0);
+            Integer finalPaymentAmount = (Integer) orderData.getOrDefault("finalPaymentAmount", totalAmount);
+            String orderType = (String) orderData.getOrDefault("orderType", "DELIVERY");
             
-            // storeId 처리
             UUID storeId;
             if (orderData.get("storeId") != null) {
                 storeId = UUID.fromString((String) orderData.get("storeId"));
-            } else {
-                // 첫 번째 Store ID 고정 (맛있는 한식당)
-                storeId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            }
+            else {
+                storeId = UUID.fromString("00000000-0000-0000-0000-000000000000");
             }
 
-            // 주문 메뉴 리스트 변환
-            List<Map<String, Object>> itemsData = (List<Map<String, Object>>) orderData.get("orderMenuList"); // orderMenuList로 변경
+            List<Map<String, Object>> itemsData = (List<Map<String, Object>>) orderData.get("orderMenuList");
             List<OrderMenu> orderMenuList = new ArrayList<>();
             
             if (itemsData != null) {
                 for (Map<String, Object> item : itemsData) {
                     OrderMenu orderMenu = OrderMenu.builder()
                             .menuId(UUID.fromString((String) item.get("menuId")))
-                            .menuName((String) item.get("menuName")) // menuName으로 변경
+                            .menuName((String) item.get("menuName"))
                             .price((Integer) item.get("price"))
                             .quantity((Integer) item.get("quantity"))
                             .build();
@@ -142,60 +113,51 @@ public class PaymentController {
                 }
             }
 
-            // 인증된 고객 정보 확인
-            Customer customer = null;
-            UUID customerUuid = null;
-            try {
-                customer = getCurrentCustomer();
-                customerUuid = customer.getId();
-                
-                // 폼에서 온 고객 ID와 인증된 고객 ID 일치 확인 (테스트용 완화)
-                if (!customer.getId().toString().equals(customerIdFromForm) && 
-                    !"test-customer".equals(customerIdFromForm) &&
-                    !"11111111-1111-1111-1111-111111111111".equals(customerIdFromForm)) {
-                    response.put("error", "인증된 고객 정보와 주문 정보가 일치하지 않습니다.");
-                    return ResponseEntity.badRequest().body(response);
-                }
-                
-            } catch (Exception e) {
-                // 인증 실패시 처리 (개발/테스트용)
-                if (!"test-customer".equals(customerIdFromForm)) {
-                    response.put("error", "고객 인증이 필요합니다: " + e.getMessage());
-                    return ResponseEntity.badRequest().body(response);
-                } else {
-                    // 테스트용 고정 UUID (김철수)
-                    customerUuid = UUID.fromString("11111111-1111-1111-1111-111111111111");
-                }
-            }
-
-            // ========== 1. 주문을 먼저 DB에 생성 ==========
-            Order createdOrder = orderService.createPendingOrder(customerUuid, storeId, orderMenuList, orderType, 
-                                                                totalAmount, usePoints, pointsToUse, finalPaymentAmount);
+            // 고객 인증 및 검증
+            var authResult = paymentAuthenticationService.validateCustomerForPayment(customerIdFromForm);
             
-            // 포인트 사용 처리
-            if (usePoints != null && usePoints && pointsToUse != null && pointsToUse > 0 && customer != null) {
-                var pointResult = pointService.usePoints(customer.getId(), pointsToUse);
+            if (!authResult.isSuccess()) {
+                response.put("error", authResult.getErrorMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            UUID customerUuid = authResult.getCustomerId();
+
+            Order createdOrder = orderService.createPendingOrder(customerUuid, storeId, orderMenuList, orderType, 
+                                                                usePoints, pointsToUse);
+            
+            if (usePoints != null && usePoints && pointsToUse != null && pointsToUse > 0 && authResult.getCustomer() != null) {
+                var pointResult = pointService.usePoints(authResult.getCustomerId(), pointsToUse);
 
                 if (!pointResult.isSuccess()) {
-                    // 포인트 사용 실패시 주문 취소
                     orderService.cancelOrder(createdOrder.getOrderId());
-                    response.put("error", pointResult.getErrorMessage());
+                    
+                    // 포인트 부족인 경우 상세 정보와 함께 에러 응답
+                    if (pointResult.getErrorMessage().contains("부족")) {
+                        response.put("error", pointResult.getErrorMessage());
+                        response.put("errorType", "INSUFFICIENT_POINTS");
+                        response.put("currentPoints", authResult.getCustomerPoints());
+                        response.put("requestedPoints", pointsToUse);
+                        response.put("redirectUrl", "/error/insufficient-points?currentPoints=" + 
+                                   authResult.getCustomerPoints() + "&requestedPoints=" + pointsToUse);
+                    } else {
+                        response.put("error", pointResult.getErrorMessage());
+                        response.put("errorType", "POINT_ERROR");
+                    }
+                    
                     return ResponseEntity.badRequest().body(response);
                 }
             }
 
-            // 토스 주문 ID 생성 (고유해야 함)
             String tossOrderId = "TOSS_" + createdOrder.getOrderId().toString().replace("-", "").substring(0, 16).toUpperCase();
 
-            // ========== 2. 결제 요청 정보 저장 (실제 Order ID 사용) ==========
             if (finalPaymentAmount > 0) {
                 paymentValidationService.savePaymentRequest(createdOrder.getOrderId(), tossOrderId, finalPaymentAmount);
             }
 
-            // 결제 페이지에 전달할 데이터
-            response.put("orderId", tossOrderId);  // 토스 주문 ID
-            response.put("internalOrderId", createdOrder.getOrderId().toString());  // 내부 주문 ID
-            response.put("orderNumber", createdOrder.getOrderNumber());  // 주문 번호
+            response.put("orderId", tossOrderId);
+            response.put("internalOrderId", createdOrder.getOrderId().toString());
+            response.put("orderNumber", createdOrder.getOrderNumber());
             response.put("amount", finalPaymentAmount);
             response.put("userId", customerUuid.toString());
             response.put("clientKey", clientKey);
@@ -203,7 +165,7 @@ public class PaymentController {
             response.put("pointsUsed", pointsToUse);
             response.put("originalAmount", totalAmount);
             response.put("orderItems", orderData.get("items"));
-            response.put("customerName", customer != null ? customer.getName() : "테스트 고객");
+            response.put("customerName", authResult.getCustomerName());
             response.put("message", "주문 생성 및 결제 페이지 데이터 생성 성공");
 
             return ResponseEntity.ok(response);
@@ -214,10 +176,7 @@ public class PaymentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
-    /**
-     * 기존 결제 페이지 (포인트 충전용)
-     */
+    
     @Operation(summary = "포인트 충전 페이지", description = "포인트 충전을 위한 결제 페이지를 표시합니다.")
     @GetMapping("/charge")
     @ResponseBody
@@ -225,35 +184,38 @@ public class PaymentController {
                                  @RequestParam(required = false) Integer amount) {
 
         Map<String, Object> response = new HashMap<>();
-
-        // 인증된 고객 정보 사용
-        try {
-            Customer customer = getCurrentCustomer();
-            userId = customer.getId().toString();
-        } catch (Exception e) {
-            // 인증 실패시 기본값 사용
-            if (userId == null) userId = "user_" + System.currentTimeMillis();
+        
+        var authResult = paymentAuthenticationService.validateCustomerForPointCharge();
+        
+        if (authResult.isSuccess()) {
+            userId = authResult.getCustomerIdAsString();
+        } else {
+            if (userId == null) return ResponseEntity.badRequest()
+                    .body(Map.of("error", "포인트 충전을 위해서는 로그인이 필요합니다."));
         }
+        
+        if (amount == null) return ResponseEntity.badRequest()
+                .body(Map.of("error", "충전 금액을 입력해주세요."));
 
-        // 기본값 설정
-        if (amount == null) amount = 1;
-
-        // 주문번호 생성
+        if (amount <= 0) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "충전 금액은 0보다 커야 합니다."));
+        }
+        
         String orderId = "ORDER_" + UUID.randomUUID().toString().substring(0, 12);
 
-        // 응답 데이터 설정
         response.put("userId", userId);
         response.put("clientKey", clientKey);
         response.put("amount", amount);
         response.put("orderId", orderId);
-        response.put("message", "포인트 충전 페이지 데이터 생성 성공");
+        response.put("authenticated", authResult.isSuccess());
+        response.put("message", authResult.isSuccess() ? 
+                    "포인트 충전 페이지 데이터 생성 성공" : 
+                    authResult.getErrorMessage());
 
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * 결제 성공 콜백
-     */
     @Operation(summary = "결제 성공 콜백", description = "토스페이먼츠 결제 성공 콜백을 처리합니다.")
     @GetMapping("/success")
     public String paymentSuccess(@RequestParam String paymentKey,
@@ -262,7 +224,6 @@ public class PaymentController {
                                  Model model) {
 
         try {
-            // ========== 1. 결제 정보 검증 ==========
             var validationResult = paymentValidationService.validateCallback(orderId, amount, paymentKey);
 
             if (!validationResult.isSuccess()) {
@@ -270,30 +231,23 @@ public class PaymentController {
                 return "payment/fail";
             }
 
-            // ========== 2. 토스페이먼츠 승인 API 호출 ==========
             TossPaymentResponse tossResponse = tossPaymentService.confirmPayment(paymentKey, orderId, amount);
 
-            // ========== 3. 결제 성공 시 주문 상태 업데이트 ==========
             PaymentRequest paymentRequest = validationResult.getPaymentRequest();
             UUID internalOrderId = paymentRequest.getOrderId();
             
-            // 주문 정보를 통해 고객 정보 조회
             Order order = orderService.findById(internalOrderId)
                     .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없습니다."));
             
             Customer customer = customerRepository.findById(order.getCustomerId())
                     .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
             
-            // 결제 정보를 Payment 엔티티로 저장
             Payment savedPayment = paymentService.saveSuccessfulPayment(paymentRequest, customer, tossResponse);
             
-            // 주문 상태를 PAID로 변경
             orderService.completePayment(internalOrderId, savedPayment.getPaymentId());
             
-            // 결제 요청 상태 업데이트 (PAID로 변경됨)
             paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "COMPLETED");
 
-            // 성공 페이지에 전달할 데이터
             model.addAttribute("paymentKey", paymentKey);
             model.addAttribute("orderId", orderId);  // 토스 주문 ID
             model.addAttribute("internalOrderId", internalOrderId.toString());  // 내부 주문 ID
@@ -306,19 +260,24 @@ public class PaymentController {
             return "payment/success";
 
         } catch (Exception e) {
-            // ========== 4. 결제 실패 시 롤백 처리 ==========
             try {
-                // 결제 요청 상태를 FAILED로 변경
                 var validationResult = paymentValidationService.validateCallback(orderId, amount, paymentKey);
                 if (validationResult.isSuccess()) {
                     PaymentRequest paymentRequest = validationResult.getPaymentRequest();
                     paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "FAILED");
-                    
-                    // 주문 취소
+
                     orderService.cancelOrder(paymentRequest.getOrderId());
-                    
-                    // 포인트 롤백 (필요시)
-                    // TODO: 사용된 포인트가 있다면 롤백 처리
+
+                    try {
+                        Order order = orderService.findById(paymentRequest.getOrderId())
+                                .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없습니다."));
+                        Customer customer = customerRepository.findById(order.getCustomerId())
+                                .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
+                        var usedPoints = paymentRequest.getUsedPoints();
+                        pointService.refundPoints(customer.getId(), usedPoints);
+                    } catch (Exception pointRollbackException) {
+                        System.err.println("포인트 롤백 처리 실패: " + pointRollbackException.getMessage());
+                    }
                 }
             } catch (Exception rollbackException) {
                 System.err.println("롤백 처리 실패: " + rollbackException.getMessage());
@@ -329,9 +288,6 @@ public class PaymentController {
         }
     }
 
-    /**
-     * 결제 취소 콜백
-     */
     @Operation(summary = "결제 취소 콜백", description = "토스페이먼츠 결제 취소 콜백을 처리합니다.")
     @GetMapping("/cancel")
     public String paymentCancel(@RequestParam(required = false) String paymentKey,
@@ -341,22 +297,17 @@ public class PaymentController {
                                @RequestParam(required = false) String code,
                                Model model) {
 
-        // ========== 결제 취소 시 상태 업데이트 ==========
         if (orderId != null) {
             try {
-                // 저장된 결제 요청 찾기
                 Optional<PaymentRequest> savedRequest = paymentValidationService.findByTossOrderId(orderId);
                 
                 if (savedRequest.isPresent()) {
                     PaymentRequest paymentRequest = savedRequest.get();
-                    
-                    // 1. 결제 요청 상태를 CANCELED로 변경
+
                     paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "CANCELED");
                     
-                    // 2. 주문 상태를 CANCELED로 변경
                     orderService.cancelOrder(paymentRequest.getOrderId());
                     
-                    // 3. 포인트 롤백 처리 (필요시)
                     try {
                         Order order = orderService.findById(paymentRequest.getOrderId())
                                 .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없습니다."));
@@ -364,9 +315,10 @@ public class PaymentController {
                         Customer customer = customerRepository.findById(order.getCustomerId())
                                 .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
                         
-                        // 사용된 포인트가 있다면 롤백 (포인트 사용 내역을 추적해야 함)
-                        // TODO: 포인트 사용 내역 추적 로직 구현 필요
-                        // pointService.refundPoints(customer.getId(), usedPoints);
+                        Integer usedPoints = paymentRequest.getUsedPoints();
+                        if (usedPoints != null && usedPoints > 0) {
+                            pointService.refundPoints(customer.getId(), usedPoints);
+                        }
                         
                     } catch (Exception pointRollbackException) {
                         System.err.println("포인트 롤백 처리 실패: " + pointRollbackException.getMessage());
@@ -407,25 +359,30 @@ public class PaymentController {
                               @RequestParam(required = false) String orderId,
                               Model model) {
 
-        // ========== 결제 실패 시 롤백 처리 ==========
         if (orderId != null) {
             try {
-                // 저장된 결제 요청 찾기
                 Optional<PaymentRequest> savedRequest = paymentValidationService.findByTossOrderId(orderId);
                 
                 if (savedRequest.isPresent()) {
                     PaymentRequest paymentRequest = savedRequest.get();
                     
-                    // 결제 요청 상태를 FAILED로 변경
                     paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "FAILED");
                     
-                    // 주문 취소
                     orderService.cancelOrder(paymentRequest.getOrderId());
                     
-                    // 포인트 롤백 처리 (필요시)
-                    // TODO: 주문과 연결된 포인트 사용 내역을 찾아서 롤백
-                    // Customer customer = getCurrentCustomer();
-                    // pointService.refundPoints(customer.getId(), pointsToRefund);
+                    try {
+                        Order order = order
+                                .findById(paymentRequest.getOrderId())
+                                .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없습니다."));
+                        Customer customer = customerRepository.findById(order.getCustomerId())
+                                .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
+                        Integer usedPoints = paymentRequest.getUsedPoints();
+                        if (usedPoints != null && usedPoints > 0) {
+                            pointService.refundPoints(customer.getId(), usedPoints);
+                        }
+                    } catch (Exception pointRollbackException) {
+                        System.err.println("포인트 롤백 처리 실패: " + pointRollbackException.getMessage());
+                    }
                     
                     model.addAttribute("internalOrderId", paymentRequest.getOrderId().toString());
                     model.addAttribute("rollbackCompleted", true);
@@ -435,7 +392,6 @@ public class PaymentController {
                 }
                 
             } catch (Exception e) {
-                // 롤백 실패시 로그 기록
                 System.err.println("결제 실패 롤백 처리 실패: " + e.getMessage());
                 model.addAttribute("rollbackCompleted", false);
                 model.addAttribute("rollbackError", e.getMessage());

@@ -14,9 +14,6 @@ public class PointService {
 
     private final CustomerRepository customerRepository;
 
-    /**
-     * 포인트 사용 가능 여부 확인
-     */
     public boolean canUsePoints(UUID customerId, Integer pointsToUse) {
         if (customerId == null || pointsToUse == null || pointsToUse <= 0) {
             return false;
@@ -31,9 +28,6 @@ public class PointService {
         return currentPoints != null && currentPoints >= pointsToUse;
     }
 
-    /**
-     * 포인트 차감
-     */
     public PointResult usePoints(UUID customerId, Integer pointsToUse) {
         if (customerId == null || pointsToUse == null || pointsToUse <= 0) {
             return PointResult.fail("유효하지 않은 포인트 사용 요청입니다");
@@ -51,16 +45,12 @@ public class PointService {
             return PointResult.fail("포인트가 부족합니다. 보유: " + currentPoints + ", 사용요청: " + pointsToUse);
         }
 
-        // 포인트 차감
         customer.setPoints(currentPoints - pointsToUse);
         customerRepository.save(customer);
 
         return PointResult.success(pointsToUse, currentPoints - pointsToUse);
     }
 
-    /**
-     * 포인트 적립 (환불시 사용)
-     */
     public PointResult refundPoints(UUID customerId, Integer pointsToRefund) {
         if (customerId == null || pointsToRefund == null || pointsToRefund <= 0) {
             return PointResult.fail("유효하지 않은 포인트 환불 요청입니다");
@@ -81,12 +71,8 @@ public class PointService {
         return PointResult.success(pointsToRefund, currentPoints + pointsToRefund);
     }
 
-    /**
-     * 포인트 처리 결과 클래스
-     */
     @Getter
     public static class PointResult {
-        // getters
         private final boolean success;
         private final String errorMessage;
         private final Integer usedPoints;
@@ -106,7 +92,5 @@ public class PointService {
         public static PointResult fail(String errorMessage) {
             return new PointResult(false, errorMessage, 0, 0);
         }
-
-        // builder 메서드 제거 - static factory 메서드만 사용
     }
 }
