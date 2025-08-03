@@ -1,5 +1,6 @@
 package profect.eatcloud.Domain.Order.Service;
 
+import com.amazonaws.services.kms.model.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -128,5 +129,35 @@ public class OrderService {
         String date = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
         String randomPart = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
         return "ORD-" + date + "-" + randomPart;
+    }
+
+    public List<Order> findOrdersByCustomer(UUID customerId) {
+        return orderRepository.findAllByCustomerId(customerId);
+    }
+
+    public Order findOrderByCustomerAndOrderId(UUID customerId, UUID orderId) {
+        return orderRepository.findByOrderIdAndCustomerIdAndTimeData_DeletedAtIsNull(orderId, customerId)
+                .orElseThrow(() -> new RuntimeException("해당 주문이 없습니다."));
+    }
+
+    public List<Order> findOrdersByStore(UUID storeId) {
+        return orderRepository.findAllByStoreId(storeId);
+    }
+
+    public Order findOrderByStoreAndOrderId(UUID storeId, UUID orderId) {
+        return orderRepository.findByOrderIdAndStoreId(orderId, storeId)
+                .orElseThrow(() -> new RuntimeException("해당 매장에 주문이 없습니다."));
+    }
+
+    @Transactional
+    public void updateOrderStatus(UUID orderId, String statusCode) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("주문을 찾을 수 없습니다."));
+
+        OrderStatusCode statusCodeEntity = orderStatusCodeRepository.findById(statusCode)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 상태 코드입니다."));
+
+        order.setOrderStatusCode(statusCodeEntity);
+        // 변경 감지로 자동 업데이트
     }
 }
