@@ -41,8 +41,8 @@ public class AdminCategoryController {
 	@Operation(summary = "2. 카테고리 수정")
 	@PutMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public ApiResponse<CategoryDto> updateCategory(@RequestBody CategoryDto dto) {
-		CategoryDto updated = adminCategoryService.updateCategory(dto);
+	public ApiResponse<CategoryDto> updateCategory(@PathVariable UUID id, @RequestBody CategoryDto dto) {
+		CategoryDto updated = adminCategoryService.updateCategory(id, dto);
 		return ApiResponse.success(updated);
 	}
 

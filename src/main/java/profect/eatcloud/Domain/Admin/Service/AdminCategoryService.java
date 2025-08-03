@@ -34,8 +34,8 @@ public class AdminCategoryService {
 	}
 
 	@Transactional
-	public CategoryDto updateCategory(CategoryDto dto) {
-		Category category = categoryRepository.findById(dto.getCategoryId())
+	public CategoryDto updateCategory(UUID id, CategoryDto dto) {
+		Category category = categoryRepository.findById(id)
 			.orElseThrow(() -> new AdminException(AdminErrorCode.CATEGORY_NOT_FOUND));
 
 		category.setCategoryName(dto.getCategoryName());
