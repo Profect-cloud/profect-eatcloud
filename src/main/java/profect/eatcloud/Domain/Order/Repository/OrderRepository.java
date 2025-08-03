@@ -1,5 +1,6 @@
 package profect.eatcloud.Domain.Order.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,4 +21,9 @@ public interface OrderRepository extends BaseTimeRepository<Order, UUID> {
         @Param("orderId") UUID orderId,
         @Param("customerId") UUID customerId
     );
+
+    List<Order> findAllByCustomerId(UUID customerId);
+
+    List<Order> findAllByStoreId(UUID storeId);
+    Optional<Order> findByOrderIdAndStoreId(UUID orderId, UUID storeId);
 }

@@ -1,29 +1,31 @@
 package profect.eatcloud.Domain.Order.Controller;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import profect.eatcloud.Domain.Order.Dto.Request.OrderStatusUpdateRequest;
 import profect.eatcloud.Domain.Order.Service.OrderService;
 import profect.eatcloud.Domain.Order.Entity.Order;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
-@RequestMapping("/api/v1/orders")
-@RequiredArgsConstructor
+@RequestMapping("/api/v1")
 @Tag(name = "8. Order Management")
 public class OrderController {
 
     private final OrderService orderService;
 
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
     @Operation(summary = "주문 조회", description = "주문 ID로 주문 정보를 조회합니다.")
-    @GetMapping("/{orderId}")
+    @GetMapping("/orders/{orderId}")
     public ResponseEntity<Map<String, Object>> getOrder(@PathVariable UUID orderId) {
         Map<String, Object> response = new HashMap<>();
         
@@ -57,7 +59,7 @@ public class OrderController {
     }
 
     @Operation(summary = "주문 번호로 주문 조회", description = "주문 번호로 주문 정보를 조회합니다.")
-    @GetMapping("/number/{orderNumber}")
+    @GetMapping("/orders/number/{orderNumber}")
     public ResponseEntity<Map<String, Object>> getOrderByNumber(@PathVariable String orderNumber) {
         Map<String, Object> response = new HashMap<>();
         
@@ -87,5 +89,42 @@ public class OrderController {
             response.put("error", "주문 조회 중 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.internalServerError().body(response);
         }
+    }
+
+    @Operation(summary = "고객 주문 목록 조회")
+    @GetMapping("/customers/{customerId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Order>> getCustomerOrders(@PathVariable UUID customerId) {
+        return ResponseEntity.ok(orderService.findOrdersByCustomer(customerId));
+    }
+
+    @Operation(summary = "고객 주문 상세 조회")
+    @GetMapping("/customers/{customerId}/orders/{orderId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Order> getCustomerOrderDetail(@PathVariable UUID customerId, @PathVariable UUID orderId) {
+        return ResponseEntity.ok(orderService.findOrderByCustomerAndOrderId(customerId, orderId));
+    }
+
+    @Operation(summary = "매장 주문 목록 조회")
+    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+    @GetMapping("/stores/{storeId}")
+    public ResponseEntity<List<Order>> getStoreOrders(@PathVariable UUID storeId) {
+        return ResponseEntity.ok(orderService.findOrdersByStore(storeId));
+    }
+
+    @Operation(summary = "매장 주문 상세 조회")
+    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+    @GetMapping("/stores/{storeId}/orders/{orderId}")
+    public ResponseEntity<Order> getStoreOrderDetail(@PathVariable UUID orderId, @PathVariable UUID storeId) {
+        return ResponseEntity.ok(orderService.findOrderByStoreAndOrderId(storeId, orderId));
+    }
+
+    @Operation(summary = "주문 상태 변경")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/orders/{orderId}/status")
+    public ResponseEntity<Void> updateOrderStatus(@PathVariable UUID orderId,
+            @RequestBody @Valid OrderStatusUpdateRequest request) {
+        orderService.updateOrderStatus(orderId, request.getStatusCode());
+        return ResponseEntity.noContent().build();
     }
 }
