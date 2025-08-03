@@ -20,17 +20,17 @@ import lombok.AllArgsConstructor;
 import profect.eatcloud.Domain.Admin.dto.ManagerStoreApplicationDetailDto;
 import profect.eatcloud.Domain.Admin.dto.ManagerStoreApplicationSummaryDto;
 import profect.eatcloud.Domain.Admin.message.ResponseMessage;
-import profect.eatcloud.Domain.Admin.service.AdminService;
+import profect.eatcloud.Domain.Admin.service.AdminAssignService;
 import profect.eatcloud.common.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/admin")
-@Tag(name = "1-2. Admin Assign API", description = "관리자가 신규등록 신청관리 API")
+@Tag(name = "2-3. Admin Assign API", description = "관리자가 신규등록 신청관리 API")
 @PreAuthorize("hasRole('ADMIN')")
 @AllArgsConstructor
 public class AdminAssignController {
 
-	private final AdminService adminService;
+	private final AdminAssignService adminService;
 
 	private UUID getAdminUuid(@AuthenticationPrincipal UserDetails userDetails) {
 		return UUID.fromString(userDetails.getUsername());
@@ -39,23 +39,16 @@ public class AdminAssignController {
 	@Operation(summary = "1. Admin: 신청서 목록 조회")
 	@GetMapping("/applies")
 	@ResponseStatus(HttpStatus.OK)
-	public ApiResponse<List<ManagerStoreApplicationSummaryDto>> listApplications(
-		@AuthenticationPrincipal UserDetails userDetails) {
-
-		UUID adminUuid = getAdminUuid(userDetails);
-		List<ManagerStoreApplicationSummaryDto> list = adminService.getAllApplications(adminUuid);
+	public ApiResponse<List<ManagerStoreApplicationSummaryDto>> listApplications() {
+		List<ManagerStoreApplicationSummaryDto> list = adminService.getAllApplications();
 		return ApiResponse.success(list);
 	}
 
 	@Operation(summary = "2. 신청서 상세 조회")
 	@GetMapping("/{applicationId}")
 	@ResponseStatus(HttpStatus.OK)
-	public ApiResponse<ManagerStoreApplicationDetailDto> getDetail(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable UUID applicationId) {
-
-		UUID adminUuid = getAdminUuid(userDetails);
-		ManagerStoreApplicationDetailDto dto = adminService.getApplicationDetail(adminUuid, applicationId);
+	public ApiResponse<ManagerStoreApplicationDetailDto> getDetail(@PathVariable UUID applicationId) {
+		ManagerStoreApplicationDetailDto dto = adminService.getApplicationDetail(applicationId);
 		return ApiResponse.success(dto);
 	}
 

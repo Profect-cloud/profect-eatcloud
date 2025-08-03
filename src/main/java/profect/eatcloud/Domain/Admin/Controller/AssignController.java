@@ -18,7 +18,7 @@ import profect.eatcloud.common.ApiResponseStatus;
 
 @RestController
 @RequestMapping("/api/v1/unauth")
-@Tag(name = "1. Unauth API", description = "로그인 없이, Admin에게 신청 요청하는 API")
+@Tag(name = "2-4. Unauth API", description = "로그인 없이, Admin에게 신청 요청하는 API")
 @AllArgsConstructor
 public class AssignController {
 

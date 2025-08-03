@@ -7,7 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
 import profect.eatcloud.Domain.Admin.dto.CategoryDto;
-import profect.eatcloud.Domain.Admin.entity.Admin;
+import profect.eatcloud.Domain.Admin.exception.AdminErrorCode;
+import profect.eatcloud.Domain.Admin.exception.AdminException;
 import profect.eatcloud.Domain.Admin.repository.AdminRepository;
 import profect.eatcloud.Domain.Store.Entity.Category;
 import profect.eatcloud.Domain.Store.Repository.CategoryRepository_hong;
@@ -20,12 +21,7 @@ public class AdminCategoryService {
 	private final CategoryRepository_hong categoryRepository;
 
 	@Transactional
-	public CategoryDto createCategory(UUID adminUuid, CategoryDto dto) {
-		// 관리자 유효성 확인
-		Admin admin = adminRepository.findById(adminUuid)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자입니다."));
-
-		// 카테고리 생성
+	public CategoryDto createCategory(CategoryDto dto) {
 		Category category = Category.builder()
 			.categoryId(UUID.randomUUID())
 			.categoryName(dto.getCategoryName())
@@ -38,12 +34,9 @@ public class AdminCategoryService {
 	}
 
 	@Transactional
-	public CategoryDto updateCategory(UUID adminId, CategoryDto dto) {
-		Admin admin = adminRepository.findById(adminId)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자입니다."));
-
+	public CategoryDto updateCategory(CategoryDto dto) {
 		Category category = categoryRepository.findById(dto.getCategoryId())
-			.orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
+			.orElseThrow(() -> new AdminException(AdminErrorCode.CATEGORY_NOT_FOUND));
 
 		category.setCategoryName(dto.getCategoryName());
 		category.setSortOrder(dto.getSortOrder());
@@ -52,13 +45,10 @@ public class AdminCategoryService {
 	}
 
 	@Transactional
-	public void deleteCategory(UUID adminId, UUID categoryId) {
-		Admin admin = adminRepository.findById(adminId)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자입니다."));
-
+	public void deleteCategory(UUID categoryId) {
 		Category category = categoryRepository.findById(categoryId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
+			.orElseThrow(() -> new AdminException(AdminErrorCode.CATEGORY_NOT_FOUND));
 
-		categoryRepository.deleteById(category.getCategoryId());
+		categoryRepository.delete(category);
 	}
 }

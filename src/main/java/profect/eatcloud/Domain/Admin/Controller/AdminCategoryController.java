@@ -4,8 +4,6 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import profect.eatcloud.Domain.Admin.dto.CategoryDto;
@@ -25,48 +24,33 @@ import profect.eatcloud.common.ApiResponseStatus;
 @RestController
 @AllArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-@RequestMapping("/api/admin/categories")
-@Tag(name = "1-3. Admin Category API", description = "관리자가 카테고리 CRUD를 수행하는 API")
+@RequestMapping("/api/v1/admin/categories")
+@Tag(name = "2-2. Admin Category API", description = "관리자가 카테고리 CRUD를 수행하는 API")
 public class AdminCategoryController {
 
 	private final AdminCategoryService adminCategoryService;
 
-	private UUID getAdminUuid(@AuthenticationPrincipal UserDetails userDetails) {
-		return UUID.fromString(userDetails.getUsername());
-	}
-
-	@PostMapping
+	@Operation(summary = "1. 카테고리 생성")
+	@PostMapping("/add")
 	@ResponseStatus(HttpStatus.CREATED)
-	public ApiResponse<CategoryDto> createCategory(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@RequestBody CategoryDto dto) {
-
-		UUID adminUuid = getAdminUuid(userDetails);
-		CategoryDto created = adminCategoryService.createCategory(adminUuid, dto);
+	public ApiResponse<CategoryDto> createCategory(@RequestBody CategoryDto dto) {
+		CategoryDto created = adminCategoryService.createCategory(dto);
 		return ApiResponse.of(ApiResponseStatus.CREATED, created);
 	}
 
+	@Operation(summary = "2. 카테고리 수정")
 	@PutMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public ApiResponse<CategoryDto> updateCategory(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable UUID id,
-		@RequestBody CategoryDto dto) {
-
-		UUID adminUuid = getAdminUuid(userDetails);
-		dto.setCategoryId(id);
-		CategoryDto updated = adminCategoryService.updateCategory(adminUuid, dto);
+	public ApiResponse<CategoryDto> updateCategory(@RequestBody CategoryDto dto) {
+		CategoryDto updated = adminCategoryService.updateCategory(dto);
 		return ApiResponse.success(updated);
 	}
 
+	@Operation(summary = "3. 카테고리 삭제")
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public ApiResponse<Void> deleteCategory(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable UUID id) {
-
-		UUID adminUuid = getAdminUuid(userDetails);
-		adminCategoryService.deleteCategory(adminUuid, id);
+	public ApiResponse<Void> deleteCategory(@PathVariable UUID id) {
+		adminCategoryService.deleteCategory(id);
 		return ApiResponse.success();
 	}
 }
