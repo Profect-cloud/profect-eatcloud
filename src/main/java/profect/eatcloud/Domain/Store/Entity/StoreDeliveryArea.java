@@ -33,5 +33,6 @@ public class StoreDeliveryArea extends BaseTimeEntity {
     private DeliveryArea deliveryArea;
 
     @Column(name = "delivery_fee", nullable = false)
+    @Builder.Default
     private Integer deliveryFee = 0;
 }

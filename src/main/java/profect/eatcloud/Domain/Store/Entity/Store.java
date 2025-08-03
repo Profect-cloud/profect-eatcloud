@@ -48,6 +48,7 @@ public class Store extends BaseTimeEntity {
     private String phoneNumber;
 
     @Column(name = "min_cost", nullable = false)
+    @Builder.Default
     private Integer minCost = 0;
 
     @Column(name = "description", columnDefinition = "TEXT")

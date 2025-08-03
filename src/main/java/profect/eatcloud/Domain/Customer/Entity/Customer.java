@@ -52,5 +52,6 @@ public class Customer extends BaseTimeEntity {
 	private Integer points = 0;
 
 	@OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+	@Builder.Default
 	private List<Address> addresses = new ArrayList<>();
 }

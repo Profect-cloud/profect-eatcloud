@@ -26,6 +26,7 @@ public class Address extends BaseTimeEntity {
 	private String detailAddr;
 
 	@Column(name = "is_selected")
+	@Builder.Default
 	private Boolean isSelected = false;
 
 	@ManyToOne(fetch = FetchType.LAZY)
