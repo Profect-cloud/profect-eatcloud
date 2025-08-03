@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Admin.Dto;
+package profect.eatcloud.Domain.Admin.dto;
 
 import java.util.Map;
 

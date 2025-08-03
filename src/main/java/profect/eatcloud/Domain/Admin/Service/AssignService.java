@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Admin.Service;
+package profect.eatcloud.Domain.Admin.service;
 
 import java.util.UUID;
 
@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.Dto.ManagerStoreApplicationRequestDto;
-import profect.eatcloud.Domain.Admin.Dto.ManagerStoreApplicationResponseDto;
-import profect.eatcloud.Domain.Admin.Entity.ManagerStoreApplication;
-import profect.eatcloud.Domain.Admin.Repository.ManagerStoreApplicationRepository;
+import profect.eatcloud.Domain.Admin.dto.ManagerStoreApplicationRequestDto;
+import profect.eatcloud.Domain.Admin.dto.ManagerStoreApplicationResponseDto;
+import profect.eatcloud.Domain.Admin.entity.ManagerStoreApplication;
+import profect.eatcloud.Domain.Admin.repository.ManagerStoreApplicationRepository;
 
 @Service
 @RequiredArgsConstructor

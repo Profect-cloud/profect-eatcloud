@@ -1,9 +1,9 @@
-package profect.eatcloud.Domain.Admin.Controller;
+package profect.eatcloud.Domain.Admin.controller;
 
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,20 +11,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.Dto.ManagerStoreApplicationDetailDto;
-import profect.eatcloud.Domain.Admin.Dto.ManagerStoreApplicationSummaryDto;
-import profect.eatcloud.Domain.Admin.Service.AdminService;
+import lombok.AllArgsConstructor;
+import profect.eatcloud.Domain.Admin.dto.ManagerStoreApplicationDetailDto;
+import profect.eatcloud.Domain.Admin.dto.ManagerStoreApplicationSummaryDto;
+import profect.eatcloud.Domain.Admin.message.ResponseMessage;
+import profect.eatcloud.Domain.Admin.service.AdminService;
+import profect.eatcloud.common.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/admin")
-@Tag(name = "1. Admin Assign API", description = "관리자가 신규등록 신청관리 API")
+@Tag(name = "1-2. Admin Assign API", description = "관리자가 신규등록 신청관리 API")
 @PreAuthorize("hasRole('ADMIN')")
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class AdminAssignController {
 
 	private final AdminService adminService;
@@ -35,40 +38,48 @@ public class AdminAssignController {
 
 	@Operation(summary = "1. Admin: 신청서 목록 조회")
 	@GetMapping("/applies")
-	public ResponseEntity<List<ManagerStoreApplicationSummaryDto>> listApplications(
-		@AuthenticationPrincipal UserDetails userDetails
-	) {
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<List<ManagerStoreApplicationSummaryDto>> listApplications(
+		@AuthenticationPrincipal UserDetails userDetails) {
+
 		UUID adminUuid = getAdminUuid(userDetails);
 		List<ManagerStoreApplicationSummaryDto> list = adminService.getAllApplications(adminUuid);
-		return ResponseEntity.ok(list);
+		return ApiResponse.success(list);
 	}
 
 	@Operation(summary = "2. 신청서 상세 조회")
 	@GetMapping("/{applicationId}")
-	public ResponseEntity<ManagerStoreApplicationDetailDto> getDetail(
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<ManagerStoreApplicationDetailDto> getDetail(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable UUID applicationId
-	) {
+		@PathVariable UUID applicationId) {
+
 		UUID adminUuid = getAdminUuid(userDetails);
 		ManagerStoreApplicationDetailDto dto = adminService.getApplicationDetail(adminUuid, applicationId);
-		return ResponseEntity.ok(dto);
+		return ApiResponse.success(dto);
 	}
 
 	@Operation(summary = "3. 신청서 승인")
 	@PatchMapping("/{applicationId}/approve")
-	public ResponseEntity<Void> approve(@AuthenticationPrincipal UserDetails userDetails,
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<ResponseMessage> approve(
+		@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable UUID applicationId) {
+
 		UUID adminUuid = getAdminUuid(userDetails);
 		adminService.approveApplication(adminUuid, applicationId);
-		return ResponseEntity.noContent().build();
+		return ApiResponse.success(ResponseMessage.APPLICATION_APPROVE_SUCCESS);
 	}
 
 	@Operation(summary = "4. 신청서 거절")
 	@PatchMapping("/{applicationId}/reject")
-	public ResponseEntity<Void> reject(@AuthenticationPrincipal UserDetails userDetails,
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<ResponseMessage> reject(
+		@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable UUID applicationId) {
+
 		UUID adminUuid = getAdminUuid(userDetails);
 		adminService.rejectApplication(adminUuid, applicationId);
-		return ResponseEntity.noContent().build();
+		return ApiResponse.success(ResponseMessage.APPLICATION_REJECT_SUCCESS);
 	}
 }

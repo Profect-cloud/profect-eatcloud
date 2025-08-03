@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.Entity.Admin;
-import profect.eatcloud.Domain.Admin.Repository.AdminRepository;
+import profect.eatcloud.Domain.Admin.entity.Admin;
+import profect.eatcloud.Domain.Admin.repository.AdminRepository;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Domain.Manager.Entity.Manager;

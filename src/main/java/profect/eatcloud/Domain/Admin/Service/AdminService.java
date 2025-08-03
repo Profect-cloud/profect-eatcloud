@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Admin.Service;
+package profect.eatcloud.Domain.Admin.service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -9,20 +9,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.Dto.CategoryDto;
-import profect.eatcloud.Domain.Admin.Dto.DashboardDto;
-import profect.eatcloud.Domain.Admin.Dto.ManagerCreateRequestDto;
-import profect.eatcloud.Domain.Admin.Dto.ManagerDto;
-import profect.eatcloud.Domain.Admin.Dto.ManagerStoreApplicationDetailDto;
-import profect.eatcloud.Domain.Admin.Dto.ManagerStoreApplicationSummaryDto;
-import profect.eatcloud.Domain.Admin.Dto.OrderDto;
-import profect.eatcloud.Domain.Admin.Dto.OrderStatusDto;
-import profect.eatcloud.Domain.Admin.Dto.StoreDto;
-import profect.eatcloud.Domain.Admin.Dto.UserDto;
-import profect.eatcloud.Domain.Admin.Entity.ManagerStoreApplication;
-import profect.eatcloud.Domain.Admin.Repository.AdminRepository;
-import profect.eatcloud.Domain.Admin.Repository.ManagerStoreApplicationRepository;
+import lombok.AllArgsConstructor;
+import profect.eatcloud.Domain.Admin.dto.ManagerCreateRequestDto;
+import profect.eatcloud.Domain.Admin.dto.ManagerDto;
+import profect.eatcloud.Domain.Admin.dto.ManagerStoreApplicationDetailDto;
+import profect.eatcloud.Domain.Admin.dto.ManagerStoreApplicationSummaryDto;
+import profect.eatcloud.Domain.Admin.dto.StoreDto;
+import profect.eatcloud.Domain.Admin.dto.UserDto;
+import profect.eatcloud.Domain.Admin.entity.ManagerStoreApplication;
+import profect.eatcloud.Domain.Admin.repository.AdminRepository;
+import profect.eatcloud.Domain.Admin.repository.ManagerStoreApplicationRepository;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Domain.Manager.Entity.Manager;
@@ -34,14 +30,14 @@ import profect.eatcloud.Domain.Store.Repository.CategoryRepository_hong;
 import profect.eatcloud.Domain.Store.Repository.StoreRepository_hong;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class AdminService {
 
 	private final AdminRepository adminRepository;        // p_admins
 	private final CustomerRepository customerRepository;  // p_customer
 	private final ManagerRepository managerRepository;
 	private final StoreRepository_hong storeRepository;        // p_stores
-	private final CategoryRepository_hong categoryRepository;  // p_categories
+	private final CategoryRepository_hong categoryRepository;
 	private final OrderRepository orderRepository;        // p_orders
 	private final PasswordEncoder passwordEncoder;
 	private final ManagerStoreApplicationRepository managerStoreApplicationRepository;
@@ -377,44 +373,6 @@ public class AdminService {
 		return null;
 	}
 
-	@Transactional
-	public void deleteStore(String adminId, Long storeId) {
-		// TODO: 관리자의 권한 확인 및 가게 삭제 처리
+	public void deleteStore(String username, Long storeId) {
 	}
-
-	@Transactional
-	public CategoryDto createCategory(String adminId, CategoryDto categoryDto) {
-		// TODO: 관리자의 권한 확인 및 카테고리 등록 로직
-		return null;
-	}
-
-	@Transactional
-	public CategoryDto updateCategory(String adminId, Long categoryId, CategoryDto categoryDto) {
-		// TODO: 관리자의 권한 확인 및 카테고리 수정 처리
-		return null;
-	}
-
-	@Transactional
-	public void deleteCategory(String adminId, Long categoryId) {
-		// TODO: 관리자의 권한 확인 및 카테고리 삭제 처리
-	}
-
-	@Transactional(readOnly = true)
-	public OrderDto getOrderDetail(String adminId, Long orderId) {
-		// TODO: 관리자의 권한 확인 후 주문 상세 조회
-		return null;
-	}
-
-	@Transactional
-	public OrderDto updateOrderStatus(String adminId, Long orderId, OrderStatusDto statusDto) {
-		// TODO: 관리자의 권한 확인 및 주문 상태 업데이트
-		return null;
-	}
-
-	@Transactional(readOnly = true)
-	public DashboardDto getDashboard(String adminId) {
-		// TODO: 관리자의 권한 확인 후 대시보드 데이터 수집 (daily_store_sales 등)
-		return null;
-	}
-
 }

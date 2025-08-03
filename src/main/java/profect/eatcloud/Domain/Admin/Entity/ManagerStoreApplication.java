@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Admin.Entity;
+package profect.eatcloud.Domain.Admin.entity;
 
 import java.util.UUID;
 
