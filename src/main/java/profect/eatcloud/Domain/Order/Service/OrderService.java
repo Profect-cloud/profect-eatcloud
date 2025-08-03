@@ -158,6 +158,5 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 상태 코드입니다."));
 
         order.setOrderStatusCode(statusCodeEntity);
-        // 변경 감지로 자동 업데이트
     }
 }
