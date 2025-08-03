@@ -69,6 +69,12 @@ dependencies {
 
     // 12. Redis Refresh Token -> 현재는 DB저장 디벨롭에서 필요함
     // implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    //querydsl 의존성
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 }
 
 tasks.named('test') {
