@@ -1,6 +1,4 @@
-package profect.eatcloud.Domain.Admin.Dto;
-
-import java.util.UUID;
+package profect.eatcloud.Domain.Admin.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class CategoryDto {
-	private UUID categoryId;
 	private String categoryName;
 	private Integer sortOrder;
 	private Boolean isActive;

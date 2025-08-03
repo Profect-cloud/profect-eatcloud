@@ -1,5 +1,8 @@
 package profect.eatcloud.Login.service;
 
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.MailException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -7,8 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.Entity.Admin;
-import profect.eatcloud.Domain.Admin.Repository.AdminRepository;
+import profect.eatcloud.Domain.Admin.entity.Admin;
+import profect.eatcloud.Domain.Admin.repository.AdminRepository;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
 import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
 import profect.eatcloud.Domain.Manager.Entity.Manager;
@@ -17,9 +20,6 @@ import profect.eatcloud.Login.dto.LoginResponseDto;
 import profect.eatcloud.Login.dto.SignupRedisData;
 import profect.eatcloud.Login.dto.SignupRequestDto;
 import profect.eatcloud.Security.jwt.JwtTokenProvider;
-
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -112,7 +112,7 @@ public class AuthService {
 
 	public void confirmEmail(String email, String code) {
 		String key = "signup:" + email;
-		SignupRedisData data = (SignupRedisData) redisTemplate.opsForValue().get(key);
+		SignupRedisData data = (SignupRedisData)redisTemplate.opsForValue().get(key);
 
 		if (data == null) {
 			throw new RuntimeException("만료되었거나 존재하지 않는 인증 요청입니다.");
@@ -124,11 +124,11 @@ public class AuthService {
 
 		// 최종 가입 처리
 		Customer customer = Customer.builder()
-				.email(data.getRequest().getEmail())
-				.password(passwordEncoder.encode(data.getRequest().getPassword()))
-				.name(data.getRequest().getName())
-				.nickname(data.getRequest().getNickname())
-				.build();
+			.email(data.getRequest().getEmail())
+			.password(passwordEncoder.encode(data.getRequest().getPassword()))
+			.name(data.getRequest().getName())
+			.nickname(data.getRequest().getNickname())
+			.build();
 		customerRepository.save(customer);
 
 		// Redis에서 제거
@@ -157,7 +157,7 @@ public class AuthService {
 		}
 
 		Customer customer = customerRepository.findById(UUID.fromString(userId))
-				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
+			.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
 		if (!passwordEncoder.matches(currentPassword, customer.getPassword())) {
 			throw new IllegalArgumentException("기존 비밀번호가 일치하지 않습니다.");

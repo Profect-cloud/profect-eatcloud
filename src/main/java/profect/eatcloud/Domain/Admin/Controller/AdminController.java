@@ -1,39 +1,35 @@
-package profect.eatcloud.Domain.Admin.Controller;
+package profect.eatcloud.Domain.Admin.controller;
 
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.Dto.CategoryDto;
-import profect.eatcloud.Domain.Admin.Dto.DashboardDto;
-import profect.eatcloud.Domain.Admin.Dto.ManagerDto;
-import profect.eatcloud.Domain.Admin.Dto.OrderDto;
-import profect.eatcloud.Domain.Admin.Dto.OrderStatusDto;
-import profect.eatcloud.Domain.Admin.Dto.StoreDto;
-import profect.eatcloud.Domain.Admin.Dto.UserDto;
-import profect.eatcloud.Domain.Admin.Service.AdminService;
+import lombok.AllArgsConstructor;
+import profect.eatcloud.Domain.Admin.dto.ManagerDto;
+import profect.eatcloud.Domain.Admin.dto.StoreDto;
+import profect.eatcloud.Domain.Admin.dto.UserDto;
+import profect.eatcloud.Domain.Admin.message.ResponseMessage;
+import profect.eatcloud.Domain.Admin.service.AdminService;
+import profect.eatcloud.common.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/admin")
-@Tag(name = "1. Admin API", description = "관리자만 사용하는 API")
+@Tag(name = "2-1. Admin API", description = "관리자만 사용하는 API")
 @PreAuthorize("hasRole('ADMIN')")
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class AdminController {
 
 	private final AdminService adminService;
@@ -42,136 +38,76 @@ public class AdminController {
 		return UUID.fromString(userDetails.getUsername());
 	}
 
-	// ---------------- GET ---------------
-	@Operation(summary = "1-1. 전체 Customer 목록 조회")
+	@Operation(summary = "1-1. 전체 사용자 목록 조회")
 	@GetMapping("/users")
-	public ResponseEntity<List<UserDto>> getAllCustomers(@AuthenticationPrincipal UserDetails userDetails) {
-		UUID adminUuid = getAdminUuid(userDetails);
-		return ResponseEntity.ok(adminService.getAllCustomers(adminUuid));
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<List<UserDto>> getAllCustomers() {
+		List<UserDto> users = adminService.getAllCustomers();
+		return ApiResponse.success(users);
 	}
 
 	@Operation(summary = "1-2. 이메일로 Customer 조회")
 	@GetMapping(value = "/users/search", params = "email")
-	public ResponseEntity<UserDto> getCustomerByEmail(@AuthenticationPrincipal UserDetails userDetails,
-		@RequestParam String email) {
-		UUID adminUuid = getAdminUuid(userDetails);
-		return ResponseEntity.ok(adminService.getCustomerByEmail(adminUuid, email));
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<UserDto> getCustomerByEmail(@RequestParam String email) {
+		UserDto customer = adminService.getCustomerByEmail(email);
+		return ApiResponse.success(customer);
 	}
 
 	@Operation(summary = "1-3. 이메일로 고객 밴(논리 삭제)")
 	@DeleteMapping(value = "/customers", params = "email")
-	public ResponseEntity<String> deleteCustomerByEmail(@AuthenticationPrincipal UserDetails userDetails,
-		@RequestParam String email) {
-		UUID adminUuid = getAdminUuid(userDetails);
-		adminService.deleteCustomerByEmail(adminUuid, email);
-		return ResponseEntity.ok("고객 밴 처리 완료: " + email);
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<ResponseMessage> deleteCustomerByEmail(@RequestParam String email) {
+		adminService.deleteCustomerByEmail(email);
+		return ApiResponse.success(ResponseMessage.CUSTOMER_BAN_SUCCESS);
 	}
 
 	@Operation(summary = "2-1. 전체 매니저 목록 조회")
 	@GetMapping("/managers")
-	public ResponseEntity<List<ManagerDto>> getAllManagers(@AuthenticationPrincipal UserDetails userDetails) {
-		UUID adminUuid = getAdminUuid(userDetails);
-		return ResponseEntity.ok(adminService.getAllManagers(adminUuid));
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<List<ManagerDto>> getAllManagers() {
+		List<ManagerDto> list = adminService.getAllManagers();
+		return ApiResponse.success(list);
 	}
 
 	@Operation(summary = "2-2. 이메일로 매니저 조회")
 	@GetMapping(value = "/managers/search", params = "email")
-	public ResponseEntity<ManagerDto> getManagerByEmail(@AuthenticationPrincipal UserDetails userDetails,
-		@RequestParam String email) {
-		UUID adminUuid = getAdminUuid(userDetails);
-		return ResponseEntity.ok(adminService.getManagerByEmail(adminUuid, email));
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<ManagerDto> getManagerByEmail(@RequestParam String email) {
+		ManagerDto m = adminService.getManagerByEmail(email);
+		return ApiResponse.success(m);
 	}
 
 	@Operation(summary = "2-3. 이메일로 매니저 밴(논리 삭제)")
 	@DeleteMapping(value = "/managers", params = "email")
-	public ResponseEntity<String> deleteManagerByEmail(@AuthenticationPrincipal UserDetails userDetails,
-		@RequestParam String email) {
-
-		UUID adminUuid = getAdminUuid(userDetails);
-		adminService.deleteManagerByEmail(adminUuid, email);
-		return ResponseEntity.ok("매니저 밴 처리 완료: " + email);
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<ResponseMessage> deleteManagerByEmail(@RequestParam String email) {
+		adminService.deleteManagerByEmail(email);
+		return ApiResponse.success(ResponseMessage.MANAGER_BAN_SUCCESS);
 	}
 
 	@Operation(summary = "3-1. 가게 목록 조회")
 	@GetMapping("/stores")
-	public ResponseEntity<List<StoreDto>> getStores(@AuthenticationPrincipal UserDetails userDetails) {
-		UUID adminUuid = getAdminUuid(userDetails);
-		List<StoreDto> stores = adminService.getStores(adminUuid);
-		return ResponseEntity.ok(stores);
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<List<StoreDto>> getStores() {
+		List<StoreDto> stores = adminService.getStores();
+		return ApiResponse.success(stores);
+	}
+
+	@Operation(summary = "3-2. 가게 상세 조회")
+	@GetMapping("/stores/{storeId}")
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<StoreDto> getStore(@PathVariable UUID storeId) {
+		StoreDto store = adminService.getStore(storeId);
+		return ApiResponse.success(store);
 	}
 
 	@Operation(summary = "3-3. 가게 삭제")
 	@DeleteMapping("/stores/{storeId}")
-	public ResponseEntity<String> deleteStore(@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long storeId) {
-		String adminId = userDetails.getUsername();
-		adminService.deleteStore(adminId, storeId);
-		return ResponseEntity.ok("가게 삭제 완료");
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<ResponseMessage> deleteStore(@PathVariable UUID storeId) {
+		adminService.deleteStore(storeId);
+		return ApiResponse.success(ResponseMessage.STORE_DELETE_SUCCESS);
 	}
 
-	@Operation(summary = "7. 카테고리 추가")
-	@PostMapping("/categories")
-	public ResponseEntity<CategoryDto> createCategory(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@RequestBody CategoryDto categoryDto
-	) {
-		String adminId = userDetails.getUsername();
-		CategoryDto created = adminService.createCategory(adminId, categoryDto);
-		return ResponseEntity.ok(created);
-	}
-
-	@Operation(summary = "8. 카테고리 변경")
-	@PatchMapping("/categories/{categoryId}")
-	public ResponseEntity<CategoryDto> updateCategory(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long categoryId,
-		@RequestBody CategoryDto categoryDto
-	) {
-		String adminId = userDetails.getUsername();
-		CategoryDto updated = adminService.updateCategory(adminId, categoryId, categoryDto);
-		return ResponseEntity.ok(updated);
-	}
-
-	@Operation(summary = "9. 카테고리 삭제")
-	@DeleteMapping("/categories/{categoryId}")
-	public ResponseEntity<String> deleteCategory(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long categoryId
-	) {
-		String adminId = userDetails.getUsername();
-		adminService.deleteCategory(adminId, categoryId);
-		return ResponseEntity.ok("카테고리 삭제 완료");
-	}
-
-	@Operation(summary = "10. 주문 상세 조회")
-	@GetMapping("/orders/{orderId}")
-	public ResponseEntity<OrderDto> getOrderDetail(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long orderId
-	) {
-		String adminId = userDetails.getUsername();
-		OrderDto order = adminService.getOrderDetail(adminId, orderId);
-		return ResponseEntity.ok(order);
-	}
-
-	@Operation(summary = "11. 주문 상태 변경")
-	@PatchMapping("/orders/{orderId}/status")
-	public ResponseEntity<OrderDto> updateOrderStatus(
-		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long orderId, @RequestBody OrderStatusDto statusDto
-	) {
-		String adminId = userDetails.getUsername();
-		OrderDto updated = adminService.updateOrderStatus(adminId, orderId, statusDto);
-		return ResponseEntity.ok(updated);
-	}
-
-	@Operation(summary = "12. 대시보드 조회")
-	@GetMapping("/dashboard")
-	public ResponseEntity<DashboardDto> getDashboard(
-		@AuthenticationPrincipal UserDetails userDetails
-	) {
-		String adminId = userDetails.getUsername();
-		DashboardDto data = adminService.getDashboard(adminId);
-		return ResponseEntity.ok(data);
-	}
 }
