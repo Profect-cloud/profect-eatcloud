@@ -16,7 +16,6 @@ public class MenuSalesAggregationDto {
     private Long totalQuantitySold;
     private BigDecimal totalAmount;
 
-    // 명시적 생성자 - QueryDSL Projections에서 사용
     public MenuSalesAggregationDto(UUID menuId, String menuName, Long totalQuantitySold, BigDecimal totalAmount) {
         this.menuId = Objects.requireNonNull(menuId, "menuId cannot be null");
         this.menuName = Objects.requireNonNull(menuName, "menuName cannot be null");
@@ -34,7 +33,6 @@ public class MenuSalesAggregationDto {
         return totalAmount.divide(BigDecimal.valueOf(totalQuantitySold), 2, RoundingMode.HALF_UP);
     }
 
-    // equals와 hashCode도 명시적으로 구현하는 것이 좋습니다
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

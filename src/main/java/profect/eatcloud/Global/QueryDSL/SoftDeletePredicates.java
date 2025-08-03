@@ -11,7 +11,6 @@ import profect.eatcloud.Domain.Payment.Entity.*;
 
 public class SoftDeletePredicates {
 
-    // 기본 Active 조건들
     public static BooleanExpression customerActive() {
         return QCustomer.customer.timeData.deletedAt.isNull();
     }
@@ -52,7 +51,6 @@ public class SoftDeletePredicates {
         return QDailyMenuSales.dailyMenuSales.timeData.deletedAt.isNull();
     }
 
-    // 조합 조건들
     public static BooleanExpression salesWithStoreActive() {
         return dailyStoreSalesActive().and(storeActive());
     }
