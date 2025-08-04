@@ -137,6 +137,19 @@ public class AuthService {
 		redisTemplate.delete(key);
 	}
 
+	public void signupWithoutEmailVerification(SignupRequestDto req) {
+		if (customerRepository.findByEmail(req.getEmail()).isPresent()) {
+			throw new RuntimeException("이미 존재하는 이메일입니다.");
+		}
+		Customer customer = Customer.builder()
+				.email(req.getEmail())
+				.password(passwordEncoder.encode(req.getPassword()))
+				.name(req.getName())
+				.nickname(req.getNickname())
+				.build();
+		customerRepository.save(customer);
+	}
+
 	public void changePassword(String userId, String currentPassword, String newPassword) {
 		Admin admin = adminRepository.findById(UUID.fromString(userId)).orElse(null);
 		if (admin != null) {
