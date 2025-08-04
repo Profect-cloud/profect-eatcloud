@@ -10,16 +10,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.entity.Admin;
-import profect.eatcloud.Domain.Admin.repository.AdminRepository;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
-import profect.eatcloud.Domain.Manager.Entity.Manager;
-import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
 import profect.eatcloud.Login.dto.LoginResponseDto;
 import profect.eatcloud.Login.dto.SignupRedisData;
 import profect.eatcloud.Login.dto.SignupRequestDto;
 import profect.eatcloud.Security.jwt.JwtTokenProvider;
+import profect.eatcloud.domain.Customer.Entity.Customer;
+import profect.eatcloud.domain.Customer.Repository.CustomerRepository;
+import profect.eatcloud.domain.Manager.Entity.Manager;
+import profect.eatcloud.domain.Manager.Repository.ManagerRepository;
+import profect.eatcloud.domain.admin.entity.Admin;
+import profect.eatcloud.domain.admin.repository.AdminRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -35,14 +35,14 @@ public class AuthService {
 
 	// 1) 로그인
 	public LoginResponseDto login(String email, String password) {
-		// 1) Admin 먼저 조회
+		// 1) admin 먼저 조회
 		Admin admin = adminRepository.findByEmail(email)
 			.orElse(null);
 		if (admin != null) {
 			if (!passwordEncoder.matches(password, admin.getPassword())) {
 				throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 			}
-			// Admin 전용 토큰(리프레시 토큰은 사용하지 않음)
+			// admin 전용 토큰(리프레시 토큰은 사용하지 않음)
 			String accessToken = jwtTokenProvider.createToken(admin.getId(), "admin");
 			return new LoginResponseDto(accessToken, null, "admin");
 		}

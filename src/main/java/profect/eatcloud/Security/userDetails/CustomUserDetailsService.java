@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.entity.Admin;
-import profect.eatcloud.Domain.Admin.repository.AdminRepository;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
-import profect.eatcloud.Domain.Manager.Entity.Manager;
-import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
+import profect.eatcloud.domain.Customer.Entity.Customer;
+import profect.eatcloud.domain.Customer.Repository.CustomerRepository;
+import profect.eatcloud.domain.Manager.Entity.Manager;
+import profect.eatcloud.domain.Manager.Repository.ManagerRepository;
+import profect.eatcloud.domain.admin.entity.Admin;
+import profect.eatcloud.domain.admin.repository.AdminRepository;
 
 @Service
 @RequiredArgsConstructor

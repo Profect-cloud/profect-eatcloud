@@ -366,8 +366,8 @@ CREATE TABLE p_manager_store_applications
 
     -- ■ 심사 상태
     status               VARCHAR(20)  NOT NULL DEFAULT 'PENDING', -- PENDING, APPROVED, REJECTED
-    reviewer_admin_id    UUID,                                    -- 처리한 Admin ID
-    review_comment       TEXT,                                    -- Admin 코멘트
+    reviewer_admin_id    UUID,                                    -- 처리한 admin ID
+    review_comment       TEXT,                                    -- admin 코멘트
 
     -- ■ BaseTimeEntity 공통 시간 관리
     p_time_id            UUID         NOT NULL,

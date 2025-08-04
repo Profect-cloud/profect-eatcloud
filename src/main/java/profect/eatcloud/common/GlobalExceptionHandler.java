@@ -8,8 +8,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import profect.eatcloud.Domain.Admin.exception.AdminErrorCode;
-import profect.eatcloud.Domain.Admin.exception.AdminException;
+import profect.eatcloud.domain.admin.exception.AdminErrorCode;
+import profect.eatcloud.domain.admin.exception.AdminException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -42,9 +42,7 @@ public class GlobalExceptionHandler {
 		};
 
 		ApiResponse<Void> body = ApiResponse.of(status, null);
-		return ResponseEntity
-			.status(status.getHttpStatus())
-			.body(body);
+		return ResponseEntity.status(status.getHttpStatus()).body(body);
 	}
 
 	@ExceptionHandler(Exception.class)
