@@ -8,8 +8,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import profect.eatcloud.Domain.Admin.exception.AdminErrorCode;
-import profect.eatcloud.Domain.Admin.exception.AdminException;
+import profect.eatcloud.domain.admin.exception.AdminErrorCode;
+import profect.eatcloud.domain.admin.exception.AdminException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
