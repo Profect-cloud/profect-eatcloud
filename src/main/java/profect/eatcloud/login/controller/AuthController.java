@@ -53,6 +53,13 @@ public class AuthController {
 		return ResponseEntity.ok("회원가입이 완료되었습니다.");
 	}
 
+	@Operation(summary = "테스트용 회원가입 (이메일 인증 없이 바로 가입)")
+	@PostMapping("/register-test")
+	public ResponseEntity<String> registerTest(@RequestBody SignupRequestDto request) {
+		authService.signupWithoutEmailVerification(request);
+		return ResponseEntity.ok("Test Register Success");
+	}
+
 	@Operation(summary = "비밀번호 변경")
 	@PatchMapping("/password")
 	public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequestDto request) {
