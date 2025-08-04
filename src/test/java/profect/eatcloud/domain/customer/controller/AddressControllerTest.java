@@ -1,4 +1,3 @@
-// AddressControllerTest.java
 package profect.eatcloud.domain.customer.controller;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -8,12 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import profect.eatcloud.domain.customer.Dto.request.AddressRequestDto;
-import profect.eatcloud.domain.customer.Dto.response.AddressResponseDto;
-import profect.eatcloud.domain.customer.service.AddressService;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,6 +22,14 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
+
+import profect.eatcloud.common.ApiResponse;
+import profect.eatcloud.domain.customer.dto.request.AddressRequestDto;
+import profect.eatcloud.domain.customer.dto.response.AddressResponseDto;
+import profect.eatcloud.domain.customer.exception.CustomerErrorCode;
+import profect.eatcloud.domain.customer.exception.CustomerException;
+import profect.eatcloud.domain.customer.message.ResponseMessage;
+import profect.eatcloud.domain.customer.service.AddressService;
 
 @ExtendWith(MockitoExtension.class)
 class AddressControllerTest {
@@ -43,7 +46,6 @@ class AddressControllerTest {
 		addressController = new AddressController(addressService);
 		customerId = UUID.randomUUID();
 
-		// UserDetails 모킹 - username에 customerId를 String으로 변환하여 저장
 		userDetails = User.builder()
 			.username(customerId.toString())
 			.password("password")
@@ -74,16 +76,16 @@ class AddressControllerTest {
 		given(addressService.getAddressList(customerId)).willReturn(addresses);
 
 		// when
-		ResponseEntity<List<AddressResponseDto>> response =
+		ApiResponse<List<AddressResponseDto>> response =
 			addressController.getAddressList(userDetails);
 
 		// then
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(response.getBody()).hasSize(2);
-		assertThat(response.getBody().get(0).zipcode()).isEqualTo("12345");
-		assertThat(response.getBody().get(0).isSelected()).isTrue();
-		assertThat(response.getBody().get(1).zipcode()).isEqualTo("67890");
-		assertThat(response.getBody().get(1).isSelected()).isFalse();
+		assertThat(response.getCode()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getData()).hasSize(2);
+		assertThat(response.getData().get(0).zipcode()).isEqualTo("12345");
+		assertThat(response.getData().get(0).isSelected()).isTrue();
+		assertThat(response.getData().get(1).zipcode()).isEqualTo("67890");
+		assertThat(response.getData().get(1).isSelected()).isFalse();
 	}
 
 	@Test
@@ -93,12 +95,12 @@ class AddressControllerTest {
 		given(addressService.getAddressList(customerId)).willReturn(List.of());
 
 		// when
-		ResponseEntity<List<AddressResponseDto>> response =
+		ApiResponse<List<AddressResponseDto>> response =
 			addressController.getAddressList(userDetails);
 
 		// then
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(response.getBody()).isEmpty();
+		assertThat(response.getCode()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getData()).isEmpty();
 	}
 
 	@Test
@@ -123,21 +125,22 @@ class AddressControllerTest {
 			.willReturn(expectedResponse);
 
 		// when
-		ResponseEntity<AddressResponseDto> response =
+		ApiResponse<List<AddressResponseDto>> response =
 			addressController.createAddress(userDetails, request);
 
 		// then
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-		assertThat(response.getBody()).isNotNull();
-		assertThat(response.getBody().zipcode()).isEqualTo("12345");
-		assertThat(response.getBody().roadAddr()).isEqualTo("서울시 강남구 테스트로 123");
-		assertThat(response.getBody().detailAddr()).isEqualTo("101호");
-		assertThat(response.getBody().isSelected()).isTrue();
+		assertThat(response.getCode()).isEqualTo(HttpStatus.CREATED.value());
+		assertThat(response.getData()).isNotNull();
+		assertThat(response.getData()).hasSize(1);
+		assertThat(response.getData().getFirst().zipcode()).isEqualTo("12345");
+		assertThat(response.getData().getFirst().roadAddr()).isEqualTo("서울시 강남구 테스트로 123");
+		assertThat(response.getData().getFirst().detailAddr()).isEqualTo("101호");
+		assertThat(response.getData().getFirst().isSelected()).isTrue();
 	}
 
 	@Test
-	@DisplayName("주소 등록 - Service에서 예외 발생")
-	void createAddress_ServiceException() {
+	@DisplayName("주소 등록 - Service에서 고객을 찾을 수 없는 예외 발생")
+	void createAddress_CustomerNotFound() {
 		// given
 		AddressRequestDto request = new AddressRequestDto(
 			"12345",
@@ -146,12 +149,12 @@ class AddressControllerTest {
 		);
 
 		given(addressService.createAddress(eq(customerId), any(AddressRequestDto.class)))
-			.willThrow(new IllegalArgumentException("Customer not found"));
+			.willThrow(new CustomerException(CustomerErrorCode.CUSTOMER_NOT_FOUND));
 
 		// when & then
 		assertThatThrownBy(() -> addressController.createAddress(userDetails, request))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("Customer not found");
+			.isInstanceOf(CustomerException.class)
+			.hasMessage("해당 고객을 찾을 수 없습니다");
 	}
 
 	@Test
@@ -177,16 +180,17 @@ class AddressControllerTest {
 			.willReturn(expectedResponse);
 
 		// when
-		ResponseEntity<AddressResponseDto> response =
+		ApiResponse<List<AddressResponseDto>> response =
 			addressController.updateAddress(userDetails, addressId, request);
 
 		// then
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(response.getBody()).isNotNull();
-		assertThat(response.getBody().id()).isEqualTo(addressId);
-		assertThat(response.getBody().zipcode()).isEqualTo("99999");
-		assertThat(response.getBody().roadAddr()).isEqualTo("서울시 송파구 새로운로 999");
-		assertThat(response.getBody().detailAddr()).isEqualTo("999호");
+		assertThat(response.getCode()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getData()).isNotNull();
+		assertThat(response.getData()).hasSize(1);
+		assertThat(response.getData().getFirst().id()).isEqualTo(addressId);
+		assertThat(response.getData().getFirst().zipcode()).isEqualTo("99999");
+		assertThat(response.getData().getFirst().roadAddr()).isEqualTo("서울시 송파구 새로운로 999");
+		assertThat(response.getData().getFirst().detailAddr()).isEqualTo("999호");
 	}
 
 	@Test
@@ -201,12 +205,12 @@ class AddressControllerTest {
 		);
 
 		given(addressService.updateAddress(eq(customerId), eq(addressId), any(AddressRequestDto.class)))
-			.willThrow(new IllegalArgumentException("Address not found or not authorized"));
+			.willThrow(new CustomerException(CustomerErrorCode.ADDRESS_NOT_FOUND));
 
 		// when & then
 		assertThatThrownBy(() -> addressController.updateAddress(userDetails, addressId, request))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("Address not found or not authorized");
+			.isInstanceOf(CustomerException.class)
+			.hasMessage("해당 배송지를 찾을 수 없습니다");
 	}
 
 	@Test
@@ -217,11 +221,11 @@ class AddressControllerTest {
 		willDoNothing().given(addressService).deleteAddress(customerId, addressId);
 
 		// when
-		ResponseEntity<Void> response = addressController.deleteAddress(userDetails, addressId);
+		ApiResponse<ResponseMessage> response = addressController.deleteAddress(userDetails, addressId);
 
 		// then
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-		assertThat(response.getBody()).isNull();
+		assertThat(response.getCode()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getData()).isEqualTo(ResponseMessage.ADDRESS_DELETE_SUCCESS);
 	}
 
 	@Test
@@ -229,13 +233,13 @@ class AddressControllerTest {
 	void deleteAddress_AddressNotFound() {
 		// given
 		UUID addressId = UUID.randomUUID();
-		willThrow(new IllegalArgumentException("Address not found or not authorized"))
+		willThrow(new CustomerException(CustomerErrorCode.ADDRESS_NOT_FOUND))
 			.given(addressService).deleteAddress(customerId, addressId);
 
 		// when & then
 		assertThatThrownBy(() -> addressController.deleteAddress(userDetails, addressId))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("Address not found or not authorized");
+			.isInstanceOf(CustomerException.class)
+			.hasMessage("해당 배송지를 찾을 수 없습니다");
 	}
 
 	@Test
@@ -246,11 +250,11 @@ class AddressControllerTest {
 		willDoNothing().given(addressService).setDefaultAddress(customerId, addressId);
 
 		// when
-		ResponseEntity<Void> response = addressController.setDefaultAddress(userDetails, addressId);
+		ApiResponse<ResponseMessage> response = addressController.setDefaultAddress(userDetails, addressId);
 
 		// then
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-		assertThat(response.getBody()).isNull();
+		assertThat(response.getCode()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getData()).isEqualTo(ResponseMessage.ADDRESS_SELECT_SUCCESS);
 	}
 
 	@Test
@@ -258,12 +262,28 @@ class AddressControllerTest {
 	void setDefaultAddress_AddressNotFound() {
 		// given
 		UUID addressId = UUID.randomUUID();
-		willThrow(new IllegalArgumentException("Address not found or not authorized"))
+		willThrow(new CustomerException(CustomerErrorCode.ADDRESS_NOT_FOUND))
 			.given(addressService).setDefaultAddress(customerId, addressId);
 
 		// when & then
 		assertThatThrownBy(() -> addressController.setDefaultAddress(userDetails, addressId))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("Address not found or not authorized");
+			.isInstanceOf(CustomerException.class)
+			.hasMessage("해당 배송지를 찾을 수 없습니다");
+	}
+
+	@Test
+	@DisplayName("잘못된 UUID 형식으로 예외 발생")
+	void invalidCustomerUuid_ThrowsException() {
+		// given
+		UserDetails invalidUserDetails = User.builder()
+			.username("invalid-uuid")
+			.password("password")
+			.authorities(Collections.emptyList())
+			.build();
+
+		// when & then
+		assertThatThrownBy(() -> addressController.getAddressList(invalidUserDetails))
+			.isInstanceOf(CustomerException.class)
+			.hasMessage("유효하지 않은 고객 ID입니다");
 	}
 }

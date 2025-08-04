@@ -8,6 +8,7 @@ public enum ApiResponseStatus {
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
 	FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
 	NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 값이 없습니다."),
+	CONFLICT(HttpStatus.CONFLICT, "데이터 충돌이 발생했습니다."),
 	INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, ""),
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
 

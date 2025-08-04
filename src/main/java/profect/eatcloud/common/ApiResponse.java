@@ -27,4 +27,7 @@ public class ApiResponse<T> {
 		return of(ApiResponseStatus.OK, null);
 	}
 
+	public static <T> ApiResponse<T> created(T data) {
+		return of(ApiResponseStatus.CREATED, data);
+	}
 }
