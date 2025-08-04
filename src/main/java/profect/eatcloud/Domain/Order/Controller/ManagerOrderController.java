@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Order.Controller;
+package profect.eatcloud.domain.order.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,10 +10,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.Domain.Order.Dto.AdminOrderConfirmRequestDto;
-import profect.eatcloud.Domain.Order.Dto.AdminOrderCompleteRequestDto;
-import profect.eatcloud.Domain.Order.Dto.AdminOrderResponseDto;
-import profect.eatcloud.Domain.Order.Service.AdminOrderService;
+import profect.eatcloud.domain.order.dto.AdminOrderConfirmRequestDto;
+import profect.eatcloud.domain.order.dto.AdminOrderCompleteRequestDto;
+import profect.eatcloud.domain.order.dto.AdminOrderResponseDto;
+import profect.eatcloud.domain.order.service.AdminOrderService;
 
 import java.util.UUID;
 

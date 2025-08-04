@@ -8,8 +8,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import profect.eatcloud.Domain.Admin.exception.AdminErrorCode;
-import profect.eatcloud.Domain.Admin.exception.AdminException;
+// import profect.eatcloud.domain.admin.exception.AdminErrorCode;
+// import profect.eatcloud.domain.admin.exception.AdminException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,24 +28,24 @@ public class GlobalExceptionHandler {
 			.body(e.getMessage());
 	}
 
-	@ExceptionHandler(AdminException.class)
-	public ResponseEntity<ApiResponse<Void>> handleAdminException(AdminException ex) {
-		AdminErrorCode errorCode = ex.getErrorCode();
+	// @ExceptionHandler(AdminException.class)
+	// public ResponseEntity<ApiResponse<Void>> handleAdminException(AdminException ex) {
+	// 	AdminErrorCode errorCode = ex.getErrorCode();
 
-		ApiResponseStatus status = switch (errorCode) {
-			// 리소스를 찾지 못한 경우 ⇒ 404
-			case ADMIN_NOT_FOUND, STORE_NOT_FOUND, CATEGORY_NOT_FOUND -> ApiResponseStatus.NOT_FOUND;
-			// 잘못된 입력이나 중복 이메일 ⇒ 400
-			case EMAIL_ALREADY_EXISTS, INVALID_INPUT -> ApiResponseStatus.BAD_REQUEST;
-			// 그 외는 서버 내부 에러로 처리
-			default -> ApiResponseStatus.INTERNAL_ERROR;
-		};
+	// 	ApiResponseStatus status = switch (errorCode) {
+	// 		// 리소스를 찾지 못한 경우 ⇒ 404
+	// 		case ADMIN_NOT_FOUND, STORE_NOT_FOUND, CATEGORY_NOT_FOUND -> ApiResponseStatus.NOT_FOUND;
+	// 		// 잘못된 입력이나 중복 이메일 ⇒ 400
+	// 		case EMAIL_ALREADY_EXISTS, INVALID_INPUT -> ApiResponseStatus.BAD_REQUEST;
+	// 		// 그 외는 서버 내부 에러로 처리
+	// 		default -> ApiResponseStatus.INTERNAL_ERROR;
+	// 	};
 
-		ApiResponse<Void> body = ApiResponse.of(status, null);
-		return ResponseEntity
-			.status(status.getHttpStatus())
-			.body(body);
-	}
+	// 	ApiResponse<Void> body = ApiResponse.of(status, null);
+	// 	return ResponseEntity
+	// 		.status(status.getHttpStatus())
+	// 		.body(body);
+	// }
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<String> handleInternalError(Exception e) {

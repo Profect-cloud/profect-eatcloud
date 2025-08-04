@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.Dto;
+package profect.eatcloud.domain.customer.Dto;
 
 import lombok.Builder;
 import lombok.Data;

@@ -1,9 +1,9 @@
-package profect.eatcloud.Domain.Order.Repository;
+package profect.eatcloud.domain.order.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import profect.eatcloud.Domain.Order.Entity.Review;
+import profect.eatcloud.domain.order.entity.Review;
 import profect.eatcloud.Global.TimeData.BaseTimeRepository;
 
 import java.util.List;

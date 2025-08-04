@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Store.Exception;
+package profect.eatcloud.domain.Store.Exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

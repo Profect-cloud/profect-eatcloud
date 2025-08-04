@@ -1,10 +1,10 @@
-package profect.eatcloud.Domain.Store.Service;
+package profect.eatcloud.domain.Store.Service;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import profect.eatcloud.Domain.Store.Dto.AiDescriptionRequestDto;
+import profect.eatcloud.domain.Store.Dto.AiDescriptionRequestDto;
 
 import java.util.List;
 import java.util.Map;

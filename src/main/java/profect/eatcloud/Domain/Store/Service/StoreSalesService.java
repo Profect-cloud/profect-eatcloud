@@ -1,15 +1,15 @@
-package profect.eatcloud.Domain.Store.Service;
+package profect.eatcloud.domain.Store.Service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import profect.eatcloud.Domain.Store.Dto.*;
-import profect.eatcloud.Domain.Store.Entity.DailyStoreSales;
-import profect.eatcloud.Domain.Store.Exception.StoreAccessDeniedException;
-import profect.eatcloud.Domain.Store.Exception.SalesStatisticsException;
-import profect.eatcloud.Domain.Store.Repository.DailyStoreSalesRepository;
-import profect.eatcloud.Domain.Store.Repository.DailyMenuSalesRepository;
-import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
-import profect.eatcloud.Domain.Manager.Exception.ManagerNotFoundException;
+import profect.eatcloud.domain.Store.Dto.*;
+import profect.eatcloud.domain.Store.Entity.DailyStoreSales;
+import profect.eatcloud.domain.Store.Exception.StoreAccessDeniedException;
+import profect.eatcloud.domain.Store.Exception.SalesStatisticsException;
+import profect.eatcloud.domain.Store.Repository.DailyStoreSalesRepository;
+import profect.eatcloud.domain.Store.Repository.DailyMenuSalesRepository;
+import profect.eatcloud.domain.manager.repository.ManagerRepository;
+import profect.eatcloud.domain.manager.exception.ManagerNotFoundException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

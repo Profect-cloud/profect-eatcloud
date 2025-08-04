@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.Dto.request;
+package profect.eatcloud.domain.customer.Dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

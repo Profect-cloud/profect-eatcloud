@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.controller;
+package profect.eatcloud.domain.customer.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,12 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.Domain.Customer.Dto.request.CustomerProfileUpdateRequestDto;
-import profect.eatcloud.Domain.Customer.Dto.request.CustomerWithdrawRequestDto;
-import profect.eatcloud.Domain.Customer.Dto.response.CustomerProfileResponseDto;
-import profect.eatcloud.Domain.Customer.Dto.response.CustomerWithdrawResponseDto;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.service.CustomerService;
+import profect.eatcloud.domain.customer.Dto.request.CustomerProfileUpdateRequestDto;
+import profect.eatcloud.domain.customer.Dto.request.CustomerWithdrawRequestDto;
+import profect.eatcloud.domain.customer.Dto.response.CustomerProfileResponseDto;
+import profect.eatcloud.domain.customer.Dto.response.CustomerWithdrawResponseDto;
+import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.service.CustomerService;
 
 import java.util.UUID;
 

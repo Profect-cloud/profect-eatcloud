@@ -1,20 +1,20 @@
-package profect.eatcloud.Domain.Order.Service;
+package profect.eatcloud.domain.order.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import profect.eatcloud.Domain.Order.Entity.Order;
-import profect.eatcloud.Domain.Order.Repository.OrderRepository;
-import profect.eatcloud.Domain.Order.Dto.OrderMenu;
-import profect.eatcloud.Domain.GlobalCategory.Entity.OrderStatusCode;
-import profect.eatcloud.Domain.GlobalCategory.Entity.OrderTypeCode;
-import profect.eatcloud.Domain.GlobalCategory.Repository.OrderStatusCodeRepository;
-import profect.eatcloud.Domain.GlobalCategory.Repository.OrderTypeCodeRepository;
-import profect.eatcloud.Domain.Customer.Service.CartService;
-import profect.eatcloud.Domain.Store.Entity.Menu;
-import profect.eatcloud.Domain.Store.Repository.MenuRepository_min;
+import profect.eatcloud.domain.order.entity.Order;
+import profect.eatcloud.domain.order.repository.OrderRepository;
+import profect.eatcloud.domain.order.dto.OrderMenu;
+import profect.eatcloud.domain.globalCategory.entity.OrderStatusCode;
+import profect.eatcloud.domain.globalCategory.entity.OrderTypeCode;
+import profect.eatcloud.domain.globalCategory.repository.OrderStatusCodeRepository;
+import profect.eatcloud.domain.globalCategory.repository.OrderTypeCodeRepository;
+import profect.eatcloud.domain.customer.Service.CartService;
+import profect.eatcloud.domain.Store.Entity.Menu;
+import profect.eatcloud.domain.Store.Repository.MenuRepository_min;
 
 import java.util.List;
 import java.util.UUID;

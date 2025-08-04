@@ -1,12 +1,7 @@
 package profect.eatcloud.Global.QueryDSL;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import profect.eatcloud.Domain.Store.Entity.*;
-import profect.eatcloud.Domain.Customer.Entity.*;
-import profect.eatcloud.Domain.Order.Entity.*;
-import profect.eatcloud.Domain.Manager.Entity.*;
-import profect.eatcloud.Domain.Admin.Entity.*;
-import profect.eatcloud.Domain.Payment.Entity.*;
+import profect.eatcloud.domain.admin.Entity.*;
 
 
 public class SoftDeletePredicates {

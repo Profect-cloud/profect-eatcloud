@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.service;
+package profect.eatcloud.domain.customer.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,13 +6,13 @@ import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import profect.eatcloud.Domain.Customer.Dto.CartItem;
-import profect.eatcloud.Domain.Customer.Dto.request.AddCartItemRequest;
-import profect.eatcloud.Domain.Customer.Dto.request.UpdateCartItemRequest;
-import profect.eatcloud.Domain.Customer.Entity.Cart;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.repository.CartRepository;
-import profect.eatcloud.Domain.Customer.repository.CustomerRepository;
+import profect.eatcloud.domain.customer.Dto.CartItem;
+import profect.eatcloud.domain.customer.Dto.request.AddCartItemRequest;
+import profect.eatcloud.domain.customer.Dto.request.UpdateCartItemRequest;
+import profect.eatcloud.domain.customer.entity.Cart;
+import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.repository.CartRepository;
+import profect.eatcloud.domain.customer.repository.CustomerRepository;
 
 import java.time.Duration;
 import java.util.*;

@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Payment.Controller;
+package profect.eatcloud.domain.Payment.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,16 +7,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
-import profect.eatcloud.Domain.Payment.Entity.PaymentRequest;
-import profect.eatcloud.Domain.Payment.Entity.Payment;
-import profect.eatcloud.Domain.Payment.Service.*;
+import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.Repository.CustomerRepository;
+import profect.eatcloud.domain.Payment.Entity.PaymentRequest;
+import profect.eatcloud.domain.Payment.Entity.Payment;
+import profect.eatcloud.domain.Payment.Service.*;
 import lombok.extern.slf4j.Slf4j;
-import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
-import profect.eatcloud.Domain.Order.Service.OrderService;
-import profect.eatcloud.Domain.Order.Entity.Order;
-import profect.eatcloud.Domain.Order.Dto.OrderMenu;
+import profect.eatcloud.domain.Payment.Dto.TossPaymentResponse;
+import profect.eatcloud.domain.order.service.OrderService;
+import profect.eatcloud.domain.order.entity.Order;
+import profect.eatcloud.domain.order.dto.OrderMenu;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

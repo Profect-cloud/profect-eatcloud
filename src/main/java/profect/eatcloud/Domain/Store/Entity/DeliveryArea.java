@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Store.Entity;
+package profect.eatcloud.domain.Store.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;

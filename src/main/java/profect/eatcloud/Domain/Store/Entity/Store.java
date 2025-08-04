@@ -1,14 +1,12 @@
-package profect.eatcloud.Domain.Store.Entity;
+package profect.eatcloud.domain.Store.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import profect.eatcloud.Domain.Store.Dto.StoreSearchResponseDto;
+import profect.eatcloud.domain.Store.Dto.StoreSearchResponseDto;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 
 import java.time.LocalTime;
 import java.util.UUID;
-import java.sql.Time;
-
 
 
 @Entity

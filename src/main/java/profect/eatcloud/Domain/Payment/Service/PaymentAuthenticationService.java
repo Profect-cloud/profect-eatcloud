@@ -1,9 +1,9 @@
-package profect.eatcloud.Domain.Payment.Service;
+package profect.eatcloud.domain.Payment.Service;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
+import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.Security.AuthenticationHelper;
 
 import java.util.UUID;

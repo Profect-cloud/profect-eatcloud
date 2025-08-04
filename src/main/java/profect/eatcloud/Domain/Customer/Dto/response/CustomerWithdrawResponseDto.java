@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.Dto.response;
+package profect.eatcloud.domain.customer.Dto.response;
 
 import java.time.LocalDateTime;
 

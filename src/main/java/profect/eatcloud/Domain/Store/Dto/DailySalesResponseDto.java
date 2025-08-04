@@ -1,9 +1,9 @@
-package profect.eatcloud.Domain.Store.Dto;
+package profect.eatcloud.domain.Store.Dto;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import profect.eatcloud.Domain.Store.Entity.DailyStoreSales;
+import profect.eatcloud.domain.Store.Entity.DailyStoreSales;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

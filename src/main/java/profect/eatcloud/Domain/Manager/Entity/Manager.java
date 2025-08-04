@@ -1,9 +1,9 @@
-package profect.eatcloud.Domain.Manager.Entity;
+package profect.eatcloud.domain.manager.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
-import profect.eatcloud.Domain.Store.Entity.Store;
+import profect.eatcloud.domain.Store.Entity.Store;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 
 @Entity

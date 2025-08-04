@@ -1,15 +1,15 @@
-package profect.eatcloud.Domain.Payment.Service;
+package profect.eatcloud.domain.Payment.Service;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
-import profect.eatcloud.Domain.Order.Entity.Order;
-import profect.eatcloud.Domain.Order.Service.OrderService;
-import profect.eatcloud.Domain.Payment.Entity.PaymentRequest;
+import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.Repository.CustomerRepository;
+import profect.eatcloud.domain.order.entity.Order;
+import profect.eatcloud.domain.order.service.OrderService;
+import profect.eatcloud.domain.Payment.Entity.PaymentRequest;
 
 import java.util.UUID;
 

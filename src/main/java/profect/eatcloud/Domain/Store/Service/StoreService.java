@@ -1,12 +1,12 @@
-package profect.eatcloud.Domain.Store.Service;
+package profect.eatcloud.domain.Store.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import profect.eatcloud.Domain.Store.Dto.StoreResponseDto;
-import profect.eatcloud.Domain.Store.Dto.StoreSearchResponseDto;
-import profect.eatcloud.Domain.Store.Entity.Store;
-import profect.eatcloud.Domain.Store.Repository.MenuRepository_min;
-import profect.eatcloud.Domain.Store.Repository.StoreRepository_min;
+import profect.eatcloud.domain.Store.Dto.StoreResponseDto;
+import profect.eatcloud.domain.Store.Dto.StoreSearchResponseDto;
+import profect.eatcloud.domain.Store.Entity.Store;
+import profect.eatcloud.domain.Store.Repository.MenuRepository_min;
+import profect.eatcloud.domain.Store.Repository.StoreRepository_min;
 
 import java.util.List;
 import java.util.UUID;

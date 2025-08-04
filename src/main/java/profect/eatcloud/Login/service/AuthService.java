@@ -10,12 +10,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Domain.Admin.entity.Admin;
-import profect.eatcloud.Domain.Admin.repository.AdminRepository;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
-import profect.eatcloud.Domain.Manager.Entity.Manager;
-import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
+import profect.eatcloud.domain.admin.entity.Admin;
+import profect.eatcloud.domain.admin.repository.AdminRepository;
+import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.Repository.CustomerRepository;
+import profect.eatcloud.domain.manager.entity.Manager;
+import profect.eatcloud.domain.manager.repository.ManagerRepository;
 import profect.eatcloud.Login.dto.LoginResponseDto;
 import profect.eatcloud.Login.dto.SignupRedisData;
 import profect.eatcloud.Login.dto.SignupRequestDto;

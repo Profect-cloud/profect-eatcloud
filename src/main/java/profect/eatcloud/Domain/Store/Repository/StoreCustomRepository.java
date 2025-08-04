@@ -1,6 +1,6 @@
-package profect.eatcloud.Domain.Store.Repository;
+package profect.eatcloud.domain.Store.Repository;
 
-import profect.eatcloud.Domain.Store.Dto.StoreSearchResponseDto;
+import profect.eatcloud.domain.Store.Dto.StoreSearchResponseDto;
 
 import java.util.List;
 import java.util.UUID;

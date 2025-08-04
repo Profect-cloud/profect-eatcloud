@@ -1,13 +1,12 @@
-package profect.eatcloud.Domain.Store.Controller;
+package profect.eatcloud.domain.Store.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.Domain.Store.Dto.MenuRequestDto;
-import profect.eatcloud.Domain.Store.Entity.Menu;
-import profect.eatcloud.Domain.Store.Service.MenuService;
+import profect.eatcloud.domain.Store.Entity.Menu;
+import profect.eatcloud.domain.Store.Service.MenuService;
 
 import java.util.List;
 import java.util.UUID;

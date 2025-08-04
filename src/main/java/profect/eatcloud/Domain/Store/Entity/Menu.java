@@ -1,10 +1,9 @@
-package profect.eatcloud.Domain.Store.Entity;
+package profect.eatcloud.domain.Store.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import profect.eatcloud.Domain.Store.Dto.MenuRequestDto;
+import profect.eatcloud.domain.Store.Dto.MenuRequestDto;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
-import profect.eatcloud.Global.TimeData.TimeData;
 
 import java.math.BigDecimal;
 import java.util.UUID;

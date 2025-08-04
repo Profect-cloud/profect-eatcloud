@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.repository;
+package profect.eatcloud.domain.customer.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.Query;
 
 import io.lettuce.core.dynamic.annotation.Param;
-import profect.eatcloud.Domain.Customer.Entity.Address;
+import profect.eatcloud.domain.customer.entity.Address;
 import profect.eatcloud.Global.TimeData.BaseTimeRepository;
 
 public interface AddressRepository extends BaseTimeRepository<Address, UUID> {

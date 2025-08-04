@@ -1,14 +1,14 @@
-package profect.eatcloud.Domain.Customer.service;
+package profect.eatcloud.domain.customer.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import profect.eatcloud.Domain.Customer.Dto.request.CustomerProfileUpdateRequestDto;
-import profect.eatcloud.Domain.Customer.Dto.request.CustomerWithdrawRequestDto;
-import profect.eatcloud.Domain.Customer.Dto.response.CustomerProfileResponseDto;
-import profect.eatcloud.Domain.Customer.Dto.response.CustomerWithdrawResponseDto;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.repository.CustomerRepository;
+import profect.eatcloud.domain.customer.Dto.request.CustomerProfileUpdateRequestDto;
+import profect.eatcloud.domain.customer.Dto.request.CustomerWithdrawRequestDto;
+import profect.eatcloud.domain.customer.Dto.response.CustomerProfileResponseDto;
+import profect.eatcloud.domain.customer.Dto.response.CustomerWithdrawResponseDto;
+import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.repository.CustomerRepository;
 
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;

@@ -1,9 +1,9 @@
-package profect.eatcloud.Domain.Customer.repository;
+package profect.eatcloud.domain.customer.repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import profect.eatcloud.Domain.Customer.Entity.Customer;
+import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.Global.TimeData.BaseTimeRepository;
 
 

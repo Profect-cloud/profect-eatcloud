@@ -1,10 +1,8 @@
-package profect.eatcloud.Domain.Order.Entity;
+package profect.eatcloud.domain.order.entity;
 
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

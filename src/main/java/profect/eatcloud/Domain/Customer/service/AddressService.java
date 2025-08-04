@@ -1,15 +1,15 @@
-package profect.eatcloud.Domain.Customer.service;
+package profect.eatcloud.domain.customer.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import profect.eatcloud.Domain.Customer.Dto.request.AddressRequestDto;
-import profect.eatcloud.Domain.Customer.Dto.response.AddressResponseDto;
-import profect.eatcloud.Domain.Customer.Entity.Address;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.repository.AddressRepository;
-import profect.eatcloud.Domain.Customer.repository.CustomerRepository;
+import profect.eatcloud.domain.customer.Dto.request.AddressRequestDto;
+import profect.eatcloud.domain.customer.Dto.response.AddressResponseDto;
+import profect.eatcloud.domain.customer.entity.Address;
+import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.repository.AddressRepository;
+import profect.eatcloud.domain.customer.repository.CustomerRepository;
 import profect.eatcloud.Security.SecurityUtil;
 
 import java.time.LocalDateTime;

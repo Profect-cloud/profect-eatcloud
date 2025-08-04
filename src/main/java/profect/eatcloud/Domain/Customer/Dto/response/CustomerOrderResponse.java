@@ -1,11 +1,9 @@
-package profect.eatcloud.Domain.Customer.Dto.response;
+package profect.eatcloud.domain.customer.Dto.response;
 
 import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import profect.eatcloud.Domain.Order.Dto.OrderMenu;
-import profect.eatcloud.Domain.Order.Entity.Order;
+import profect.eatcloud.domain.order.dto.OrderMenu;
+import profect.eatcloud.domain.order.entity.Order;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,9 +1,9 @@
-package profect.eatcloud.Domain.Customer.Dto.response;
+package profect.eatcloud.domain.customer.Dto.response;
 
 import java.util.Objects;
 import java.util.UUID;
 
-import profect.eatcloud.Domain.Customer.Entity.Customer;
+import profect.eatcloud.domain.customer.entity.Customer;
 
 public record CustomerProfileResponseDto(
 	UUID id,

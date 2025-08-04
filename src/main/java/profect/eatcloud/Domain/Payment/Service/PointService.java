@@ -1,10 +1,10 @@
-package profect.eatcloud.Domain.Payment.Service;
+package profect.eatcloud.domain.Payment.Service;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
+import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.Repository.CustomerRepository;
 import java.util.UUID;
 import java.util.Optional;
 

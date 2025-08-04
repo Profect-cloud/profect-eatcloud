@@ -1,13 +1,12 @@
-package profect.eatcloud.Domain.Store.Repository;
+package profect.eatcloud.domain.Store.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import profect.eatcloud.Domain.Store.Entity.DailyStoreSales;
-import profect.eatcloud.Domain.Store.Entity.DailyStoreSalesId;
+import profect.eatcloud.domain.Store.Entity.DailyStoreSales;
+import profect.eatcloud.domain.Store.Entity.DailyStoreSalesId;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;

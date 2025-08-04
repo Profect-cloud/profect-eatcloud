@@ -1,12 +1,12 @@
-package profect.eatcloud.Domain.Order.Controller;
+package profect.eatcloud.domain.order.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.Domain.Order.Dto.Request.OrderStatusUpdateRequest;
-import profect.eatcloud.Domain.Order.Service.OrderService;
-import profect.eatcloud.Domain.Order.Entity.Order;
+import profect.eatcloud.domain.order.dto.Request.OrderStatusUpdateRequest;
+import profect.eatcloud.domain.order.service.OrderService;
+import profect.eatcloud.domain.order.entity.Order;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

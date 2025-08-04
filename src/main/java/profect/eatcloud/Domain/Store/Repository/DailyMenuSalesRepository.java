@@ -1,11 +1,11 @@
 
-package profect.eatcloud.Domain.Store.Repository;
+package profect.eatcloud.domain.Store.Repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import profect.eatcloud.Domain.Store.Dto.MenuSalesAggregationDto;
-import profect.eatcloud.Domain.Store.Entity.*;
+import profect.eatcloud.domain.Store.Dto.MenuSalesAggregationDto;
+import profect.eatcloud.domain.Store.Entity.*;
 import profect.eatcloud.Global.TimeData.BaseTimeRepository;
 import profect.eatcloud.Global.QueryDSL.SoftDeletePredicates;
 import profect.eatcloud.Global.QueryDSL.SpringContext;

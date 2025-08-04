@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Payment.Exception;
+package profect.eatcloud.domain.Payment.Exception;
 
 /**
  * Payment 관련 커스텀 예외 클래스

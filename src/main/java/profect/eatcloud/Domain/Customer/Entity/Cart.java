@@ -1,8 +1,8 @@
-package profect.eatcloud.Domain.Customer.Entity;
+package profect.eatcloud.domain.customer.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import profect.eatcloud.Domain.Customer.Dto.CartItem;
+import profect.eatcloud.domain.customer.Dto.CartItem;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;

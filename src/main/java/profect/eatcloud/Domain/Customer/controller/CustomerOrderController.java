@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.controller;
+package profect.eatcloud.domain.customer.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -7,10 +7,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.Domain.Customer.Dto.response.CustomerOrderResponse;
-import profect.eatcloud.Domain.Customer.service.CustomerOrderService;
-import profect.eatcloud.Domain.Order.Entity.Order;
-import profect.eatcloud.Domain.Order.Service.OrderService;
+import profect.eatcloud.domain.customer.Dto.response.CustomerOrderResponse;
+import profect.eatcloud.domain.customer.service.CustomerOrderService;
+import profect.eatcloud.domain.order.entity.Order;
+import profect.eatcloud.domain.order.service.OrderService;
 import profect.eatcloud.Security.SecurityUtil;
 
 import java.util.List;

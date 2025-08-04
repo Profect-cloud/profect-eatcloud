@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Store.Controller;
+package profect.eatcloud.domain.Store.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,8 +8,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.Domain.Store.Dto.*;
-import profect.eatcloud.Domain.Store.Service.StoreSalesService;
+import profect.eatcloud.domain.Store.Dto.*;
+import profect.eatcloud.domain.Store.Service.StoreSalesService;
 
 import java.time.LocalDate;
 import java.util.List;

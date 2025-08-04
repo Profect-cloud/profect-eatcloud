@@ -1,11 +1,10 @@
-package profect.eatcloud.Domain.Payment.Controller;
+package profect.eatcloud.domain.Payment.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.Domain.Payment.Service.TossPaymentService;
-import profect.eatcloud.Domain.Payment.Dto.TossPaymentResponse;
-import profect.eatcloud.Domain.Payment.Exception.PaymentValidationException;
+import profect.eatcloud.domain.Payment.Service.TossPaymentService;
+import profect.eatcloud.domain.Payment.Dto.TossPaymentResponse;
+import profect.eatcloud.domain.Payment.Exception.PaymentValidationException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

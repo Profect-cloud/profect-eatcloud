@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Order.Dto.Response;
+package profect.eatcloud.domain.order.dto.Response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

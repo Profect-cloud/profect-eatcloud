@@ -1,13 +1,13 @@
-package profect.eatcloud.Domain.Order.Service;
+package profect.eatcloud.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import profect.eatcloud.Domain.Order.Entity.Order;
-import profect.eatcloud.Domain.Order.Repository.OrderRepository;
-import profect.eatcloud.Domain.Order.Dto.AdminOrderResponseDto;
-import profect.eatcloud.Domain.GlobalCategory.Entity.OrderStatusCode;
-import profect.eatcloud.Domain.GlobalCategory.Repository.OrderStatusCodeRepository;
+import profect.eatcloud.domain.order.entity.Order;
+import profect.eatcloud.domain.order.repository.OrderRepository;
+import profect.eatcloud.domain.order.dto.AdminOrderResponseDto;
+import profect.eatcloud.domain.globalCategory.entity.OrderStatusCode;
+import profect.eatcloud.domain.globalCategory.repository.OrderStatusCodeRepository;
 
 import java.util.UUID;
 

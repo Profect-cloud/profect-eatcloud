@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Payment.Entity;
+package profect.eatcloud.domain.Payment.Entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

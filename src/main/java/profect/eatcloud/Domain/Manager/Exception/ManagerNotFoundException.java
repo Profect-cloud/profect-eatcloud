@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Manager.Exception;
+package profect.eatcloud.domain.manager.exception;
 
 public class ManagerNotFoundException extends RuntimeException {
     private final String managerId;

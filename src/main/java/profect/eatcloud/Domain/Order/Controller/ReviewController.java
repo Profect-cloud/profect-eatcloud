@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Order.Controller;
+package profect.eatcloud.domain.order.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,9 +12,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import profect.eatcloud.Domain.Order.Dto.Request.ReviewRequestDto;
-import profect.eatcloud.Domain.Order.Dto.Response.ReviewResponseDto;
-import profect.eatcloud.Domain.Order.Service.ReviewService;
+import profect.eatcloud.domain.order.dto.Request.ReviewRequestDto;
+import profect.eatcloud.domain.order.dto.Response.ReviewResponseDto;
+import profect.eatcloud.domain.order.service.ReviewService;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,11 +1,9 @@
-package profect.eatcloud.Domain.GlobalCategory.Entity;
+package profect.eatcloud.domain.globalCategory.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.UUID;
 
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
-import profect.eatcloud.Global.TimeData.TimeData;
 
 @Entity
 @Table(name = "role_codes")

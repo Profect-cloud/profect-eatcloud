@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Store.Controller;
+package profect.eatcloud.domain.Store.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import profect.eatcloud.Domain.Store.Dto.StoreResponseDto;
-import profect.eatcloud.Domain.Store.Dto.StoreSearchResponseDto;
-import profect.eatcloud.Domain.Store.Service.StoreService;
+import profect.eatcloud.domain.Store.Dto.StoreResponseDto;
+import profect.eatcloud.domain.Store.Dto.StoreSearchResponseDto;
+import profect.eatcloud.domain.Store.Service.StoreService;
 
 import java.util.List;
 import java.util.UUID;

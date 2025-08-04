@@ -1,8 +1,7 @@
-package profect.eatcloud.Domain.GlobalCategory.Repository;
+package profect.eatcloud.domain.globalCategory.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import profect.eatcloud.Domain.GlobalCategory.Entity.PaymentMethodCode;
+import profect.eatcloud.domain.globalCategory.entity.PaymentMethodCode;
 import profect.eatcloud.Global.TimeData.BaseTimeRepository;
 
 import java.util.Optional;

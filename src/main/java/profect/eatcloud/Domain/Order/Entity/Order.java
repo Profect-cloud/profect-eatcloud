@@ -1,14 +1,11 @@
-package profect.eatcloud.Domain.Order.Entity;
+package profect.eatcloud.domain.order.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import profect.eatcloud.Domain.Order.Dto.OrderMenu;
+import profect.eatcloud.domain.order.dto.OrderMenu;
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
-import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Store.Entity.Store;
-import profect.eatcloud.Domain.Payment.Entity.Payment;
-import profect.eatcloud.Domain.GlobalCategory.Entity.OrderStatusCode;
-import profect.eatcloud.Domain.GlobalCategory.Entity.OrderTypeCode;
+import profect.eatcloud.domain.globalCategory.entity.OrderStatusCode;
+import profect.eatcloud.domain.globalCategory.entity.OrderTypeCode;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import java.util.UUID;

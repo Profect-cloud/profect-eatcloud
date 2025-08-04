@@ -1,12 +1,8 @@
-package profect.eatcloud.Domain.Store.Repository;
+package profect.eatcloud.domain.Store.Repository;
 
-import io.lettuce.core.dynamic.annotation.Param;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import profect.eatcloud.Domain.Store.Entity.Store;
+import profect.eatcloud.domain.Store.Entity.Store;
 import profect.eatcloud.Global.TimeData.BaseTimeRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

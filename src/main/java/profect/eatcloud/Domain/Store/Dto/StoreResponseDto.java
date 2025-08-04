@@ -1,8 +1,8 @@
-package profect.eatcloud.Domain.Store.Dto;
+package profect.eatcloud.domain.Store.Dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import profect.eatcloud.Domain.Store.Entity.Store;
+import profect.eatcloud.domain.Store.Entity.Store;
 
 import java.util.UUID;
 

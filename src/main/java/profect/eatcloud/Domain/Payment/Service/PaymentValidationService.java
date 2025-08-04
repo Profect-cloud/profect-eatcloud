@@ -1,16 +1,15 @@
-package profect.eatcloud.Domain.Payment.Service;
+package profect.eatcloud.domain.Payment.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import profect.eatcloud.Domain.Payment.Entity.PaymentRequest;
-import profect.eatcloud.Domain.Payment.Repository.PaymentRequestRepository;
+import profect.eatcloud.domain.Payment.Entity.PaymentRequest;
+import profect.eatcloud.domain.Payment.Repository.PaymentRequestRepository;
 import java.util.UUID;
 import java.util.Optional;
 import java.util.List;
-import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor

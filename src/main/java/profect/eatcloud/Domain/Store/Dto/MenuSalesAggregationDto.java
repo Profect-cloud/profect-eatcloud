@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Store.Dto;
+package profect.eatcloud.domain.Store.Dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

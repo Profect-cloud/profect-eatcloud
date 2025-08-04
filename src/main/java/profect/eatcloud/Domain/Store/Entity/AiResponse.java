@@ -1,10 +1,9 @@
-package profect.eatcloud.Domain.Store.Entity;
+package profect.eatcloud.domain.Store.Entity;
 
 import profect.eatcloud.Global.TimeData.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.BatchSize;
 
 import java.util.UUID;
 

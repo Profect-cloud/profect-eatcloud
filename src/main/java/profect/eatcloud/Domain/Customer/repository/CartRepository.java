@@ -1,9 +1,9 @@
-package profect.eatcloud.Domain.Customer.repository;
+package profect.eatcloud.domain.customer.repository;
 
 import org.springframework.data.jpa.repository.Query;
 
 import io.lettuce.core.dynamic.annotation.Param;
-import profect.eatcloud.Domain.Customer.Entity.Cart;
+import profect.eatcloud.domain.customer.entity.Cart;
 import profect.eatcloud.Global.TimeData.BaseTimeRepository;
 
 import java.util.Optional;

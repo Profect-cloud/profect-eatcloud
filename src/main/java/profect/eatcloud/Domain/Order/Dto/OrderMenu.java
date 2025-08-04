@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Order.Dto;
+package profect.eatcloud.domain.order.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

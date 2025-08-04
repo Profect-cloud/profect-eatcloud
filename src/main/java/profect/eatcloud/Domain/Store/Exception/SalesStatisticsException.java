@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Store.Exception;
+package profect.eatcloud.domain.Store.Exception;
 
 public class SalesStatisticsException extends RuntimeException {
 
