@@ -4,57 +4,97 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import profect.eatcloud.common.ApiResponse;
+import profect.eatcloud.domain.manager.dto.StoreRegisterRequestDto;
+import profect.eatcloud.domain.manager.message.ManagerResponseMessage;
 import profect.eatcloud.domain.manager.service.ManagerService;
-import profect.eatcloud.domain.store.dto.AiDescriptionRequestDto;
-import profect.eatcloud.domain.store.dto.AiDescriptionResponseDto;
-import profect.eatcloud.domain.store.dto.MenuRequestDto;
-import profect.eatcloud.domain.store.dto.MenuResponseDto;
+import profect.eatcloud.domain.store.dto.*;
 import profect.eatcloud.domain.store.entity.Menu;
 import profect.eatcloud.domain.store.service.AiDescriptionService;
 
 import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/manager")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('MANAGER')")
 @Tag(name = "5. ManagerController")
 public class ManagerController {
 
     private final ManagerService managerService;
     private final AiDescriptionService aiDescriptionService;
 
-    // 메뉴 관리
-    @Operation(summary = "1. 메뉴 생성")
-    @PostMapping("/stores/{store_id}/menus")
-    public ResponseEntity<MenuResponseDto> createMenu(@PathVariable UUID store_id, @RequestBody @Valid MenuRequestDto dto) {
-        Menu created = managerService.createMenu(store_id, dto);
-        return ResponseEntity.ok(MenuResponseDto.from(created));
+    @Operation(summary = "1-1. 메뉴 생성")
+    @PostMapping("/stores/{storeId}/menus")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<MenuResponseDto> createMenu(@PathVariable UUID storeId, @RequestBody @Valid MenuRequestDto dto) {
+        Menu created = managerService.createMenu(storeId, dto);
+        return ApiResponse.success(MenuResponseDto.from(created));
     }
 
-    @Operation(summary = "2. 메뉴 수정")
-    @PutMapping("/stores/{store_id}/menus/{menu_id}")
-    public ResponseEntity<MenuResponseDto> updateMenu(@PathVariable UUID store_id,
-                                                      @PathVariable UUID menu_id,
-                                                      @RequestBody @Valid MenuRequestDto dto) {
-        Menu updated = managerService.updateMenu(store_id, menu_id, dto);
-        return ResponseEntity.ok(MenuResponseDto.from(updated));
+    @Operation(summary = "1-2. 메뉴 수정")
+    @PutMapping("/stores/{storeId}/menus/{menuId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<MenuResponseDto> updateMenu(@PathVariable UUID storeId,
+                                                   @PathVariable UUID menuId,
+                                                   @RequestBody @Valid MenuRequestDto dto) {
+        Menu updated = managerService.updateMenu(storeId, menuId, dto);
+
+        return ApiResponse.success(MenuResponseDto.from(updated));
     }
 
-    @Operation(summary = "3. 메뉴 삭제")
-    @DeleteMapping("/stores/{store_id}/menus/{menu_id}")
-    public ResponseEntity<Void> deleteMenu(@PathVariable UUID menu_id) {
-        managerService.deleteMenu(menu_id);
-        return ResponseEntity.noContent().build();
+    @Operation(summary = "1-3. 메뉴 삭제")
+    @DeleteMapping("/stores/{storeId}/menus/{menuId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<ManagerResponseMessage> deleteMenu(@PathVariable UUID menuId) {
+        managerService.deleteMenu(menuId);
+        return ApiResponse.success(ManagerResponseMessage.MENU_DELETE_SUCCESS);
     }
 
-    @Operation(summary = "4. AI 메뉴 설명 생성")
-    @PostMapping("/stores/{store_id}/menus/ai-description")
-    public ResponseEntity<AiDescriptionResponseDto> generateAIDescription(
-            @PathVariable UUID store_id,
+
+    @Operation(summary = "1-4. AI 메뉴 설명 생성")
+    @PostMapping("/stores/{storeId}/menus/ai-description")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<AiDescriptionResponseDto> generateAIDescription(
+            @PathVariable UUID storeId,
             @RequestBody @Valid AiDescriptionRequestDto requestDto) {
 
         String description = aiDescriptionService.generateDescription(requestDto);
-        return ResponseEntity.ok(new AiDescriptionResponseDto(description));
+        return ApiResponse.success(new AiDescriptionResponseDto(description));
     }
+
+    @Operation(summary = "2-1. 가게 정보 수정")
+    @PutMapping("/stores/{storeId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<ManagerResponseMessage> updateStore(@PathVariable UUID storeId,
+                                                           @RequestBody @Valid StoreRequestDto dto) {
+        managerService.updateStore(storeId, dto);
+        return ApiResponse.success(ManagerResponseMessage.STORE_UPDATE_SUCCESS);
+    }
+
+    @Operation(summary = "2-2. 가게 등록 요청")
+    @PostMapping("/stores/register")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<ManagerResponseMessage> applyForStoreRegistration(
+            @RequestBody @Valid StoreRegisterRequestDto dto,
+            @AuthenticationPrincipal(expression = "id") UUID managerId) {
+
+        managerService.requestStoreRegistration(managerId, dto);
+        return ApiResponse.success(ManagerResponseMessage.STORE_REGISTRATION_REQUEST_SUCCESS);
+    }
+
+    @Operation(summary = "2-3. 가게 폐업 요청")
+    @PostMapping("/stores/{storeId}/close")
+    public ApiResponse<ManagerResponseMessage> applyForStoreClosure(
+            @PathVariable UUID storeId,
+            @AuthenticationPrincipal(expression = "id") UUID managerId) {
+
+        managerService.requestStoreClosure(managerId, storeId);
+        return ApiResponse.success(ManagerResponseMessage.STORE_CLOSURE_REQUEST_SUCCESS);
+    }
+
 }

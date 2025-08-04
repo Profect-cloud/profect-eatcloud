@@ -2,9 +2,10 @@ package profect.eatcloud.domain.manager.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.UUID;
 import profect.eatcloud.domain.store.entity.Store;
 import profect.eatcloud.global.timeData.BaseTimeEntity;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "p_managers")

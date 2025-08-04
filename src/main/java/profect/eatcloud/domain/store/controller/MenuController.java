@@ -2,9 +2,12 @@ package profect.eatcloud.domain.store.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import profect.eatcloud.domain.store.entity.Menu;
 import profect.eatcloud.domain.store.service.MenuService;
 
@@ -13,7 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/stores/{store_id}/menus")
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Tag(name = "7. MenuController")
 public class MenuController {
     private final MenuService menuService;
@@ -27,7 +30,7 @@ public class MenuController {
     @Operation(summary = "메뉴 상세 조회")
     @GetMapping("/{menu_id}")
     public ResponseEntity<Menu> getMenuDetail(@PathVariable UUID store_id, @PathVariable UUID menu_id) {
-        return ResponseEntity.ok(menuService.getMenuById(store_id,menu_id));
+        return ResponseEntity.ok(menuService.getMenuById(store_id, menu_id));
     }
 
 }

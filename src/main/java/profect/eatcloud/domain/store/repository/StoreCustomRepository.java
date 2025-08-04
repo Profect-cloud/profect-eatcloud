@@ -9,5 +9,8 @@ public interface StoreCustomRepository {
     List<StoreSearchResponseDto> findStoresByCategoryWithinDistance(
             UUID categoryId, double userLat, double userLon, double distanceKm
     );
+
+    List<StoreSearchResponseDto> findStoresByMenuCategoryWithinDistance(
+            String menuCategoryCode, double userLat, double userLon, double distanceKm);
 }
 

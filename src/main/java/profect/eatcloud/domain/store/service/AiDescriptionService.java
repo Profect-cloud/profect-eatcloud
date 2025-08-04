@@ -5,6 +5,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import profect.eatcloud.domain.store.dto.AiDescriptionRequestDto;
+import profect.eatcloud.domain.store.exception.AiDescriptionException;
+import profect.eatcloud.domain.store.exception.AiErrorCode;
+import profect.eatcloud.domain.store.exception.MenuErrorCode;
+import profect.eatcloud.domain.store.exception.MenuException;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +31,7 @@ public class AiDescriptionService {
         String prompt = createPrompt(dto);
 
         if (dto.getMenuName() == null || dto.getMenuName().isBlank()) {
-            throw new IllegalArgumentException("메뉴명은 필수입니다");
+            throw new MenuException(MenuErrorCode.MENU_NAME_REQUIRED);
         }
 
         return webClient.post()
@@ -56,7 +60,7 @@ public class AiDescriptionService {
                                 .replaceAll("\\n", "")           // 줄바꿈 제거
                                 .trim();                         // 앞뒤 공백 제거
                     } catch (Exception e) {
-                        throw new RuntimeException("AI 설명 응답 파싱 실패", e);
+                        throw new AiDescriptionException(AiErrorCode.AI_RESPONSE_PARSING_FAILED, e);
                     }
                 })
                 .block();
