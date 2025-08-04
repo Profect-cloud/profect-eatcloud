@@ -28,4 +28,8 @@ public class Category extends BaseTimeEntity {
     @Builder.Default
     private Boolean isActive = true;
 
+    public Category(UUID categoryId, Object o) {
+        super();
+    }
+
 } 
