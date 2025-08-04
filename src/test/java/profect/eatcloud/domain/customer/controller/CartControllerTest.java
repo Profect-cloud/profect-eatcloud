@@ -10,10 +10,12 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import profect.eatcloud.common.ApiResponse;
 import profect.eatcloud.domain.customer.dto.CartItem;
 import profect.eatcloud.domain.customer.dto.request.AddCartItemRequest;
 import profect.eatcloud.domain.customer.dto.request.UpdateCartItemRequest;
+import profect.eatcloud.domain.customer.message.ResponseMessage;
 import profect.eatcloud.domain.customer.service.CartService;
 import profect.eatcloud.security.SecurityUtil;
 
@@ -32,8 +34,10 @@ class CartControllerTest {
     @InjectMocks
     private CartController cartController;
 
-    private UUID customerId;
+    @Mock
+    private UserDetails userDetails;
 
+    private UUID customerId;
     private MockedStatic<SecurityUtil> securityUtilMock;
 
     @BeforeEach
@@ -42,6 +46,8 @@ class CartControllerTest {
 
         securityUtilMock = Mockito.mockStatic(SecurityUtil.class);
         securityUtilMock.when(SecurityUtil::getCurrentUsername).thenReturn(customerId.toString());
+
+        when(userDetails.getUsername()).thenReturn(customerId.toString());
     }
 
     @AfterEach
@@ -53,16 +59,17 @@ class CartControllerTest {
     @DisplayName("장바구니 항목 추가 성공")
     void addItem_success() {
         AddCartItemRequest request = new AddCartItemRequest(
-                UUID.randomUUID(),
-                "테스트메뉴",
-                3,
-                10000,
-                UUID.randomUUID()
+            UUID.randomUUID(),
+            "테스트메뉴",
+            3,
+            10000,
+            UUID.randomUUID()
         );
 
-        ResponseEntity<Void> response = cartController.addItem(request);
+        ApiResponse<ResponseMessage> response = cartController.addItem(userDetails, request);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getCode()).isEqualTo(200);
+        assertThat(response.getData()).isEqualTo(ResponseMessage.CART_ADD_SUCCESS);
         verify(cartService, times(1)).addItem(customerId, request);
     }
 
@@ -70,15 +77,21 @@ class CartControllerTest {
     @DisplayName("장바구니 조회 성공")
     void getCart_success() {
         List<CartItem> mockCartItems = List.of(
-                new CartItem(UUID.randomUUID(), "메뉴1", 2, 15000, UUID.randomUUID())
+            CartItem.builder()
+                .menuId(UUID.randomUUID())
+                .menuName("메뉴1")
+                .quantity(2)
+                .price(15000)
+                .storeId(UUID.randomUUID())
+                .build()
         );
 
         when(cartService.getCart(customerId)).thenReturn(mockCartItems);
 
-        ResponseEntity<List<CartItem>> response = cartController.getCart();
+        ApiResponse<List<CartItem>> response = cartController.getCart(userDetails);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(mockCartItems);
+        assertThat(response.getCode()).isEqualTo(200);
+        assertThat(response.getData()).isEqualTo(mockCartItems);
         verify(cartService, times(1)).getCart(customerId);
     }
 
@@ -86,13 +99,14 @@ class CartControllerTest {
     @DisplayName("장바구니 메뉴 수량 변경 성공")
     void updateQuantity_success() {
         UpdateCartItemRequest request = new UpdateCartItemRequest(
-                UUID.randomUUID(),
-                5
+            UUID.randomUUID(),
+            5
         );
 
-        ResponseEntity<Void> response = cartController.updateQuantity(request);
+        ApiResponse<ResponseMessage> response = cartController.updateQuantity(userDetails, request);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getCode()).isEqualTo(200);
+        assertThat(response.getData()).isEqualTo(ResponseMessage.CART_UPDATE_SUCCESS);
         verify(cartService, times(1)).updateItemQuantity(customerId, request);
     }
 
@@ -101,18 +115,20 @@ class CartControllerTest {
     void removeItem_success() {
         UUID menuId = UUID.randomUUID();
 
-        ResponseEntity<Void> response = cartController.removeItem(menuId);
+        ApiResponse<ResponseMessage> response = cartController.removeItem(userDetails, menuId);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getCode()).isEqualTo(200);
+        assertThat(response.getData()).isEqualTo(ResponseMessage.CART_ITEM_DELETE_SUCCESS);
         verify(cartService, times(1)).removeItem(customerId, menuId);
     }
 
     @Test
     @DisplayName("장바구니 전체 삭제 성공")
     void clearCart_success() {
-        ResponseEntity<Void> response = cartController.clearCart();
+        ApiResponse<ResponseMessage> response = cartController.clearCart(userDetails);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getCode()).isEqualTo(200);
+        assertThat(response.getData()).isEqualTo(ResponseMessage.CART_CLEAR_SUCCESS);
         verify(cartService, times(1)).clearCart(customerId);
     }
 }

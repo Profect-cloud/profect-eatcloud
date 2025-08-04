@@ -1,16 +1,20 @@
 package profect.eatcloud.domain.customer.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import profect.eatcloud.domain.customer.dto.request.AddressRequestDto;
 import profect.eatcloud.domain.customer.dto.response.AddressResponseDto;
 import profect.eatcloud.domain.customer.entity.Address;
 import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.exception.CustomerErrorCode;
+import profect.eatcloud.domain.customer.exception.CustomerException;
 import profect.eatcloud.domain.customer.repository.AddressRepository;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
 import profect.eatcloud.security.SecurityUtil;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,6 +30,8 @@ public class AddressService {
 	private final CustomerRepository customerRepository;
 
 	public List<AddressResponseDto> getAddressList(UUID customerId) {
+		customerRepository.findById(customerId)
+			.orElseThrow(() -> new CustomerException(CustomerErrorCode.CUSTOMER_NOT_FOUND));
 		List<Address> addresses = addressRepository.findByCustomerIdAndTimeData_DeletedAtIsNull(customerId);
 		return addresses.stream()
 			.map(this::toResponse)
@@ -35,9 +41,7 @@ public class AddressService {
 	@Transactional
 	public AddressResponseDto createAddress(UUID customerId, AddressRequestDto request) {
 		Customer customer = customerRepository.findById(customerId)
-			.orElseThrow(() -> new IllegalArgumentException("Customer not found: " + customerId));
-
-		// 첫 번째 주소인지 확인
+			.orElseThrow(() -> new CustomerException(CustomerErrorCode.CUSTOMER_NOT_FOUND));
 		List<Address> existingAddresses = addressRepository.findByCustomerIdAndTimeData_DeletedAtIsNull(customerId);
 		boolean isFirstAddress = existingAddresses.isEmpty();
 
@@ -55,8 +59,7 @@ public class AddressService {
 
 	@Transactional
 	public AddressResponseDto updateAddress(UUID customerId, UUID addressId, AddressRequestDto request) {
-		Address address = addressRepository.findByIdAndCustomerId(addressId, customerId)
-			.orElseThrow(() -> new IllegalArgumentException("Address not found or not authorized"));
+		Address address = addressRepository.findByIdAndCustomerId(addressId, customerId).orElseThrow(() -> new CustomerException(CustomerErrorCode.ADDRESS_NOT_FOUND));
 
 		address.updateAddress(request.zipcode(), request.roadAddr(), request.detailAddr());
 
@@ -67,7 +70,7 @@ public class AddressService {
 	@Transactional
 	public void deleteAddress(UUID customerId, UUID addressId) {
 		Address address = addressRepository.findByIdAndCustomerId(addressId, customerId)
-			.orElseThrow(() -> new IllegalArgumentException("Address not found or not authorized"));
+			.orElseThrow(() -> new CustomerException(CustomerErrorCode.ADDRESS_NOT_FOUND));
 
 		addressRepository.softDeleteByTimeId(
 			address.getTimeData().getPTimeId(),
@@ -79,21 +82,18 @@ public class AddressService {
 	@Transactional
 	public void setDefaultAddress(UUID customerId, UUID addressId) {
 		Address targetAddress = addressRepository.findByIdAndCustomerId(addressId, customerId)
-			.orElseThrow(() -> new IllegalArgumentException("Address not found or not authorized"));
+			.orElseThrow(() -> new CustomerException(CustomerErrorCode.ADDRESS_NOT_FOUND));
 
-		// 이미 기본 주소인 경우 처리하지 않음
 		if (targetAddress.getIsSelected()) {
 			return;
 		}
 
-		// 현재 기본 주소 해제
 		addressRepository.findByCustomerIdAndIsSelectedTrueAndTimeData_DeletedAtIsNull(customerId)
 			.ifPresent(currentDefault -> {
 				currentDefault.changeSelected(false);
 				addressRepository.save(currentDefault);
 			});
 
-		// 새로운 기본 주소 설정
 		targetAddress.changeSelected(true);
 		addressRepository.save(targetAddress);
 	}

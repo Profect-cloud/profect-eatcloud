@@ -2,17 +2,20 @@ package profect.eatcloud.domain.customer.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.RedisConnectionFailureException;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import profect.eatcloud.domain.customer.dto.CartItem;
 import profect.eatcloud.domain.customer.dto.request.AddCartItemRequest;
 import profect.eatcloud.domain.customer.dto.request.UpdateCartItemRequest;
 import profect.eatcloud.domain.customer.entity.Cart;
 import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.exception.CustomerErrorCode;
+import profect.eatcloud.domain.customer.exception.CustomerException;
 import profect.eatcloud.domain.customer.repository.CartRepository;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
+
+import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.*;
@@ -31,13 +34,11 @@ public class CartService {
     private static final Duration CART_TTL = Duration.ofHours(24);
 
     public void addItem(UUID customerId, AddCartItemRequest request) {
-        Objects.requireNonNull(customerId, "Customer ID cannot be null");
-        Objects.requireNonNull(request, "Add cart item request cannot be null");
+        validateCustomerId(customerId);
         validateAddItemRequest(request);
 
         try {
             List<CartItem> cartItems = getCart(customerId);
-
             validateStoreConsistency(cartItems, request.getStoreId());
 
             Optional<CartItem> existingItem = cartItems.stream()
@@ -68,17 +69,17 @@ public class CartService {
             log.info("Successfully added item to cart: customerId={}, menuId={}",
                 customerId, request.getMenuId());
 
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid request for adding item to cart: customerId={}, error={}", customerId, e.getMessage());
+        } catch (CustomerException e) {
+            log.warn("Cart operation failed: customerId={}, error={}", customerId, e.getMessage());
             throw e;
         } catch (Exception e) {
             log.error("Failed to add item to cart for customer: {}", customerId, e);
-            throw new RuntimeException("장바구니에 상품을 추가하는데 실패했습니다.", e);
+            throw new CustomerException(CustomerErrorCode.CART_NOT_FOUND);
         }
     }
 
     public List<CartItem> getCart(UUID customerId) {
-        Objects.requireNonNull(customerId, "Customer ID cannot be null");
+        validateCustomerId(customerId);
 
         try {
             List<CartItem> cartItems = getCartFromRedis(customerId);
@@ -105,8 +106,7 @@ public class CartService {
     }
 
     public void updateItemQuantity(UUID customerId, UpdateCartItemRequest request) {
-        Objects.requireNonNull(customerId, "Customer ID cannot be null");
-        Objects.requireNonNull(request, "Update cart item request cannot be null");
+        validateCustomerId(customerId);
         validateUpdateItemRequest(request);
 
         try {
@@ -115,7 +115,7 @@ public class CartService {
             CartItem targetItem = cartItems.stream()
                 .filter(item -> item.getMenuId().equals(request.getMenuId()))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("해당 메뉴가 장바구니에 없습니다."));
+                .orElseThrow(() -> new CustomerException(CustomerErrorCode.CART_ITEM_NOT_FOUND));
 
             if (request.getQuantity() <= 0) {
                 cartItems.remove(targetItem);
@@ -133,15 +133,20 @@ public class CartService {
             log.info("Successfully updated cart item: customerId={}, menuId={}",
                 customerId, request.getMenuId());
 
+        } catch (CustomerException e) {
+            log.warn("Cart update failed: customerId={}, error={}", customerId, e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("Failed to update cart item quantity for customer: {}", customerId, e);
-            throw new RuntimeException("장바구니 상품 수정에 실패했습니다.", e);
+            throw new CustomerException(CustomerErrorCode.CART_NOT_FOUND);
         }
     }
 
     public void removeItem(UUID customerId, UUID menuId) {
-        Objects.requireNonNull(customerId, "Customer ID cannot be null");
-        Objects.requireNonNull(menuId, "Menu ID cannot be null");
+        validateCustomerId(customerId);
+        if (menuId == null) {
+            throw new CustomerException(CustomerErrorCode.INVALID_CART_ITEM_REQUEST);
+        }
 
         try {
             List<CartItem> cartItems = getCart(customerId);
@@ -149,7 +154,7 @@ public class CartService {
             boolean removed = cartItems.removeIf(item -> item.getMenuId().equals(menuId));
 
             if (!removed) {
-                throw new NoSuchElementException("해당 메뉴가 장바구니에 없습니다.");
+                throw new CustomerException(CustomerErrorCode.CART_NOT_FOUND);
             }
 
             saveCartToRedis(customerId, cartItems);
@@ -158,15 +163,18 @@ public class CartService {
             log.info("Successfully removed item from cart: customerId={}, menuId={}",
                 customerId, menuId);
 
+        } catch (CustomerException e) {
+            log.warn("Cart item removal failed: customerId={}, error={}", customerId, e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("Failed to remove item from cart for customer: {}", customerId, e);
-            throw new RuntimeException("장바구니에서 상품 제거에 실패했습니다.", e);
+            throw new CustomerException(CustomerErrorCode.CART_NOT_FOUND);
         }
     }
 
     @Transactional
     public void clearCart(UUID customerId) {
-        Objects.requireNonNull(customerId, "Customer ID cannot be null");
+        validateCustomerId(customerId);
 
         try {
             invalidateCartCache(customerId);
@@ -176,13 +184,13 @@ public class CartService {
 
         } catch (Exception e) {
             log.error("Failed to clear cart for customer: {}", customerId, e);
-            throw new RuntimeException("장바구니 비우기에 실패했습니다.", e);
+            throw new CustomerException(CustomerErrorCode.CART_NOT_FOUND);
         }
     }
 
     @Transactional
     public void invalidateCartAfterOrder(UUID customerId) {
-        Objects.requireNonNull(customerId, "Customer ID cannot be null");
+        validateCustomerId(customerId);
 
         try {
             invalidateCartCache(customerId);
@@ -223,14 +231,20 @@ public class CartService {
         }
     }
 
+    private void validateCustomerId(UUID customerId) {
+        if (customerId == null) {
+            throw new CustomerException(CustomerErrorCode.INVALID_CUSTOMER_ID);
+        }
+    }
+
     private String getCartKey(UUID customerId) {
         return CART_KEY_PREFIX + customerId.toString();
     }
 
     private boolean isRedisAvailable() {
         try {
-			assert redisTemplate.getConnectionFactory() != null;
-			redisTemplate.getConnectionFactory().getConnection().ping();
+            assert redisTemplate.getConnectionFactory() != null;
+            redisTemplate.getConnectionFactory().getConnection().ping();
             return true;
         } catch (RedisConnectionFailureException e) {
             log.debug("Redis connection failed: {}", e.getMessage());
@@ -362,7 +376,7 @@ public class CartService {
 
         } catch (Exception e) {
             log.error("Failed to sync cart to database for customer: {}", customerId, e);
-            throw new RuntimeException("장바구니 데이터베이스 동기화에 실패했습니다.", e);
+            throw new CustomerException(CustomerErrorCode.CART_NOT_FOUND);
         }
     }
 
@@ -372,7 +386,7 @@ public class CartService {
             log.debug("Cleared cart from database for customer: {}", customerId);
         } catch (Exception e) {
             log.error("Failed to clear cart from database for customer: {}", customerId, e);
-            throw new RuntimeException("데이터베이스 장바구니 삭제에 실패했습니다.", e);
+            throw new CustomerException(CustomerErrorCode.CART_NOT_FOUND);
         }
     }
 
@@ -387,7 +401,7 @@ public class CartService {
                 .build();
         } catch (Exception e) {
             log.error("Failed to convert map to CartItem: {}", map, e);
-            throw new RuntimeException("장바구니 데이터 변환에 실패했습니다.", e);
+            throw new CustomerException(CustomerErrorCode.CART_NOT_FOUND);
         }
     }
 
@@ -407,7 +421,7 @@ public class CartService {
             cart.setCartItems(new ArrayList<>(cartItems));
         } else {
             Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new NoSuchElementException("Customer not found with ID: " + customerId));
+                .orElseThrow(() -> new CustomerException(CustomerErrorCode.CUSTOMER_NOT_FOUND));
 
             cart = Cart.builder()
                 .cartItems(new ArrayList<>(cartItems))
@@ -419,20 +433,26 @@ public class CartService {
     }
 
     private void validateAddItemRequest(AddCartItemRequest request) {
+        if (request == null) {
+            throw new CustomerException(CustomerErrorCode.INVALID_UPDATE_REQUEST);
+        }
         if (request.getQuantity() <= 0) {
-            throw new IllegalArgumentException("수량은 1개 이상이어야 합니다.");
+            throw new CustomerException(CustomerErrorCode.INVALID_UPDATE_REQUEST);
         }
         if (request.getPrice() < 0) {
-            throw new IllegalArgumentException("가격은 0원 이상이어야 합니다.");
+            throw new CustomerException(CustomerErrorCode.INVALID_UPDATE_REQUEST);
         }
         if (request.getMenuName() == null || request.getMenuName().trim().isEmpty()) {
-            throw new IllegalArgumentException("메뉴명이 필요합니다.");
+            throw new CustomerException(CustomerErrorCode.INVALID_UPDATE_REQUEST);
         }
     }
 
     private void validateUpdateItemRequest(UpdateCartItemRequest request) {
+        if (request == null) {
+            throw new CustomerException(CustomerErrorCode.INVALID_UPDATE_REQUEST);
+        }
         if (request.getQuantity() < 0) {
-            throw new IllegalArgumentException("수량은 0 이상이어야 합니다.");
+            throw new CustomerException(CustomerErrorCode.INVALID_UPDATE_REQUEST);
         }
     }
 
@@ -440,7 +460,7 @@ public class CartService {
         if (!cartItems.isEmpty()) {
             UUID existingStoreId = cartItems.getFirst().getStoreId();
             if (!existingStoreId.equals(newStoreId)) {
-                throw new IllegalArgumentException("다른 가게의 메뉴는 장바구니에 추가할 수 없습니다. 기존 장바구니를 비운 후 다시 시도해주세요.");
+                throw new CustomerException(CustomerErrorCode.CART_STORE_MISMATCH);
             }
         }
     }

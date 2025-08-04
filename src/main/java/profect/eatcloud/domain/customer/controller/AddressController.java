@@ -6,26 +6,44 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import profect.eatcloud.domain.customer.dto.request.AddressRequestDto;
+import profect.eatcloud.domain.customer.dto.response.AddressResponseDto;
+import profect.eatcloud.domain.customer.exception.CustomerErrorCode;
+import profect.eatcloud.domain.customer.exception.CustomerException;
+import profect.eatcloud.domain.customer.message.ResponseMessage;
+import profect.eatcloud.domain.customer.service.AddressService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import profect.eatcloud.domain.customer.dto.request.AddressRequestDto;
-import profect.eatcloud.domain.customer.dto.response.AddressResponseDto;
-import profect.eatcloud.domain.customer.service.AddressService;
 
+
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/customers/addresses")
-@RequiredArgsConstructor
 @Tag(name = "2. AddressController", description = "배송지 관리 API")
 public class AddressController {
 
 	private final AddressService addressService;
+
+	public AddressController(AddressService addressService) {
+		this.addressService = addressService;
+	}
+
+	private UUID getCustomerUuid(@AuthenticationPrincipal UserDetails userDetails) {
+		try {
+			return UUID.fromString(userDetails.getUsername());
+		} catch (IllegalArgumentException e) {
+			throw new CustomerException(CustomerErrorCode.INVALID_CUSTOMER_ID);
+		}
+	}
+
 
 	@Operation(summary = "1. 배송지 목록 조회", description = "사용자의 모든 배송지를 조회합니다.")
 	@ApiResponses({
@@ -33,11 +51,12 @@ public class AddressController {
 		@ApiResponse(responseCode = "401", description = "인증 실패")
 	})
 	@GetMapping
-	public ResponseEntity<List<AddressResponseDto>> getAddressList(
+	@ResponseStatus(HttpStatus.OK)
+	public profect.eatcloud.common.ApiResponse<List<AddressResponseDto>> getAddressList(
 		@AuthenticationPrincipal UserDetails userDetails) {
 		UUID customerId = getCustomerUuid(userDetails);
 		List<AddressResponseDto> addresses = addressService.getAddressList(customerId);
-		return ResponseEntity.ok(addresses);
+		return profect.eatcloud.common.ApiResponse.success(addresses);
 	}
 
 	@Operation(summary = "2. 배송지 등록", description = "새로운 배송지를 등록합니다.")
@@ -47,12 +66,13 @@ public class AddressController {
 		@ApiResponse(responseCode = "401", description = "인증 실패")
 	})
 	@PostMapping
-	public ResponseEntity<AddressResponseDto> createAddress(
+	@ResponseStatus(HttpStatus.CREATED)
+	public profect.eatcloud.common.ApiResponse<List<AddressResponseDto>> createAddress(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@Valid @RequestBody AddressRequestDto request) {
 		UUID customerId = getCustomerUuid(userDetails);
 		AddressResponseDto response = addressService.createAddress(customerId, request);
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		return profect.eatcloud.common.ApiResponse.created(Collections.singletonList(response));
 	}
 
 	@Operation(summary = "3. 배송지 수정", description = "기존 배송지 정보를 수정합니다.")
@@ -63,13 +83,14 @@ public class AddressController {
 		@ApiResponse(responseCode = "404", description = "배송지를 찾을 수 없음")
 	})
 	@PutMapping("/{addressId}")
-	public ResponseEntity<AddressResponseDto> updateAddress(
+	@ResponseStatus(HttpStatus.OK)
+	public profect.eatcloud.common.ApiResponse<List<AddressResponseDto>> updateAddress(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable UUID addressId,
 		@Valid @RequestBody AddressRequestDto request) {
 		UUID customerId = getCustomerUuid(userDetails);
 		AddressResponseDto response = addressService.updateAddress(customerId, addressId, request);
-		return ResponseEntity.ok(response);
+		return profect.eatcloud.common.ApiResponse.success(Collections.singletonList(response));
 	}
 
 	@Operation(summary = "4. 배송지 삭제", description = "배송지를 삭제합니다.")
@@ -79,12 +100,13 @@ public class AddressController {
 		@ApiResponse(responseCode = "404", description = "배송지를 찾을 수 없음")
 	})
 	@DeleteMapping("/{addressId}")
-	public ResponseEntity<Void> deleteAddress(
+	@ResponseStatus(HttpStatus.OK)
+	public profect.eatcloud.common.ApiResponse<ResponseMessage> deleteAddress(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable UUID addressId) {
 		UUID customerId = getCustomerUuid(userDetails);
 		addressService.deleteAddress(customerId, addressId);
-		return ResponseEntity.noContent().build();
+		return profect.eatcloud.common.ApiResponse.success(ResponseMessage.ADDRESS_DELETE_SUCCESS);
 	}
 
 	@Operation(summary = "5. 기본 배송지 설정", description = "선택한 배송지를 기본 배송지로 설정합니다.")
@@ -94,15 +116,13 @@ public class AddressController {
 		@ApiResponse(responseCode = "404", description = "배송지를 찾을 수 없음")
 	})
 	@PutMapping("/{addressId}/select")
-	public ResponseEntity<Void> setDefaultAddress(
+	@ResponseStatus(HttpStatus.OK)
+	public profect.eatcloud.common.ApiResponse<ResponseMessage> setDefaultAddress(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable UUID addressId) {
 		UUID customerId = getCustomerUuid(userDetails);
 		addressService.setDefaultAddress(customerId, addressId);
-		return ResponseEntity.noContent().build();
+		return profect.eatcloud.common.ApiResponse.success(ResponseMessage.ADDRESS_SELECT_SUCCESS);
 	}
 
-	private UUID getCustomerUuid(UserDetails userDetails) {
-		return UUID.fromString(userDetails.getUsername());
-	}
 }
