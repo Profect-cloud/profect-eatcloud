@@ -1,5 +1,6 @@
 package profect.eatcloud.login.service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -32,6 +33,7 @@ public class AuthService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final MailService mailService;
+	private final RefreshTokenService refreshTokenService;
 
 	// 1) 로그인
 	public LoginResponseDto login(String email, String password) {
@@ -59,8 +61,8 @@ public class AuthService {
 			String accessToken = jwtTokenProvider.createToken(manager.getId(), "manager");
 			String refreshToken = jwtTokenProvider.createRefreshToken(manager.getId(), "manager");
 			// 리프레시 토큰 DB에 저장 또는 갱신 (추후 활성화)
-			// LocalDateTime expiryDate = LocalDateTime.now().plusDays(7);
-			// refreshTokenService.saveOrUpdateToken(manager, refreshToken, expiryDate);
+			LocalDateTime expiryDate = LocalDateTime.now().plusDays(7);
+			refreshTokenService.saveOrUpdateToken(manager, refreshToken, expiryDate);
 			return new LoginResponseDto(accessToken, refreshToken, "manager");
 		}
 
@@ -80,8 +82,8 @@ public class AuthService {
 		String refreshToken = jwtTokenProvider.createRefreshToken(customer.getId(), "customer");
 
 		// 리프레시 토큰 DB에 저장 또는 갱신
-		//LocalDateTime expiryDate = LocalDateTime.now().plusDays(7);
-		//refreshTokenService.saveOrUpdateToken(user, refreshToken, expiryDate);
+		LocalDateTime expiryDate = LocalDateTime.now().plusDays(7);
+		refreshTokenService.saveOrUpdateToken(customer, refreshToken, expiryDate);
 
 		return new LoginResponseDto(accessToken, refreshToken, "customer");
 	}
