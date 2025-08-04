@@ -1,4 +1,4 @@
-package profect.eatcloud.Config;
+package profect.eatcloud.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

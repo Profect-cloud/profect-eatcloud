@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.Repository;
+package profect.eatcloud.Domain.Customer.repository;
 
 import java.util.Optional;
 import java.util.UUID;

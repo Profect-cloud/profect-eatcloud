@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.Repository;
+package profect.eatcloud.Domain.Customer.repository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

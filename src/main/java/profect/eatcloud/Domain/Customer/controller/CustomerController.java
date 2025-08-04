@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.Controller;
+package profect.eatcloud.Domain.Customer.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,7 +15,7 @@ import profect.eatcloud.Domain.Customer.Dto.request.CustomerWithdrawRequestDto;
 import profect.eatcloud.Domain.Customer.Dto.response.CustomerProfileResponseDto;
 import profect.eatcloud.Domain.Customer.Dto.response.CustomerWithdrawResponseDto;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.Service.CustomerService;
+import profect.eatcloud.Domain.Customer.service.CustomerService;
 
 import java.util.UUID;
 

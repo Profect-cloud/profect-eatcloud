@@ -1,4 +1,4 @@
-package profect.eatcloud.Config;
+package profect.eatcloud.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;

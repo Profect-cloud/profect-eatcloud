@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.Controller;
+package profect.eatcloud.Domain.Customer.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import profect.eatcloud.Domain.Customer.Dto.CartItem;
 import profect.eatcloud.Domain.Customer.Dto.request.AddCartItemRequest;
 import profect.eatcloud.Domain.Customer.Dto.request.UpdateCartItemRequest;
-import profect.eatcloud.Domain.Customer.Service.CartService;
+import profect.eatcloud.Domain.Customer.service.CartService;
 import profect.eatcloud.Security.SecurityUtil;
 
 import java.util.List;

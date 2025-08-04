@@ -1,4 +1,4 @@
-package profect.eatcloud.Config;
+package profect.eatcloud.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

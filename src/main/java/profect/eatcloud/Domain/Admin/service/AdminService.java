@@ -14,7 +14,7 @@ import profect.eatcloud.Domain.Admin.dto.UserDto;
 import profect.eatcloud.Domain.Admin.exception.AdminErrorCode;
 import profect.eatcloud.Domain.Admin.exception.AdminException;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
+import profect.eatcloud.Domain.Customer.repository.CustomerRepository;
 import profect.eatcloud.Domain.Manager.Entity.Manager;
 import profect.eatcloud.Domain.Manager.Repository.ManagerRepository;
 import profect.eatcloud.Domain.Store.Entity.Store;

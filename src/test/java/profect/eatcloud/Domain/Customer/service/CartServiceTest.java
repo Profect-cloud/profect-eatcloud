@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.Service;
+package profect.eatcloud.Domain.Customer.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,8 +9,8 @@ import profect.eatcloud.Domain.Customer.Dto.CartItem;
 import profect.eatcloud.Domain.Customer.Dto.request.AddCartItemRequest;
 import profect.eatcloud.Domain.Customer.Entity.Cart;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.Repository.CartRepository;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
+import profect.eatcloud.Domain.Customer.repository.CartRepository;
+import profect.eatcloud.Domain.Customer.repository.CustomerRepository;
 
 import java.util.ArrayList;
 import java.util.List;

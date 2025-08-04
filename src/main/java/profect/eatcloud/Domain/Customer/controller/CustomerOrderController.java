@@ -1,15 +1,14 @@
-package profect.eatcloud.Domain.Customer.Controller;
+package profect.eatcloud.Domain.Customer.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import profect.eatcloud.Domain.Customer.Dto.response.CustomerOrderResponse;
-import profect.eatcloud.Domain.Customer.Service.CustomerOrderService;
+import profect.eatcloud.Domain.Customer.service.CustomerOrderService;
 import profect.eatcloud.Domain.Order.Entity.Order;
 import profect.eatcloud.Domain.Order.Service.OrderService;
 import profect.eatcloud.Security.SecurityUtil;

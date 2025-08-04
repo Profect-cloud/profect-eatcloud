@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.Controller;
+package profect.eatcloud.Domain.Customer.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import profect.eatcloud.Domain.Customer.Dto.request.AddressRequestDto;
 import profect.eatcloud.Domain.Customer.Dto.response.AddressResponseDto;
-import profect.eatcloud.Domain.Customer.Service.AddressService;
+import profect.eatcloud.Domain.Customer.service.AddressService;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,5 +1,5 @@
 // AddressControllerTest.java
-package profect.eatcloud.Domain.Customer.Controller;
+package profect.eatcloud.Domain.Customer.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import profect.eatcloud.Domain.Customer.Dto.request.AddressRequestDto;
 import profect.eatcloud.Domain.Customer.Dto.response.AddressResponseDto;
-import profect.eatcloud.Domain.Customer.Service.AddressService;
+import profect.eatcloud.Domain.Customer.service.AddressService;
 
 import java.util.Arrays;
 import java.util.Collections;

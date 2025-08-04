@@ -1,10 +1,10 @@
-package profect.eatcloud.Domain.Customer.Service;
+package profect.eatcloud.Domain.Customer.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import profect.eatcloud.Domain.Customer.Entity.Cart;
-import profect.eatcloud.Domain.Customer.Repository.CartRepository;
+import profect.eatcloud.Domain.Customer.repository.CartRepository;
 import profect.eatcloud.Domain.GlobalCategory.Repository.OrderStatusCodeRepository;
 import profect.eatcloud.Domain.GlobalCategory.Repository.OrderTypeCodeRepository;
 import profect.eatcloud.Domain.Order.Dto.OrderMenu;

@@ -1,4 +1,4 @@
-package profect.eatcloud.Config;
+package profect.eatcloud.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

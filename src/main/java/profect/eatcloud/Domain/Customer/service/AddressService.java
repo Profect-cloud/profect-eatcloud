@@ -1,4 +1,4 @@
-package profect.eatcloud.Domain.Customer.Service;
+package profect.eatcloud.Domain.Customer.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -8,8 +8,8 @@ import profect.eatcloud.Domain.Customer.Dto.request.AddressRequestDto;
 import profect.eatcloud.Domain.Customer.Dto.response.AddressResponseDto;
 import profect.eatcloud.Domain.Customer.Entity.Address;
 import profect.eatcloud.Domain.Customer.Entity.Customer;
-import profect.eatcloud.Domain.Customer.Repository.AddressRepository;
-import profect.eatcloud.Domain.Customer.Repository.CustomerRepository;
+import profect.eatcloud.Domain.Customer.repository.AddressRepository;
+import profect.eatcloud.Domain.Customer.repository.CustomerRepository;
 import profect.eatcloud.Security.SecurityUtil;
 
 import java.time.LocalDateTime;
