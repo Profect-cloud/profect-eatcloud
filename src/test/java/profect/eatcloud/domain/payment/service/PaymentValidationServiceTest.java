@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.Payment.Service;
+package profect.eatcloud.domain.payment.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
@@ -15,9 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import profect.eatcloud.domain.Payment.Entity.PaymentRequest;
-import profect.eatcloud.domain.Payment.Repository.PaymentRequestRepository;
-import profect.eatcloud.domain.Payment.Service.PaymentValidationService.ValidationResult;
+import profect.eatcloud.domain.payment.Entity.PaymentRequest;
+import profect.eatcloud.domain.payment.repository.PaymentRequestRepository;
+import profect.eatcloud.domain.payment.service.PaymentValidationService.ValidationResult;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentValidationServiceTest {

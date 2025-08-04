@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import profect.eatcloud.domain.manager.service.ManagerService;
 import profect.eatcloud.domain.Store.Dto.MenuRequestDto;
-import profect.eatcloud.domain.Store.Entity.Menu;
+import profect.eatcloud.domain.store.entity.Menu;
 import profect.eatcloud.domain.Store.Exception.MenuNotFoundException;
 
 import java.math.BigDecimal;

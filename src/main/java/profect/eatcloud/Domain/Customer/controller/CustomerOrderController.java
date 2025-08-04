@@ -11,7 +11,7 @@ import profect.eatcloud.domain.customer.Dto.response.CustomerOrderResponse;
 import profect.eatcloud.domain.customer.service.CustomerOrderService;
 import profect.eatcloud.domain.order.entity.Order;
 import profect.eatcloud.domain.order.service.OrderService;
-import profect.eatcloud.Security.SecurityUtil;
+import profect.eatcloud.security.SecurityUtil;
 
 import java.util.List;
 import java.util.UUID;

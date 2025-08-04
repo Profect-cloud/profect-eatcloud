@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import io.lettuce.core.dynamic.annotation.Param;
 import profect.eatcloud.domain.customer.entity.Cart;
-import profect.eatcloud.Global.TimeData.BaseTimeRepository;
+import profect.eatcloud.global.timedata.BaseTimeRepository;
 
 import java.util.Optional;
 import java.util.UUID;

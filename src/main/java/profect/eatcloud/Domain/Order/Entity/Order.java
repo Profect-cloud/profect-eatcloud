@@ -3,7 +3,7 @@ package profect.eatcloud.domain.order.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import profect.eatcloud.domain.order.dto.OrderMenu;
-import profect.eatcloud.Global.TimeData.BaseTimeEntity;
+import profect.eatcloud.global.timedata.BaseTimeEntity;
 import profect.eatcloud.domain.globalCategory.entity.OrderStatusCode;
 import profect.eatcloud.domain.globalCategory.entity.OrderTypeCode;
 import org.hibernate.annotations.JdbcTypeCode;

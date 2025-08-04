@@ -11,7 +11,7 @@ import profect.eatcloud.domain.Store.Dto.AiDescriptionRequestDto;
 import profect.eatcloud.domain.Store.Dto.AiDescriptionResponseDto;
 import profect.eatcloud.domain.Store.Dto.MenuRequestDto;
 import profect.eatcloud.domain.Store.Dto.MenuResponseDto;
-import profect.eatcloud.domain.Store.Entity.Menu;
+import profect.eatcloud.domain.store.entity.Menu;
 import profect.eatcloud.domain.Store.Service.AiDescriptionService;
 
 import java.util.UUID;

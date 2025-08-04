@@ -3,7 +3,7 @@ package profect.eatcloud.domain.Store.Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import profect.eatcloud.domain.Store.Dto.*;
-import profect.eatcloud.domain.Store.Entity.DailyStoreSales;
+import profect.eatcloud.domain.store.entity.DailyStoreSales;
 import profect.eatcloud.domain.Store.Exception.StoreAccessDeniedException;
 import profect.eatcloud.domain.Store.Exception.SalesStatisticsException;
 import profect.eatcloud.domain.Store.Repository.DailyStoreSalesRepository;

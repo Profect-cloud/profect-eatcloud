@@ -1,4 +1,4 @@
-package profect.eatcloud.Login.controller;
+package profect.eatcloud.login.controller;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,9 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import profect.eatcloud.Login.dto.LoginResponseDto;
-import profect.eatcloud.Login.dto.SignupRequestDto;
-import profect.eatcloud.Login.service.AuthService;
+import profect.eatcloud.login.dto.LoginResponseDto;
+import profect.eatcloud.login.dto.SignupRequestDto;
+import profect.eatcloud.login.service.AuthService;
 
 import java.security.Principal;
 

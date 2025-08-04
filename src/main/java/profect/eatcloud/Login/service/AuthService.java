@@ -1,4 +1,4 @@
-package profect.eatcloud.Login.service;
+package profect.eatcloud.login.service;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -13,13 +13,13 @@ import lombok.RequiredArgsConstructor;
 import profect.eatcloud.domain.admin.entity.Admin;
 import profect.eatcloud.domain.admin.repository.AdminRepository;
 import profect.eatcloud.domain.customer.entity.Customer;
-import profect.eatcloud.domain.customer.Repository.CustomerRepository;
+import profect.eatcloud.domain.customer.repository.CustomerRepository;
 import profect.eatcloud.domain.manager.entity.Manager;
 import profect.eatcloud.domain.manager.repository.ManagerRepository;
-import profect.eatcloud.Login.dto.LoginResponseDto;
-import profect.eatcloud.Login.dto.SignupRedisData;
-import profect.eatcloud.Login.dto.SignupRequestDto;
-import profect.eatcloud.Security.jwt.JwtTokenProvider;
+import profect.eatcloud.login.dto.LoginResponseDto;
+import profect.eatcloud.login.dto.SignupRedisData;
+import profect.eatcloud.login.dto.SignupRequestDto;
+import profect.eatcloud.security.jwt.JwtTokenProvider;
 
 @Service
 @RequiredArgsConstructor

@@ -1,6 +1,7 @@
-package profect.eatcloud.domain.Payment.Controller;
+package profect.eatcloud.domain.payment.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,19 +9,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import profect.eatcloud.domain.customer.entity.Customer;
-import profect.eatcloud.domain.customer.Repository.CustomerRepository;
-import profect.eatcloud.domain.Payment.Entity.PaymentRequest;
-import profect.eatcloud.domain.Payment.Entity.Payment;
-import profect.eatcloud.domain.Payment.Service.*;
+import profect.eatcloud.domain.customer.repository.CustomerRepository;
+import profect.eatcloud.domain.payment.Entity.PaymentRequest;
+import profect.eatcloud.domain.payment.Entity.Payment;
 import lombok.extern.slf4j.Slf4j;
-import profect.eatcloud.domain.Payment.Dto.TossPaymentResponse;
+import profect.eatcloud.domain.payment.Dto.TossPaymentResponse;
 import profect.eatcloud.domain.order.service.OrderService;
 import profect.eatcloud.domain.order.entity.Order;
 import profect.eatcloud.domain.order.dto.OrderMenu;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,21 +28,42 @@ import java.util.Optional;
 import java.util.List;
 import java.util.ArrayList;
 
+import profect.eatcloud.domain.payment.service.TossPaymentService;
+import profect.eatcloud.domain.payment.service.PaymentValidationService;
+import profect.eatcloud.domain.payment.service.PaymentAuthenticationService;
+import profect.eatcloud.domain.payment.service.PaymentRollbackService;
+import profect.eatcloud.domain.payment.service.PointService;
+import profect.eatcloud.domain.payment.service.PaymentService;
+
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/api/v1/payment")
 @Tag(name = "9. PaymentViewController")
 @Slf4j
 public class PaymentController {
 
-    private final TossPaymentService tossPaymentService;
-    private final PaymentValidationService paymentValidationService;
-    private final PaymentAuthenticationService paymentAuthenticationService;
-    private final PaymentRollbackService paymentRollbackService;
-    private final PointService pointService;
-    private final CustomerRepository customerRepository;
-    private final OrderService orderService;
-    private final PaymentService paymentService;
+    @Autowired
+    private TossPaymentService tossPaymentService;
+
+    @Autowired
+    private PaymentValidationService paymentValidationService;
+
+    @Autowired
+    private PaymentAuthenticationService paymentAuthenticationService;
+
+    @Autowired
+    private PaymentRollbackService paymentRollbackService;
+
+    @Autowired
+    private PointService pointService;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 

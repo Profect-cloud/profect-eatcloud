@@ -3,7 +3,7 @@ package profect.eatcloud.domain.customer.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import profect.eatcloud.domain.customer.Dto.CartItem;
-import profect.eatcloud.Global.TimeData.BaseTimeEntity;
+import profect.eatcloud.global.timedata.BaseTimeEntity;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import java.util.UUID;

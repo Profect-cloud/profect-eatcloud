@@ -15,8 +15,8 @@ import profect.eatcloud.domain.customer.entity.Address;
 import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.domain.customer.repository.AddressRepository;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
-import profect.eatcloud.Global.TimeData.TimeData;
-import profect.eatcloud.Security.SecurityUtil;
+import profect.eatcloud.global.timedata.TimeData;
+import profect.eatcloud.security.SecurityUtil;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;

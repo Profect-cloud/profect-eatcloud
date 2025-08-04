@@ -1,4 +1,4 @@
-package profect.eatcloud.Login.controller;
+package profect.eatcloud.login.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Login.dto.LoginRequestDto;
-import profect.eatcloud.Login.dto.LoginResponseDto;
-import profect.eatcloud.Login.dto.PasswordChangeRequestDto;
-import profect.eatcloud.Login.dto.SignupRequestDto;
-import profect.eatcloud.Login.service.AuthService;
-import profect.eatcloud.Security.SecurityUtil;
+import profect.eatcloud.login.dto.LoginRequestDto;
+import profect.eatcloud.login.dto.LoginResponseDto;
+import profect.eatcloud.login.dto.PasswordChangeRequestDto;
+import profect.eatcloud.login.dto.SignupRequestDto;
+import profect.eatcloud.login.service.AuthService;
+import profect.eatcloud.security.SecurityUtil;
 
 import java.util.Map;
 

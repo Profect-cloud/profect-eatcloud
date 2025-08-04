@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import profect.eatcloud.domain.customer.Repository.CustomerRepository;
+import profect.eatcloud.domain.customer.repository.CustomerRepository;
 import profect.eatcloud.domain.order.dto.Request.ReviewRequestDto;
 import profect.eatcloud.domain.order.dto.Response.ReviewResponseDto;
 import profect.eatcloud.domain.order.entity.Order;

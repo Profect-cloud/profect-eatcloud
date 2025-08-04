@@ -1,7 +1,16 @@
-package profect.eatcloud.Global.QueryDSL;
+package profect.eatcloud.global.querydsl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import profect.eatcloud.domain.admin.Entity.*;
+import profect.eatcloud.domain.admin.entity.*;
+import profect.eatcloud.domain.customer.entity.QCustomer;
+import profect.eatcloud.domain.manager.entity.QManager;
+import profect.eatcloud.domain.order.entity.QOrder;
+import profect.eatcloud.domain.order.entity.QReview;
+import profect.eatcloud.domain.payment.Entity.QPayment;
+import profect.eatcloud.domain.store.entity.QDailyMenuSales;
+import profect.eatcloud.domain.store.entity.QDailyStoreSales;
+import profect.eatcloud.domain.store.entity.QMenu;
+import profect.eatcloud.domain.store.entity.QStore;
 
 
 public class SoftDeletePredicates {

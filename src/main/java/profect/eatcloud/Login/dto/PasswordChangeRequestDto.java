@@ -1,4 +1,4 @@
-package profect.eatcloud.Login.dto;
+package profect.eatcloud.login.dto;
 
 import lombok.Getter;
 

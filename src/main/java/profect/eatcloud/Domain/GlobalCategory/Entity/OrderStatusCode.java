@@ -3,7 +3,7 @@ package profect.eatcloud.domain.globalCategory.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import profect.eatcloud.Global.TimeData.BaseTimeEntity;
+import profect.eatcloud.global.timedata.BaseTimeEntity;
 
 @Entity
 @Table(name = "order_status_codes")

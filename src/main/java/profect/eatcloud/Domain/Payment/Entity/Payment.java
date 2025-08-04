@@ -1,8 +1,8 @@
-package profect.eatcloud.domain.Payment.Entity;
+package profect.eatcloud.domain.payment.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import profect.eatcloud.Global.TimeData.BaseTimeEntity;
+import profect.eatcloud.global.timedata.BaseTimeEntity;
 import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.domain.globalCategory.entity.PaymentStatusCode;
 import profect.eatcloud.domain.globalCategory.entity.PaymentMethodCode;

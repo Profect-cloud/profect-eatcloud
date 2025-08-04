@@ -1,10 +1,10 @@
-package profect.eatcloud.domain.Store.Entity;
+package profect.eatcloud.domain.store.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 
-import profect.eatcloud.Global.TimeData.BaseTimeEntity;
+import profect.eatcloud.global.timedata.BaseTimeEntity;
 
 @Entity
 @Table(name = "p_categories")

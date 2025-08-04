@@ -1,4 +1,4 @@
-package profect.eatcloud.Global.TimeData;
+package profect.eatcloud.global.timedata;
 
 import jakarta.persistence.*;
 import lombok.*;

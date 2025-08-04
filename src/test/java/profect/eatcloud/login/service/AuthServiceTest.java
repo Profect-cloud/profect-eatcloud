@@ -1,4 +1,4 @@
-package profect.eatcloud.Login.service;
+package profect.eatcloud.login.service;
 
 
 import org.junit.jupiter.api.Test;
@@ -13,9 +13,9 @@ import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
 import profect.eatcloud.domain.manager.entity.Manager;
 import profect.eatcloud.domain.manager.repository.ManagerRepository;
-import profect.eatcloud.Login.dto.LoginResponseDto;
-import profect.eatcloud.Login.dto.SignupRequestDto;
-import profect.eatcloud.Security.jwt.JwtTokenProvider;
+import profect.eatcloud.login.dto.LoginResponseDto;
+import profect.eatcloud.login.dto.SignupRequestDto;
+import profect.eatcloud.security.jwt.JwtTokenProvider;
 
 
 import java.util.Optional;

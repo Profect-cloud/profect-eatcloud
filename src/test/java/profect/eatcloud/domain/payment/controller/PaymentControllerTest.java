@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.Payment.Controller;
+package profect.eatcloud.domain.payment.controller;
 
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -20,9 +20,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import profect.eatcloud.domain.Payment.Dto.TossPaymentResponse;
-import profect.eatcloud.domain.Payment.Exception.PaymentValidationException;
-import profect.eatcloud.domain.Payment.Service.TossPaymentService;
+import profect.eatcloud.domain.payment.Dto.TossPaymentResponse;
+import profect.eatcloud.domain.payment.Exception.PaymentValidationException;
+import profect.eatcloud.domain.payment.service.TossPaymentService;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentControllerTest {

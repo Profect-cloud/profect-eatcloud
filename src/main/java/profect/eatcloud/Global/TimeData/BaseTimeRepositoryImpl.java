@@ -1,4 +1,4 @@
-package profect.eatcloud.Global.TimeData;
+package profect.eatcloud.global.timedata;
 
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import profect.eatcloud.domain.Store.Dto.StoreResponseDto;
 import profect.eatcloud.domain.Store.Dto.StoreSearchResponseDto;
-import profect.eatcloud.domain.Store.Entity.Store;
+import profect.eatcloud.domain.store.entity.Store;
 import profect.eatcloud.domain.Store.Repository.MenuRepository_min;
 import profect.eatcloud.domain.Store.Repository.StoreRepository_min;
 

@@ -1,4 +1,4 @@
-package profect.eatcloud.Security;
+package profect.eatcloud.security;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;

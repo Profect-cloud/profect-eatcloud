@@ -15,7 +15,7 @@ import profect.eatcloud.domain.order.entity.Order;
 import profect.eatcloud.domain.order.entity.Review;
 import profect.eatcloud.domain.order.repository.OrderRepository;
 import profect.eatcloud.domain.order.repository.ReviewRepository;
-import profect.eatcloud.Global.TimeData.TimeData;
+import profect.eatcloud.global.timedata.TimeData;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

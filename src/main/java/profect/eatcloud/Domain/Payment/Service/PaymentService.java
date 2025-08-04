@@ -1,16 +1,16 @@
-package profect.eatcloud.domain.Payment.Service;
+package profect.eatcloud.domain.payment.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import profect.eatcloud.domain.customer.entity.Customer;
-import profect.eatcloud.domain.customer.Repository.CustomerRepository;
-import profect.eatcloud.domain.Payment.Entity.Payment;
-import profect.eatcloud.domain.Payment.Entity.PaymentRequest;
-import profect.eatcloud.domain.Payment.Repository.PaymentRepository;
-import profect.eatcloud.domain.Payment.Repository.PaymentRequestRepository;
-import profect.eatcloud.domain.Payment.Dto.TossPaymentResponse;
+import profect.eatcloud.domain.customer.repository.CustomerRepository;
+import profect.eatcloud.domain.payment.Entity.Payment;
+import profect.eatcloud.domain.payment.Entity.PaymentRequest;
+import profect.eatcloud.domain.payment.repository.PaymentRepository;
+import profect.eatcloud.domain.payment.repository.PaymentRequestRepository;
+import profect.eatcloud.domain.payment.Dto.TossPaymentResponse;
 import profect.eatcloud.domain.globalCategory.entity.PaymentStatusCode;
 import profect.eatcloud.domain.globalCategory.entity.PaymentMethodCode;
 import profect.eatcloud.domain.globalCategory.repository.PaymentStatusCodeRepository;

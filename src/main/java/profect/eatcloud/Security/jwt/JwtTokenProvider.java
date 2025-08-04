@@ -1,4 +1,4 @@
-package profect.eatcloud.Security.jwt;
+package profect.eatcloud.security.jwt;
 
 import java.security.Key;
 import java.util.Date;

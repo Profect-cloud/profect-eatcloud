@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import io.lettuce.core.dynamic.annotation.Param;
 import profect.eatcloud.domain.customer.entity.Address;
-import profect.eatcloud.Global.TimeData.BaseTimeRepository;
+import profect.eatcloud.global.timedata.BaseTimeRepository;
 
 public interface AddressRepository extends BaseTimeRepository<Address, UUID> {
 	List<Address> findByCustomerIdAndTimeData_DeletedAtIsNull(UUID customerId);

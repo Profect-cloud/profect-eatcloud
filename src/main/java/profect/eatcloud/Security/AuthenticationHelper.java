@@ -1,11 +1,11 @@
-package profect.eatcloud.Security;
+package profect.eatcloud.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import profect.eatcloud.domain.customer.entity.Customer;
-import profect.eatcloud.domain.customer.Repository.CustomerRepository;
+import profect.eatcloud.domain.customer.repository.CustomerRepository;
 
 import java.util.UUID;
 

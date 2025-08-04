@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import profect.eatcloud.domain.order.entity.Review;
-import profect.eatcloud.Global.TimeData.BaseTimeRepository;
+import profect.eatcloud.global.timedata.BaseTimeRepository;
 
 import java.util.List;
 import java.util.Optional;

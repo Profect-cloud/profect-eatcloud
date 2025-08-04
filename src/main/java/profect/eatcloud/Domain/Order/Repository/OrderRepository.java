@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import profect.eatcloud.domain.order.entity.Order;
-import profect.eatcloud.Global.TimeData.BaseTimeRepository;
+import profect.eatcloud.global.timedata.BaseTimeRepository;
 
 @Repository
 public interface OrderRepository extends BaseTimeRepository<Order, UUID> {

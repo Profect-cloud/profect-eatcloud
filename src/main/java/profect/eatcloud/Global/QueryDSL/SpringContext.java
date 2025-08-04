@@ -1,4 +1,4 @@
-package profect.eatcloud.Global.QueryDSL;
+package profect.eatcloud.global.querydsl;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

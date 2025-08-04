@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.Store.Entity;
+package profect.eatcloud.domain.store.entity;
 
 import lombok.*;
 import java.io.Serializable;

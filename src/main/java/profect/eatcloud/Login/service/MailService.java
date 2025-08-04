@@ -1,4 +1,4 @@
-package profect.eatcloud.Login.service;
+package profect.eatcloud.login.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;

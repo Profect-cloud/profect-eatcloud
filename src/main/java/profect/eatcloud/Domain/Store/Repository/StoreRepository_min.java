@@ -1,7 +1,7 @@
 package profect.eatcloud.domain.Store.Repository;
 
-import profect.eatcloud.domain.Store.Entity.Store;
-import profect.eatcloud.Global.TimeData.BaseTimeRepository;
+import profect.eatcloud.domain.store.entity.Store;
+import profect.eatcloud.global.timedata.BaseTimeRepository;
 
 import java.util.Optional;
 import java.util.UUID;

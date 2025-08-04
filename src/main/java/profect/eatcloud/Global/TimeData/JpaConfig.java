@@ -1,4 +1,4 @@
-package profect.eatcloud.Global.TimeData;
+package profect.eatcloud.global.timedata;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;

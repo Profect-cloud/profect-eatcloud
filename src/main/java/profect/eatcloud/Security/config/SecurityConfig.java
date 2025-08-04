@@ -1,4 +1,4 @@
-package profect.eatcloud.Security.config;
+package profect.eatcloud.security.config;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Security.jwt.JwtAuthorizationFilter;
+import profect.eatcloud.security.jwt.JwtAuthorizationFilter;
 
 @Configuration
 @EnableMethodSecurity

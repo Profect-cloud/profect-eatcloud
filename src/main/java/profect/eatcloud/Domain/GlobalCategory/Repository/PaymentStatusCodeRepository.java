@@ -2,7 +2,7 @@ package profect.eatcloud.domain.globalCategory.repository;
 
 import org.springframework.stereotype.Repository;
 import profect.eatcloud.domain.globalCategory.entity.PaymentStatusCode;
-import profect.eatcloud.Global.TimeData.BaseTimeRepository;
+import profect.eatcloud.global.timedata.BaseTimeRepository;
 
 import java.util.Optional;
 

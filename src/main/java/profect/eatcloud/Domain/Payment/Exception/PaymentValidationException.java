@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.Payment.Exception;
+package profect.eatcloud.domain.payment.Exception;
 
 /**
  * Payment 검증 실패 시 발생하는 예외

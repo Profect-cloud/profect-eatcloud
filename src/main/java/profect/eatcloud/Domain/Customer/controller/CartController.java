@@ -10,7 +10,7 @@ import profect.eatcloud.domain.customer.Dto.CartItem;
 import profect.eatcloud.domain.customer.Dto.request.AddCartItemRequest;
 import profect.eatcloud.domain.customer.Dto.request.UpdateCartItemRequest;
 import profect.eatcloud.domain.customer.service.CartService;
-import profect.eatcloud.Security.SecurityUtil;
+import profect.eatcloud.security.SecurityUtil;
 
 import java.util.List;
 import java.util.UUID;

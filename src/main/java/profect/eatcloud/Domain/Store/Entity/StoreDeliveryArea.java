@@ -1,6 +1,6 @@
-package profect.eatcloud.domain.Store.Entity;
+package profect.eatcloud.domain.store.entity;
 
-import profect.eatcloud.Global.TimeData.BaseTimeEntity;
+import profect.eatcloud.global.timedata.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import profect.eatcloud.domain.customer.entity.Address;
 import profect.eatcloud.domain.customer.entity.Customer;
-import profect.eatcloud.Global.TimeData.JpaConfig;
-import profect.eatcloud.Global.TimeData.TimeData;
+import profect.eatcloud.global.timedata.JpaConfig;
+import profect.eatcloud.global.timedata.TimeData;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,8 +1,6 @@
-package profect.eatcloud.Login.dto;
+package profect.eatcloud.login.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 public class JwtResponseDto {

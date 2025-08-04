@@ -5,10 +5,10 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import profect.eatcloud.domain.Store.Dto.MenuSalesAggregationDto;
-import profect.eatcloud.domain.Store.Entity.*;
-import profect.eatcloud.Global.TimeData.BaseTimeRepository;
-import profect.eatcloud.Global.QueryDSL.SoftDeletePredicates;
-import profect.eatcloud.Global.QueryDSL.SpringContext;
+import profect.eatcloud.domain.store.entity.*;
+import profect.eatcloud.global.timedata.BaseTimeRepository;
+import profect.eatcloud.global.querydsl.SoftDeletePredicates;
+import profect.eatcloud.global.querydsl.SpringContext;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.Payment.Service;
+package profect.eatcloud.domain.payment.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
-import profect.eatcloud.domain.Payment.Service.PointService.PointResult;
+import profect.eatcloud.domain.payment.service.PointService.PointResult;
 
 @ExtendWith(MockitoExtension.class)
 class PointServiceTest {

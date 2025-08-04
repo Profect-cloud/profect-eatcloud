@@ -2,8 +2,8 @@ package profect.eatcloud.domain.Store.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import profect.eatcloud.domain.Store.Entity.Menu;
-import profect.eatcloud.domain.Store.Entity.Store;
+import profect.eatcloud.domain.store.entity.Menu;
+import profect.eatcloud.domain.store.entity.Store;
 import profect.eatcloud.domain.Store.Repository.MenuRepository_min;
 import profect.eatcloud.domain.Store.Repository.StoreRepository_min;
 

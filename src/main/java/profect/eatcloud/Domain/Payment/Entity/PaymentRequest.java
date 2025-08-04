@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.Payment.Entity;
+package profect.eatcloud.domain.payment.Entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import profect.eatcloud.Global.TimeData.BaseTimeEntity;
+import profect.eatcloud.global.timedata.BaseTimeEntity;
 import java.time.LocalDateTime;
 
 @Entity

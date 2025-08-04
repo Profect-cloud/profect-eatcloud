@@ -1,9 +1,9 @@
-package profect.eatcloud.domain.globalCategory.entity;
+package profect.eatcloud.domain.globalcategory.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
-import profect.eatcloud.Global.TimeData.BaseTimeEntity;
+import profect.eatcloud.global.timedata.BaseTimeEntity;
 
 @Entity
 @Table(name = "p_menu_category")

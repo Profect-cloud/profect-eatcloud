@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.domain.Store.Entity.Menu;
+import profect.eatcloud.domain.store.entity.Menu;
 import profect.eatcloud.domain.Store.Service.MenuService;
 
 import java.util.List;

@@ -1,8 +1,8 @@
-package profect.eatcloud.Global.TimeData;
+package profect.eatcloud.global.timedata;
 
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import profect.eatcloud.Security.SecurityUtil;
+import profect.eatcloud.security.SecurityUtil;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;

@@ -1,8 +1,8 @@
-package profect.eatcloud.domain.Payment.Repository;
+package profect.eatcloud.domain.payment.repository;
 
 import org.springframework.stereotype.Repository;
-import profect.eatcloud.domain.Payment.Entity.Payment;
-import profect.eatcloud.Global.TimeData.BaseTimeRepository;
+import profect.eatcloud.domain.payment.Entity.Payment;
+import profect.eatcloud.global.timedata.BaseTimeRepository;
 
 import java.util.UUID;
 

@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import profect.eatcloud.domain.customer.entity.Customer;
-import profect.eatcloud.Global.TimeData.BaseTimeRepository;
+import profect.eatcloud.global.timedata.BaseTimeRepository;
 
 
 public interface CustomerRepository extends BaseTimeRepository<Customer, UUID> {

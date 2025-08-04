@@ -1,4 +1,4 @@
-package profect.eatcloud.Security.userDetails;
+package profect.eatcloud.security.userDetails;
 
 import java.util.UUID;
 
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import profect.eatcloud.domain.admin.entity.Admin;
 import profect.eatcloud.domain.admin.repository.AdminRepository;
 import profect.eatcloud.domain.customer.entity.Customer;
-import profect.eatcloud.domain.customer.Repository.CustomerRepository;
+import profect.eatcloud.domain.customer.repository.CustomerRepository;
 import profect.eatcloud.domain.manager.entity.Manager;
 import profect.eatcloud.domain.manager.repository.ManagerRepository;
 

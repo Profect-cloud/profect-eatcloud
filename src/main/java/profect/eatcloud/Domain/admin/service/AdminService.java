@@ -17,7 +17,7 @@ import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
 import profect.eatcloud.domain.manager.entity.Manager;
 import profect.eatcloud.domain.manager.repository.ManagerRepository;
-import profect.eatcloud.domain.Store.Entity.Store;
+import profect.eatcloud.domain.store.entity.Store;
 import profect.eatcloud.domain.Store.Repository.StoreRepository_hong;
 
 @Service

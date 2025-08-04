@@ -1,4 +1,4 @@
-package profect.eatcloud.Security.jwt;
+package profect.eatcloud.security.jwt;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,7 +19,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import profect.eatcloud.Security.userDetails.CustomUserDetailsService;
+import profect.eatcloud.security.userDetails.CustomUserDetailsService;
 
 @Component
 @RequiredArgsConstructor

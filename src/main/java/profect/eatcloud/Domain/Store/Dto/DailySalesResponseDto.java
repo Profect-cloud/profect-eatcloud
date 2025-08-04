@@ -3,7 +3,7 @@ package profect.eatcloud.domain.Store.Dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import profect.eatcloud.domain.Store.Entity.DailyStoreSales;
+import profect.eatcloud.domain.store.entity.DailyStoreSales;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

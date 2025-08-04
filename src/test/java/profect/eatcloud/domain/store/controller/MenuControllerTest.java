@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import profect.eatcloud.domain.Store.Controller.MenuController;
-import profect.eatcloud.domain.Store.Entity.Menu;
+import profect.eatcloud.domain.store.entity.Menu;
 import profect.eatcloud.domain.Store.Exception.MenuNotFoundException;
 import profect.eatcloud.domain.Store.Service.MenuService;
 
