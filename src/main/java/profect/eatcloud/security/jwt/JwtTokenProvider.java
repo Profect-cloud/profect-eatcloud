@@ -127,5 +127,13 @@ public class JwtTokenProvider {
 		return null;
 	}
 
+	public long getExpirationTime(String token) {
+		Claims claims = Jwts.parserBuilder()
+				.setSigningKey(secretKey)
+				.build()
+				.parseClaimsJws(token)
+				.getBody();
+		return claims.getExpiration().getTime();
+	}
 }
 
