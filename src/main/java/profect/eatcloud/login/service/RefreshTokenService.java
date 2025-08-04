@@ -19,6 +19,8 @@ public class RefreshTokenService {
     private final ManagerRepository managerRepository;
     private final CustomerRepository customerRepository;
 
+    private static final String BLACKLIST_PREFIX = "blacklist:";
+
     public RefreshTokenService(RedisTemplate<String, Object> redisTemplate,  AdminRepository adminRepository, ManagerRepository managerRepository, CustomerRepository customerRepository) {
         this.redisTemplate = redisTemplate;
         this.adminRepository = adminRepository;
@@ -64,7 +66,16 @@ public class RefreshTokenService {
     public boolean isValid(Object user, String token) {
         String key = createKey(user);
         Object stored = redisTemplate.opsForValue().get(key);
+
+        if (redisTemplate.hasKey(BLACKLIST_PREFIX + token)) {
+            return false;
+        }
+
         return stored != null && stored.equals(token);
+    }
+
+    public void addToBlacklist(String token, long expirationSeconds) {
+        redisTemplate.opsForValue().set(BLACKLIST_PREFIX + token, "blacklisted", expirationSeconds, TimeUnit.SECONDS);
     }
 
     public void delete(Object user) {
