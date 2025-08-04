@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.payment.Dto;
+package profect.eatcloud.domain.payment.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "토스페이먼츠 결제 승인 요청")
-public class TossPaymentRequest {
+public class TossPaymentRequestDto {
 
     @JsonProperty("paymentKey")
     @Schema(

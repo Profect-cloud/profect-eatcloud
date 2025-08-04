@@ -6,7 +6,7 @@ import profect.eatcloud.domain.customer.entity.QCustomer;
 import profect.eatcloud.domain.manager.entity.QManager;
 import profect.eatcloud.domain.order.entity.QOrder;
 import profect.eatcloud.domain.order.entity.QReview;
-import profect.eatcloud.domain.payment.Entity.QPayment;
+import profect.eatcloud.domain.payment.entity.QPayment;
 import profect.eatcloud.domain.store.entity.QDailyMenuSales;
 import profect.eatcloud.domain.store.entity.QDailyStoreSales;
 import profect.eatcloud.domain.store.entity.QMenu;

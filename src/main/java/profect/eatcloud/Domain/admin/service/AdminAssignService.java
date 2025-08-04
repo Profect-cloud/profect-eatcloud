@@ -19,8 +19,8 @@ import profect.eatcloud.domain.manager.entity.Manager;
 import profect.eatcloud.domain.manager.repository.ManagerRepository;
 import profect.eatcloud.domain.store.entity.Category;
 import profect.eatcloud.domain.store.entity.Store;
-import profect.eatcloud.domain.Store.Repository.CategoryRepository_hong;
-import profect.eatcloud.domain.Store.Repository.StoreRepository_hong;
+import profect.eatcloud.domain.store.repository.CategoryRepository_hong;
+import profect.eatcloud.domain.store.repository.StoreRepository_hong;
 
 @Service
 @AllArgsConstructor

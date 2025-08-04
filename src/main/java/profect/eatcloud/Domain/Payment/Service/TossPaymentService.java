@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import profect.eatcloud.domain.payment.Dto.TossPaymentResponse;
-import profect.eatcloud.domain.payment.Dto.TossPaymentRequest;
 import profect.eatcloud.domain.payment.Exception.PaymentException;
-import profect.eatcloud.domain.payment.Exception.PaymentValidationException;
 
 import java.util.Base64;
 
@@ -22,22 +19,22 @@ public class TossPaymentService {
     @Value("${toss.secret-key}")
     private String secretKey;
 
-    public TossPaymentResponse confirmPayment(String paymentKey, String orderId, Integer amount) {
+    public profect.eatcloud.domain.payment.dto.TossPaymentResponseDto confirmPayment(String paymentKey, String orderId, Integer amount) {
         validatePaymentRequest(paymentKey, orderId, amount);
         
         String encodedAuth = Base64.getEncoder()
             .encodeToString((secretKey + ":").getBytes());
         
-        TossPaymentRequest request = new TossPaymentRequest(paymentKey, orderId, amount);
+        profect.eatcloud.domain.payment.dto.TossPaymentRequestDto request = new profect.eatcloud.domain.payment.dto.TossPaymentRequestDto(paymentKey, orderId, amount);
         
         try {
-            TossPaymentResponse response = tossWebClient
+            profect.eatcloud.domain.payment.dto.TossPaymentResponseDto response = tossWebClient
                 .post()
                 .uri("/payments/confirm")
                 .header("Authorization", "Basic " + encodedAuth)
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(TossPaymentResponse.class)
+                .bodyToMono(profect.eatcloud.domain.payment.dto.TossPaymentResponseDto.class)
                 .block();
             return response;
             
@@ -47,16 +44,13 @@ public class TossPaymentService {
     }
 
     private void validatePaymentRequest(String paymentKey, String orderId, Integer amount) {
-        if (paymentKey == null || paymentKey.trim().isEmpty()) {
-            throw new PaymentValidationException("paymentKey", "결제 키는 필수입니다.");
-        }
-        
-        if (orderId == null || orderId.trim().isEmpty()) {
-            throw new PaymentValidationException("orderId", "주문 ID는 필수입니다.");
-        }
-        
-        if (amount == null || amount <= 0) {
-            throw new PaymentValidationException("amount", "결제 금액은 0보다 커야 합니다.");
-        }
+//        if (paymentKey == null || paymentKey.trim().isEmpty()) {
+//        }
+//
+//        if (orderId == null || orderId.trim().isEmpty()) {
+//        }
+//
+//        if (amount == null || amount <= 0) {
+//        }
     }
 }

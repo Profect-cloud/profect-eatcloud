@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.Store.Repository;
+package profect.eatcloud.domain.store.repository;
 
 import java.util.UUID;
 

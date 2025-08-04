@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import profect.eatcloud.domain.payment.Entity.PaymentRequest;
+import profect.eatcloud.domain.payment.entity.PaymentRequest;
 import profect.eatcloud.domain.payment.repository.PaymentRequestRepository;
 import java.util.UUID;
 import java.util.Optional;
@@ -16,7 +16,7 @@ import java.util.List;
 public class PaymentValidationService {
 
     private final PaymentRequestRepository paymentRequestRepository;
-    private final PaymentService paymentService;
+    private final PaymentProcessingService paymentService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final Integer MAX_AMOUNT = 100_000_000;
 

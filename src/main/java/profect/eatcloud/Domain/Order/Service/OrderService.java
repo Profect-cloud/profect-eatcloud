@@ -14,7 +14,7 @@ import profect.eatcloud.domain.globalCategory.repository.OrderStatusCodeReposito
 import profect.eatcloud.domain.globalCategory.repository.OrderTypeCodeRepository;
 import profect.eatcloud.domain.customer.service.CartService;
 import profect.eatcloud.domain.store.entity.Menu;
-import profect.eatcloud.domain.Store.Repository.MenuRepository_min;
+import profect.eatcloud.domain.store.repository.MenuRepository_min;
 
 import java.util.List;
 import java.util.UUID;

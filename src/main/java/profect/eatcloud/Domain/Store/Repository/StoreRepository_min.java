@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.Store.Repository;
+package profect.eatcloud.domain.store.repository;
 
 import profect.eatcloud.domain.store.entity.Store;
 import profect.eatcloud.global.timedata.BaseTimeRepository;

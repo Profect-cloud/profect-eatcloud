@@ -15,7 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import profect.eatcloud.domain.payment.Entity.PaymentRequest;
+import profect.eatcloud.domain.payment.entity.PaymentRequest;
 import profect.eatcloud.domain.payment.repository.PaymentRequestRepository;
 import profect.eatcloud.domain.payment.service.PaymentValidationService.ValidationResult;
 
@@ -26,7 +26,7 @@ class PaymentValidationServiceTest {
     private PaymentRequestRepository paymentRequestRepository;
 
     @Mock
-    private PaymentService paymentService;
+    private PaymentProcessingService paymentService;
 
     @InjectMocks
     private PaymentValidationService paymentValidationService;

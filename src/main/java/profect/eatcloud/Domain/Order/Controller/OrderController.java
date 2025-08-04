@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import profect.eatcloud.domain.order.dto.Request.OrderStatusUpdateRequest;
+import profect.eatcloud.domain.order.dto.request.OrderStatusUpdateRequest;
 import profect.eatcloud.domain.order.service.OrderService;
 import profect.eatcloud.domain.order.entity.Order;
 

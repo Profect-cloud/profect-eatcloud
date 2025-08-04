@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.Store.Repository;
+package profect.eatcloud.domain.store.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

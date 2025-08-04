@@ -11,7 +11,7 @@ import profect.eatcloud.domain.admin.exception.AdminErrorCode;
 import profect.eatcloud.domain.admin.exception.AdminException;
 import profect.eatcloud.domain.admin.repository.AdminRepository;
 import profect.eatcloud.domain.store.entity.Category;
-import profect.eatcloud.domain.Store.Repository.CategoryRepository_hong;
+import profect.eatcloud.domain.store.repository.CategoryRepository_hong;
 
 @Service
 @AllArgsConstructor

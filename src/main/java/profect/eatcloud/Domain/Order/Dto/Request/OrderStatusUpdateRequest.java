@@ -1,4 +1,4 @@
-package profect.eatcloud.domain.order.dto.Request;
+package profect.eatcloud.domain.order.dto.request;
 
 import lombok.Getter;
 

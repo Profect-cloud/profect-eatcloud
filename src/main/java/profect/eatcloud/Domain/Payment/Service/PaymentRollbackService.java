@@ -9,7 +9,7 @@ import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
 import profect.eatcloud.domain.order.entity.Order;
 import profect.eatcloud.domain.order.service.OrderService;
-import profect.eatcloud.domain.payment.Entity.PaymentRequest;
+import profect.eatcloud.domain.payment.entity.PaymentRequest;
 
 import java.util.UUID;
 

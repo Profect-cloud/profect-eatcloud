@@ -6,8 +6,8 @@ import profect.eatcloud.domain.Store.Dto.*;
 import profect.eatcloud.domain.store.entity.DailyStoreSales;
 import profect.eatcloud.domain.Store.Exception.StoreAccessDeniedException;
 import profect.eatcloud.domain.Store.Exception.SalesStatisticsException;
-import profect.eatcloud.domain.Store.Repository.DailyStoreSalesRepository;
-import profect.eatcloud.domain.Store.Repository.DailyMenuSalesRepository;
+import profect.eatcloud.domain.store.repository.DailyStoreSalesRepository;
+import profect.eatcloud.domain.store.repository.DailyMenuSalesRepository;
 import profect.eatcloud.domain.manager.repository.ManagerRepository;
 import profect.eatcloud.domain.manager.exception.ManagerNotFoundException;
 

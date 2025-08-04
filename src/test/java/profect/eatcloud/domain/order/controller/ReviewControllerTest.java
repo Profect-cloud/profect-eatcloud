@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import profect.eatcloud.domain.order.dto.Request.ReviewRequestDto;
+import profect.eatcloud.domain.order.dto.request.ReviewRequestDto;
 import profect.eatcloud.domain.order.dto.Response.ReviewResponseDto;
 import profect.eatcloud.domain.order.service.ReviewService;
 

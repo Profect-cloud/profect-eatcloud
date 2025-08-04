@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import profect.eatcloud.domain.payment.Dto.TossPaymentResponse;
 import profect.eatcloud.domain.payment.Exception.PaymentValidationException;
 import profect.eatcloud.domain.payment.service.TossPaymentService;
 
@@ -52,7 +51,7 @@ class PaymentControllerTest {
         requestBody.put("orderId", "ORDER_123456");
         requestBody.put("amount", 15000);
 
-        TossPaymentResponse mockResponse = new TossPaymentResponse();
+        profect.eatcloud.domain.payment.dto.TossPaymentResponseDto mockResponse = new profect.eatcloud.domain.payment.dto.TossPaymentResponseDto();
         mockResponse.setStatus("DONE");
         mockResponse.setMethod("CARD");
         mockResponse.setApprovedAt("2025-01-27T10:30:00");
@@ -111,7 +110,7 @@ class PaymentControllerTest {
         requestBody.put("orderId", "ORDER_123456");
         requestBody.put("amount", 15000);
 
-        TossPaymentResponse mockResponse = new TossPaymentResponse();
+        profect.eatcloud.domain.payment.dto.TossPaymentResponseDto mockResponse = new profect.eatcloud.domain.payment.dto.TossPaymentResponseDto();
         mockResponse.setStatus("DONE");
 
         given(tossPaymentService.confirmPayment(any(String.class), any(String.class), any(Integer.class)))

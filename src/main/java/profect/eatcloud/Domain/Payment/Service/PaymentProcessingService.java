@@ -6,11 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
-import profect.eatcloud.domain.payment.Entity.Payment;
-import profect.eatcloud.domain.payment.Entity.PaymentRequest;
+import profect.eatcloud.domain.payment.entity.Payment;
+import profect.eatcloud.domain.payment.entity.PaymentRequest;
 import profect.eatcloud.domain.payment.repository.PaymentRepository;
 import profect.eatcloud.domain.payment.repository.PaymentRequestRepository;
-import profect.eatcloud.domain.payment.Dto.TossPaymentResponse;
 import profect.eatcloud.domain.globalCategory.entity.PaymentStatusCode;
 import profect.eatcloud.domain.globalCategory.entity.PaymentMethodCode;
 import profect.eatcloud.domain.globalCategory.repository.PaymentStatusCodeRepository;
@@ -23,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
-public class PaymentService {
+public class PaymentProcessingService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentRequestRepository paymentRequestRepository;
@@ -34,7 +33,7 @@ public class PaymentService {
     private static final long TEST_PAYMENT_TIMEOUT_MS = 10 * 1000;
 
     @Transactional
-    public Payment saveSuccessfulPayment(PaymentRequest paymentRequest, Customer customer, TossPaymentResponse tossResponse) {
+    public Payment saveSuccessfulPayment(PaymentRequest paymentRequest, Customer customer, profect.eatcloud.domain.payment.dto.TossPaymentResponseDto tossResponse) {
         Timestamp approvedTime;
         try {
             if (tossResponse.getApprovedAt() != null) {

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import profect.eatcloud.domain.Store.Dto.StoreResponseDto;
 import profect.eatcloud.domain.Store.Dto.StoreSearchResponseDto;
 import profect.eatcloud.domain.store.entity.Store;
-import profect.eatcloud.domain.Store.Repository.MenuRepository_min;
-import profect.eatcloud.domain.Store.Repository.StoreRepository_min;
+import profect.eatcloud.domain.store.repository.MenuRepository_min;
+import profect.eatcloud.domain.store.repository.StoreRepository_min;
 
 import java.util.List;
 import java.util.UUID;

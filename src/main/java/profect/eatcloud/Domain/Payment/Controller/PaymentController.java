@@ -10,10 +10,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
-import profect.eatcloud.domain.payment.Entity.PaymentRequest;
-import profect.eatcloud.domain.payment.Entity.Payment;
+import profect.eatcloud.domain.payment.entity.PaymentRequest;
+import profect.eatcloud.domain.payment.entity.Payment;
 import lombok.extern.slf4j.Slf4j;
-import profect.eatcloud.domain.payment.Dto.TossPaymentResponse;
 import profect.eatcloud.domain.order.service.OrderService;
 import profect.eatcloud.domain.order.entity.Order;
 import profect.eatcloud.domain.order.dto.OrderMenu;
@@ -33,7 +32,7 @@ import profect.eatcloud.domain.payment.service.PaymentValidationService;
 import profect.eatcloud.domain.payment.service.PaymentAuthenticationService;
 import profect.eatcloud.domain.payment.service.PaymentRollbackService;
 import profect.eatcloud.domain.payment.service.PointService;
-import profect.eatcloud.domain.payment.service.PaymentService;
+import profect.eatcloud.domain.payment.service.PaymentProcessingService;
 
 @Controller
 @RequestMapping("/api/v1/payment")
@@ -63,7 +62,7 @@ public class PaymentController {
     private OrderService orderService;
 
     @Autowired
-    private PaymentService paymentService;
+    private PaymentProcessingService paymentService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -234,7 +233,7 @@ public class PaymentController {
                 return "payment/fail";
             }
 
-            TossPaymentResponse tossResponse = tossPaymentService.confirmPayment(paymentKey, orderId, amount);
+            profect.eatcloud.domain.payment.dto.TossPaymentResponseDto tossResponse = tossPaymentService.confirmPayment(paymentKey, orderId, amount);
 
             PaymentRequest paymentRequest = validationResult.getPaymentRequest();
             UUID internalOrderId = paymentRequest.getOrderId();

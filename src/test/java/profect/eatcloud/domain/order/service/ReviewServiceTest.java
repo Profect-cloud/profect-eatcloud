@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
-import profect.eatcloud.domain.order.dto.Request.ReviewRequestDto;
+import profect.eatcloud.domain.order.dto.request.ReviewRequestDto;
 import profect.eatcloud.domain.order.dto.Response.ReviewResponseDto;
 import profect.eatcloud.domain.order.entity.Order;
 import profect.eatcloud.domain.order.entity.Review;
