@@ -85,7 +85,7 @@ class PaymentControllerTest {
         mockMvc.perform(post("/api/v1/payment/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
 
         then(tossPaymentService).should().confirmPayment("invalid_key", "ORDER_123456", 15000);
     }

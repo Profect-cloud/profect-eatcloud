@@ -13,6 +13,7 @@ import profect.eatcloud.domain.customer.dto.request.AddressRequestDto;
 import profect.eatcloud.domain.customer.dto.response.AddressResponseDto;
 import profect.eatcloud.domain.customer.entity.Address;
 import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.exception.CustomerException;
 import profect.eatcloud.domain.customer.repository.AddressRepository;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
 import profect.eatcloud.global.timeData.TimeData;
@@ -67,7 +68,8 @@ class AddressServiceTest {
 	@Test
 	@DisplayName("주소 목록 조회 - 성공")
 	void getAddressList_Success() {
-		// given
+
+		given(customerRepository.findById(customerId)).willReturn(Optional.of(customer));
 		Address address1 = createAddress(UUID.randomUUID(), "12345", "서울시 강남구", "101호", true);
 		Address address2 = createAddress(UUID.randomUUID(), "67890", "서울시 서초구", "202호", false);
 
@@ -93,7 +95,7 @@ class AddressServiceTest {
 
 		given(customerRepository.findById(customerId)).willReturn(Optional.of(customer));
 		given(addressRepository.findByCustomerIdAndTimeData_DeletedAtIsNull(customerId))
-			.willReturn(List.of()); // 빈 리스트 - 첫 번째 주소
+			.willReturn(List.of());
 
 		Address savedAddress = createAddress(UUID.randomUUID(), "12345", "서울시 강남구 테스트로 123", "101호", true);
 		given(addressRepository.save(any(Address.class))).willReturn(savedAddress);
@@ -170,8 +172,8 @@ class AddressServiceTest {
 
 		// when & then
 		assertThatThrownBy(() -> addressService.updateAddress(customerId, addressId, request))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("Address not found or not authorized");
+			.isInstanceOf(CustomerException.class)
+			.hasMessage("해당 배송지를 찾을 수 없습니다");
 	}
 
 	@Test
@@ -210,8 +212,8 @@ class AddressServiceTest {
 
 		// when & then
 		assertThatThrownBy(() -> addressService.deleteAddress(customerId, addressId))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("Address not found or not authorized");
+			.isInstanceOf(CustomerException.class)
+			.hasMessage("해당 배송지를 찾을 수 없습니다");
 	}
 
 	@Test

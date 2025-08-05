@@ -48,7 +48,6 @@ class CustomerOrderControllerTest {
 			.authorities(Collections.emptyList())
 			.build();
 
-		// SecurityUtil static mock 설정
 		securityUtilMock = Mockito.mockStatic(SecurityUtil.class);
 		securityUtilMock.when(SecurityUtil::getCurrentUsername).thenReturn(customerId.toString());
 	}

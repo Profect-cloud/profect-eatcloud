@@ -7,6 +7,8 @@ import org.mockito.ArgumentCaptor;
 import profect.eatcloud.domain.store.dto.MenuRequestDto;
 import profect.eatcloud.domain.store.entity.Menu;
 import profect.eatcloud.domain.store.entity.Store;
+import profect.eatcloud.domain.store.exception.MenuException;
+import profect.eatcloud.domain.store.exception.StoreException;
 import profect.eatcloud.domain.store.repository.MenuRepository_min;
 import profect.eatcloud.domain.store.repository.StoreRepository_min;
 
@@ -71,11 +73,11 @@ class ManagerMenuServiceTest {
         MenuRequestDto dto = new MenuRequestDto();
 
         // when + then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        StoreException exception = assertThrows(StoreException.class, () -> {
             managerService.createMenu(storeId, dto);
         });
 
-        assertEquals("존재하지 않는 매장입니다", exception.getMessage());
+        assertEquals("해당 매장을 찾을 수 없습니다.", exception.getMessage());
     }
 
     @Test
@@ -90,7 +92,7 @@ class ManagerMenuServiceTest {
         dto.setPrice(new BigDecimal("-1000"));
 
         // when + then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        MenuException exception = assertThrows(MenuException.class, () -> {
             managerService.createMenu(storeId, dto);
         });
 
@@ -112,11 +114,11 @@ class ManagerMenuServiceTest {
         dto.setIsAvailable(true);
 
         // when & then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        MenuException exception = assertThrows(MenuException.class, () -> {
             managerService.createMenu(storeId, dto);
         });
 
-        assertEquals("메뉴 이름은 필수입니다", exception.getMessage());
+        assertEquals("메뉴 이름은 필수입니다.", exception.getMessage());
     }
 
     @Test
@@ -168,11 +170,11 @@ class ManagerMenuServiceTest {
         dto.setPrice(new BigDecimal("10000"));
 
         // when + then
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+        MenuException e = assertThrows(MenuException.class, () -> {
             managerService.createMenu(storeId, dto);
         });
 
-        assertEquals("해당 메뉴 번호는 이미 존재합니다", e.getMessage());
+        assertEquals("해당 메뉴 번호는 이미 존재합니다.", e.getMessage());
     }
 
     @Test
@@ -182,11 +184,11 @@ class ManagerMenuServiceTest {
         when(menuRepository.findById(menuId)).thenReturn(Optional.empty());
 
         // when & then
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+        MenuException e = assertThrows(MenuException.class, () -> {
             managerService.deleteMenu(menuId);
         });
 
-        assertEquals("존재하지 않는 메뉴입니다", e.getMessage());
+        assertEquals("해당 메뉴를 찾을 수 없습니다.", e.getMessage());
     }
 
     @Test
@@ -214,11 +216,11 @@ class ManagerMenuServiceTest {
         MenuRequestDto dto = new MenuRequestDto();
 
         // when + then
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+        MenuException e = assertThrows(MenuException.class, () -> {
             managerService.updateMenu(storeId, menuId, dto);
         });
 
-        assertEquals("존재하지 않는 메뉴입니다", e.getMessage());
+        assertEquals("해당 메뉴를 찾을 수 없습니다.", e.getMessage());
     }
 
     @Test
@@ -269,11 +271,11 @@ class ManagerMenuServiceTest {
         when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
 
         // when + then
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+        MenuException e = assertThrows(MenuException.class, () -> {
             managerService.updateMenu(storeId, menuId, dto);
         });
 
-        assertEquals("메뉴 이름은 필수입니다", e.getMessage());
+        assertEquals("메뉴 이름은 필수입니다.", e.getMessage());
     }
 
     // 더 추가할 수 있는 테스트 항목들:
@@ -294,7 +296,7 @@ class ManagerMenuServiceTest {
         when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
 
         // when + then
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+        MenuException e = assertThrows(MenuException.class, () -> {
             managerService.updateMenu(storeId, menuId, dto);
         });
 
@@ -320,11 +322,11 @@ class ManagerMenuServiceTest {
         when(menuRepository.existsByStoreAndMenuNum(store, 2)).thenReturn(true); // 이미 존재하는 번호
 
         // when + then
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+        MenuException e = assertThrows(MenuException.class, () -> {
             managerService.updateMenu(storeId, menuId, dto);
         });
 
-        assertEquals("해당 메뉴 번호는 이미 존재합니다", e.getMessage());
+        assertEquals("해당 메뉴 번호는 이미 존재합니다.", e.getMessage());
     }
 
 
