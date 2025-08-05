@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import profect.eatcloud.domain.admin.entity.Admin;
@@ -14,17 +16,20 @@ import profect.eatcloud.domain.customer.repository.CustomerRepository;
 import profect.eatcloud.domain.manager.entity.Manager;
 import profect.eatcloud.domain.manager.repository.ManagerRepository;
 import profect.eatcloud.login.dto.LoginResponseDto;
+import profect.eatcloud.login.dto.SignupRedisData;
 import profect.eatcloud.login.dto.SignupRequestDto;
 import profect.eatcloud.security.jwt.JwtTokenProvider;
 
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -36,6 +41,10 @@ class AuthServiceTest {
     @Mock private ManagerRepository managerRepository;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private JwtTokenProvider jwtTokenProvider;
+    @Mock private RefreshTokenService refreshTokenService;
+    @Mock private MailService mailService;
+    @Mock private RedisTemplate<String, Object> redisTemplate;
+    @Mock private ValueOperations<String, Object> valueOperations;
 
     @InjectMocks private AuthService authService;
 
@@ -43,24 +52,50 @@ class AuthServiceTest {
     private ArgumentCaptor<Customer> customerCaptor;
 
     @Test
-    void signup_WhenValidRequest_SavesCustomerSuccessfully() {
+    void tempSignup_WhenValidRequest_SendsEmailAndStoresDataInRedis() {
         // given
         SignupRequestDto req = new SignupRequestDto("test@example.com", "Password1!", "홍길동", "길동이", "010-1234-1234");
 
         given(customerRepository.findByEmail(req.getEmail())).willReturn(Optional.empty());
-        given(passwordEncoder.encode(req.getPassword())).willReturn("encodedPassword");
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
         // when
         authService.tempSignup(req);
+
+        // then
+        verify(mailService).sendMail(eq(req.getEmail()), anyString(), contains("회원가입 인증 코드:"));
+        verify(valueOperations).set(
+                eq("signup:" + req.getEmail()),
+                any(SignupRedisData.class),
+                eq(10L),
+                eq(TimeUnit.MINUTES)
+        );
+    }
+
+    @Test
+    void confirmEmail_WhenValidCode_RegistersCustomerAndDeletesRedis() {
+        // given
+        SignupRequestDto req = new SignupRequestDto("test@example.com", "Password1!", "홍길동", "길동이", "010-1234-1234");
+        String code = "123456";
+        SignupRedisData data = new SignupRedisData(req, code);
+
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        given(valueOperations.get("signup:" + req.getEmail())).willReturn(data);
+        given(passwordEncoder.encode(req.getPassword())).willReturn("encodedPassword");
+
+        // when
+        authService.confirmEmail(req.getEmail(), code);
 
         // then
         verify(customerRepository).save(customerCaptor.capture());
         Customer savedCustomer = customerCaptor.getValue();
 
         assertThat(savedCustomer.getEmail()).isEqualTo(req.getEmail());
-        assertThat(savedCustomer.getPassword()).isEqualTo("encodedPassword"); // encode()가 리턴한 값과 비교
+        assertThat(savedCustomer.getPassword()).isEqualTo("encodedPassword");
         assertThat(savedCustomer.getName()).isEqualTo(req.getName());
         assertThat(savedCustomer.getNickname()).isEqualTo(req.getNickname());
+
+        verify(redisTemplate).delete("signup:" + req.getEmail());
     }
 
     @Test
@@ -112,6 +147,13 @@ class AuthServiceTest {
         given(jwtTokenProvider.createToken(id, "manager")).willReturn("access-token");
         given(jwtTokenProvider.createRefreshToken(id, "manager")).willReturn("refresh-token");
 
+        // 💡 null 허용 matcher 사용
+        doNothing().when(refreshTokenService).saveOrUpdateToken(
+                any(),
+                nullable(String.class),
+                any(LocalDateTime.class)
+        );
+
         LoginResponseDto res = authService.login(email, rawPassword);
 
         assertThat(res.getToken()).isEqualTo("access-token");
@@ -136,6 +178,12 @@ class AuthServiceTest {
         given(passwordEncoder.matches(rawPassword, "encoded")).willReturn(true);
         given(jwtTokenProvider.createToken(id, "customer")).willReturn("access-token");
         given(jwtTokenProvider.createRefreshToken(id, "customer")).willReturn("refresh-token");
+
+        doNothing().when(refreshTokenService).saveOrUpdateToken(
+                any(),
+                nullable(String.class),
+                any(LocalDateTime.class)
+        );
 
         LoginResponseDto res = authService.login(email, rawPassword);
 
@@ -172,20 +220,20 @@ class AuthServiceTest {
 
     @Test
     void changePassword_Admin_Success() {
-        String email = "admin@example.com";
+        UUID userId = UUID.randomUUID();
         String currentPassword = "oldPass";
         String newPassword = "newPass";
 
         Admin admin = new Admin();
-        admin.setEmail(email);
+        admin.setId(userId);
         admin.setPassword("encodedOldPass");
 
-        given(adminRepository.findByEmail(email)).willReturn(Optional.of(admin));
+        given(adminRepository.findById(userId)).willReturn(Optional.of(admin));
         given(passwordEncoder.matches(currentPassword, admin.getPassword())).willReturn(true);
         given(passwordEncoder.encode(newPassword)).willReturn("encodedNewPass");
         given(adminRepository.save(any(Admin.class))).willReturn(admin);
 
-        authService.changePassword(email, currentPassword, newPassword);
+        authService.changePassword(userId.toString(), currentPassword, newPassword);
 
         verify(adminRepository).save(argThat(savedAdmin ->
                 savedAdmin.getPassword().equals("encodedNewPass")
@@ -194,22 +242,21 @@ class AuthServiceTest {
 
     @Test
     void changePassword_Customer_Success() {
-        String email = "customer@example.com";
+        UUID userId = UUID.randomUUID();
         String currentPassword = "oldPass";
         String newPassword = "newPass";
 
         Customer customer = new Customer();
-        customer.setEmail(email);
+        customer.setId(userId);
         customer.setPassword("encodedOldPass");
 
-        given(adminRepository.findByEmail(email)).willReturn(Optional.empty());
-        given(managerRepository.findByEmail(email)).willReturn(Optional.empty());
-        given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
+        given(adminRepository.findById(userId)).willReturn(Optional.empty());
+        given(managerRepository.findById(userId)).willReturn(Optional.empty());
+        given(customerRepository.findById(userId)).willReturn(Optional.of(customer));
         given(passwordEncoder.matches(currentPassword, customer.getPassword())).willReturn(true);
         given(passwordEncoder.encode(newPassword)).willReturn("encodedNewPass");
-        given(customerRepository.save(any(Customer.class))).willReturn(customer);
 
-        authService.changePassword(email, currentPassword, newPassword);
+        authService.changePassword(userId.toString(), currentPassword, newPassword);
 
         verify(customerRepository).save(argThat(savedCustomer ->
                 savedCustomer.getPassword().equals("encodedNewPass")
@@ -218,35 +265,37 @@ class AuthServiceTest {
 
     @Test
     void changePassword_UserNotFound_Throws() {
-        String email = "unknown@example.com";
+        UUID userId = UUID.randomUUID();
         String currentPassword = "oldPass";
         String newPassword = "newPass";
 
-        given(adminRepository.findByEmail(email)).willReturn(Optional.empty());
-        given(managerRepository.findByEmail(email)).willReturn(Optional.empty());
-        given(customerRepository.findByEmail(email)).willReturn(Optional.empty());
+        given(adminRepository.findById(userId)).willReturn(Optional.empty());
+        given(managerRepository.findById(userId)).willReturn(Optional.empty());
+        given(customerRepository.findById(userId)).willReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class,
-                () -> authService.changePassword(email, currentPassword, newPassword));
+        assertThrows(UsernameNotFoundException.class, () ->
+                authService.changePassword(userId.toString(), currentPassword, newPassword)
+        );
     }
 
     @Test
     void changePassword_WrongCurrentPassword_Throws() {
-        String email = "customer@example.com";
+        UUID userId = UUID.randomUUID();
         String currentPassword = "wrongOldPass";
         String newPassword = "newPass";
 
         Customer customer = new Customer();
-        customer.setEmail(email);
+        customer.setId(userId);
         customer.setPassword("encodedOldPass");
 
-        given(adminRepository.findByEmail(email)).willReturn(Optional.empty());
-        given(managerRepository.findByEmail(email)).willReturn(Optional.empty());
-        given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
+        given(adminRepository.findById(userId)).willReturn(Optional.empty());
+        given(managerRepository.findById(userId)).willReturn(Optional.empty());
+        given(customerRepository.findById(userId)).willReturn(Optional.of(customer));
         given(passwordEncoder.matches(currentPassword, customer.getPassword())).willReturn(false);
 
-        assertThrows(IllegalArgumentException.class,
-                () -> authService.changePassword(email, currentPassword, newPassword));
+        assertThrows(IllegalArgumentException.class, () ->
+                authService.changePassword(userId.toString(), currentPassword, newPassword)
+        );
 
         verify(customerRepository, never()).save(any());
     }

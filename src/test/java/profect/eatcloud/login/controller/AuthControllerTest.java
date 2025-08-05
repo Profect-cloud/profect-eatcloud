@@ -1,117 +1,128 @@
 package profect.eatcloud.login.controller;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
+import profect.eatcloud.common.ApiResponse;
+import profect.eatcloud.login.dto.LoginRequestDto;
 import profect.eatcloud.login.dto.LoginResponseDto;
 import profect.eatcloud.login.dto.SignupRequestDto;
 import profect.eatcloud.login.service.AuthService;
+import profect.eatcloud.login.service.RefreshTokenService;
+import profect.eatcloud.security.jwt.JwtTokenProvider;
 
-import java.security.Principal;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
 
-    @InjectMocks
-    private AuthController authController;
+    @InjectMocks private AuthController authController;
 
-    @Mock
-    private AuthService authService;
+    @Mock private AuthService authService;
+    @Mock private JwtTokenProvider jwtTokenProvider;
+    @Mock private RefreshTokenService refreshTokenService;
+    @Mock private RedisTemplate<String, Object> redisTemplate;
+    @Mock private ValueOperations<String, Object> valueOperations;
 
-    private MockMvc mockMvc;
+    @Test
+    void login_ReturnsAccessAndRefreshToken() {
+        // given
+        LoginRequestDto request = new LoginRequestDto("test@example.com", "password");
+        LoginResponseDto response = new LoginResponseDto("accessToken", "refreshToken", "Customer");
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
-        Authentication auth = new UsernamePasswordAuthenticationToken("user@example.com", null, null);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
+        given(authService.login(request.getEmail(), request.getPassword())).willReturn(response);
 
-    @AfterEach
-    void clearAuthentication() {
-        SecurityContextHolder.clearContext();
+        // when
+        ApiResponse<LoginResponseDto> result = authController.login(request);
+
+        // then
+        assertThat(result.getData()).isEqualTo(response);
+        assertThat(result.getCode()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
-    void login_Success() throws Exception {
+    void register_CallsAuthServiceTempSignup() {
+        // given
+        SignupRequestDto request = new SignupRequestDto("email@example.com", "Password1!", "이름", "닉네임", "010-1234-5678");
+
+        // when
+        ApiResponse<Void> result = authController.register(request);
+
+        // then
+        verify(authService).tempSignup(request);
+        assertThat(result.getCode()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    void confirmEmail_CallsAuthServiceConfirmEmail() {
+        // given
         String email = "test@example.com";
-        String password = "Password123!";
+        String code = "123456";
 
-        LoginResponseDto responseDto = new LoginResponseDto("access-token", "refresh-token", "user");
+        // when
+        ApiResponse<Void> result = authController.confirmEmail(email, code);
 
-        given(authService.login(email, password)).willReturn(responseDto);
-
-        String json = """
-            {
-                "email": "test@example.com",
-                "password": "Password123!"
-            }
-            """;
-
-        mockMvc.perform(post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("access-token"))
-                .andExpect(jsonPath("$.refreshToken").value("refresh-token"))
-                .andExpect(jsonPath("$.type").value("user"));
-
-        verify(authService).login(email, password);
+        // then
+        verify(authService).confirmEmail(email, code);
+        assertThat(result.getCode()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
-    void register_Success() throws Exception {
-        String json = """
-            {
-                "email": "test@example.com",
-                "password": "Password123!",
-                "name": "홍길동",
-                "nickname": "길동이",
-                "phone": "010-1234-5678"
-            }
-            """;
+    void refreshToken_ValidToken_ReturnsNewTokens() {
+        // given
+        String refreshToken = "valid.refresh.token";
+        UUID userId = UUID.randomUUID();
+        String role = "Customer";
+        Object user = new Object();
 
-        mockMvc.perform(post("/api/v1/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Register Success"));
+        given(jwtTokenProvider.getIdFromToken(refreshToken)).willReturn(userId);
+        given(jwtTokenProvider.getTypeFromToken(refreshToken)).willReturn(role);
+        given(refreshTokenService.findUserByRoleAndId(role, userId)).willReturn(user);
+        given(refreshTokenService.isValid(user, refreshToken)).willReturn(true);
+        given(jwtTokenProvider.createToken(userId, role)).willReturn("newAccessToken");
+        given(jwtTokenProvider.createRefreshToken(userId, role)).willReturn("newRefreshToken");
 
-        verify(authService).tempSignup(any(SignupRequestDto.class));
+        // when
+        ApiResponse<LoginResponseDto> response = authController.refreshToken(refreshToken);
+
+        // then
+        verify(refreshTokenService).saveOrUpdateToken(eq(user), anyString(), any());
+        assertThat(response.getData().getToken()).isEqualTo("newAccessToken");
+        assertThat(response.getData().getRefreshToken()).isEqualTo("newRefreshToken");
     }
 
     @Test
-    public void changePassword_Success() throws Exception {
-        String json = "{ \"currentPassword\": \"oldPass123!\", \"newPassword\": \"newPass456!\" }";
+    void logout_BlacklistsAccessTokenAndDeletesRefreshToken() {
+        // given
+        UUID userId = UUID.randomUUID();
+        String role = "Customer";
+        String token = "access.jwt.token";
+        Object user = new Object();
 
-        Principal principal = () -> "user@example.com";
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        given(jwtTokenProvider.getIdFromToken(token)).willReturn(userId);
+        given(jwtTokenProvider.getTypeFromToken(token)).willReturn(role);
+        given(refreshTokenService.findUserByRoleAndId(role, userId)).willReturn(user);
+        given(jwtTokenProvider.getExpirationTime(token)).willReturn(System.currentTimeMillis() + 60000); // 1분 후 만료
 
-        doNothing().when(authService).changePassword(anyString(), anyString(), anyString());
+        // when
+        ApiResponse<Void> response = authController.logout("Bearer " + token);
 
-        mockMvc.perform(patch("/api/v1/auth/password")
-                        .principal(principal)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isOk());
-
-        verify(authService, times(1)).changePassword("user@example.com", "oldPass123!", "newPass456!");
+        // then
+        verify(refreshTokenService).delete(user);
+        verify(redisTemplate.opsForValue()).set(startsWith("blacklist:access:"), eq("blacklisted"), anyLong(), eq(TimeUnit.SECONDS));
+        assertThat(response.getCode()).isEqualTo(HttpStatus.OK.value());
     }
 }

@@ -92,7 +92,7 @@ public class OrderController {
     }
 
     @Operation(summary = "고객 주문 목록 조회")
-    @GetMapping("/customers/{customerId}")
+    @GetMapping("/customers/{customerId}/orders")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Order>> getCustomerOrders(@PathVariable UUID customerId) {
         return ResponseEntity.ok(orderService.findOrdersByCustomer(customerId));
@@ -107,7 +107,7 @@ public class OrderController {
 
     @Operation(summary = "매장 주문 목록 조회")
     @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
-    @GetMapping("/stores/{storeId}")
+    @GetMapping("/stores/{storeId}/orders")
     public ResponseEntity<List<Order>> getStoreOrders(@PathVariable UUID storeId) {
         return ResponseEntity.ok(orderService.findOrdersByStore(storeId));
     }
