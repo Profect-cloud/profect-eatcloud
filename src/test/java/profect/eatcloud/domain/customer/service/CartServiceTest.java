@@ -9,6 +9,7 @@ import profect.eatcloud.domain.customer.dto.CartItem;
 import profect.eatcloud.domain.customer.dto.request.AddCartItemRequest;
 import profect.eatcloud.domain.customer.entity.Cart;
 import profect.eatcloud.domain.customer.entity.Customer;
+import profect.eatcloud.domain.customer.exception.CustomerException;
 import profect.eatcloud.domain.customer.repository.CartRepository;
 import profect.eatcloud.domain.customer.repository.CustomerRepository;
 
@@ -107,6 +108,6 @@ class CartServiceTest {
                 UUID.randomUUID(), "다른가게메뉴", 1, 2000, storeB
         );
 
-        assertThrows(IllegalArgumentException.class, () -> cartService.addItem(customerId, request));
+        assertThrows(CustomerException.class, () -> cartService.addItem(customerId, request));
     }
 }

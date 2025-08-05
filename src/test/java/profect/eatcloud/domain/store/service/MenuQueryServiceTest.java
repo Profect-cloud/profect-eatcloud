@@ -3,6 +3,8 @@ package profect.eatcloud.domain.store.service;
 import org.junit.jupiter.api.Test;
 import profect.eatcloud.domain.store.entity.Menu;
 import profect.eatcloud.domain.store.entity.Store;
+import profect.eatcloud.domain.store.exception.MenuException;
+import profect.eatcloud.domain.store.exception.StoreException;
 import profect.eatcloud.domain.store.repository.MenuRepository_min;
 import profect.eatcloud.domain.store.repository.StoreRepository_min;
 
@@ -48,11 +50,11 @@ class MenuQueryServiceTest {
         UUID storeId = UUID.randomUUID();
         when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+        StoreException e = assertThrows(StoreException.class, () -> {
             menuService.getMenusByStore(storeId);
         });
 
-        assertEquals("존재하지 않는 매장입니다", e.getMessage());
+        assertEquals("해당 매장을 찾을 수 없습니다.", e.getMessage());
     }
 
     @Test
@@ -78,11 +80,11 @@ class MenuQueryServiceTest {
 
         when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+        StoreException e = assertThrows(StoreException.class, () -> {
             menuService.getMenuById(storeId, menuId);
         });
 
-        assertEquals("존재하지 않는 매장입니다", e.getMessage());
+        assertEquals("해당 매장을 찾을 수 없습니다.", e.getMessage());
     }
 
     @Test
@@ -95,10 +97,10 @@ class MenuQueryServiceTest {
         when(menuRepository.findByIdAndStoreAndTimeData_DeletedAtIsNull(menuId, store))
                 .thenReturn(Optional.empty());
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+        MenuException e = assertThrows(MenuException.class, () -> {
             menuService.getMenuById(storeId, menuId);
         });
 
-        assertEquals("해당 메뉴를 찾을 수 없습니다", e.getMessage());
+        assertEquals("해당 메뉴를 찾을 수 없습니다.", e.getMessage());
     }
 }
