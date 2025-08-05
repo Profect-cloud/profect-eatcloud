@@ -9,7 +9,8 @@ public enum AdminErrorCode {
 	CUSTOMER_NOT_FOUND("ADMIN_006", "해당 고객을 찾을 수 없습니다"),
 	MANAGER_NOT_FOUND("ADMIN_007", "해당 매니저를 찾을 수 없습니다"),
 	APPLICATION_NOT_FOUND("ADMIN_008", "해당 신청서를 찾을 수 없습니다"),
-	APPLICATION_ALREADY_PROCESSED("ADMIN_009", "이미 처리된 신청서입니다");
+	APPLICATION_ALREADY_PROCESSED("ADMIN_009", "이미 처리된 신청서입니다"),
+	APPLICATION_EMAIL_ALREADY_EXISTS("ADMIN_010", "이미 해당 이메일로 신청된 이력이 있습니다");
 
 	private final String code;
 	private final String message;

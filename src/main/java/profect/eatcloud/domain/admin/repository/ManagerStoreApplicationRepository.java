@@ -9,5 +9,5 @@ import profect.eatcloud.global.timeData.BaseTimeRepository;
 
 @Repository
 public interface ManagerStoreApplicationRepository extends BaseTimeRepository<ManagerStoreApplication, UUID> {
-
+	boolean existsByManagerEmail(String managerEmail);
 }

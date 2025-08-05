@@ -49,13 +49,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 		throws ServletException, IOException {
 
 		// 1) 토큰필요없는 공용 API는 JWT 필터를 건너뛴다.-> 필요시 추가
-		/*
+
 		String path = request.getServletPath();
-		if (path.startsWith("/api/v1/~~")) {
+		if (path.startsWith("/api/v1/unauth/**")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		*/
 
 		String token = jwtTokenProvider.resolveToken(request);
 
