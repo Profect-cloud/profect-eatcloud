@@ -4,6 +4,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,8 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class MenuRequestDto {
 
     @Min(value = 1, message = "메뉴 번호는 1 이상이어야 합니다.")
@@ -34,6 +37,9 @@ public class MenuRequestDto {
     private String imageUrl;
 
     private UUID pTimeId;
+
+    public MenuRequestDto(int i, String 불고기_덮밥, String korean, BigDecimal bigDecimal, String 불고기와_밥_구성, boolean b, String image) {
+    }
 }
 
 

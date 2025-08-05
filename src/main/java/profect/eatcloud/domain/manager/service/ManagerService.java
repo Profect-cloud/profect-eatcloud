@@ -29,18 +29,17 @@ public class ManagerService {
 
     private final MenuRepository_min menuRepository;
     private final StoreRepository_min storeRepository;
+    private final ManagerStoreApplicationRepository applicationRepository;
+    private final ManagerRepository managerRepository;
 
     @Autowired
-    public ManagerService(MenuRepository_min menuRepository, StoreRepository_min storeRepository) {
+    public ManagerService(MenuRepository_min menuRepository, StoreRepository_min storeRepository,
+                          ManagerStoreApplicationRepository applicationRepository, ManagerRepository managerRepository) {
         this.menuRepository = menuRepository;
         this.storeRepository = storeRepository;
+        this.applicationRepository = applicationRepository;
+        this.managerRepository = managerRepository;
     }
-
-    @Autowired
-    private ManagerStoreApplicationRepository applicationRepository;
-
-    @Autowired
-    private ManagerRepository managerRepository;
 
     public Menu createMenu(UUID storeId, MenuRequestDto dto) {
         Store store = storeRepository.findById(storeId)
@@ -158,7 +157,7 @@ public class ManagerService {
                 .storeName(store.getStoreName())
                 .storePhoneNumber(store.getPhoneNumber())
                 .categoryId(store.getCategory().getCategoryId())
-                .description("폐업 요청") // 폐업은 고정 메시지 또는 추가 필드 받아서 처리
+                .description("폐업 요청")
                 .status("CLOSURE_REQUESTED")
                 .build();
 
