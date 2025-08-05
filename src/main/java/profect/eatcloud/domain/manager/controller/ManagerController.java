@@ -36,16 +36,32 @@ public class ManagerController {
         return ApiResponse.success(MenuResponseDto.from(created));
     }
 
+//    @Operation(summary = "1-2. 메뉴 수정")
+//    @PutMapping("/stores/{storeId}/menus/{menuId}")
+//    @ResponseStatus(HttpStatus.OK)
+//    // dto로 바꾸기
+//    // 여기서 update 부분 엔티티에서 함수쓰지말고 if문으로
+//    public ApiResponse<MenuResponseDto> updateMenu(@PathVariable UUID storeId,
+//                                                   @PathVariable UUID menuId,
+//                                                   @RequestBody @Valid MenuRequestDto dto) {
+//        Menu updated = managerService.updateMenu(storeId, menuId, dto);
+//
+//        return ApiResponse.success(MenuResponseDto.from(updated));
+//    }
+
     @Operation(summary = "1-2. 메뉴 수정")
     @PutMapping("/stores/{storeId}/menus/{menuId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<MenuResponseDto> updateMenu(@PathVariable UUID storeId,
-                                                   @PathVariable UUID menuId,
-                                                   @RequestBody @Valid MenuRequestDto dto) {
+    public ApiResponse<MenuResponseDto> updateMenu(
+            @PathVariable UUID storeId,
+            @PathVariable UUID menuId,
+            @RequestBody @Valid MenuRequestDto dto
+    ) {
+        // DTO를 받아서 서비스에 넘김
         Menu updated = managerService.updateMenu(storeId, menuId, dto);
-
         return ApiResponse.success(MenuResponseDto.from(updated));
     }
+
 
     @Operation(summary = "1-3. 메뉴 삭제")
     @DeleteMapping("/stores/{storeId}/menus/{menuId}")
@@ -66,6 +82,15 @@ public class ManagerController {
         String description = aiDescriptionService.generateDescription(requestDto);
         return ApiResponse.success(new AiDescriptionResponseDto(description));
     }
+
+//    @Operation(summary = "2-1. 가게 정보 수정")
+//    @PutMapping("/stores/{storeId}")
+//    @ResponseStatus(HttpStatus.OK)
+//    public ApiResponse<ManagerResponseMessage> updateStore(@PathVariable UUID storeId,
+//                                                           @RequestBody @Valid StoreRequestDto dto) {
+//        managerService.updateStore(storeId, dto);
+//        return ApiResponse.success(ManagerResponseMessage.STORE_UPDATE_SUCCESS);
+//    }
 
     @Operation(summary = "2-1. 가게 정보 수정")
     @PutMapping("/stores/{storeId}")

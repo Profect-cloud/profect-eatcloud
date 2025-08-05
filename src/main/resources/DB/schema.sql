@@ -148,6 +148,7 @@ CREATE TABLE p_stores
     open_time     TIME         NOT NULL,
     close_time    TIME         NOT NULL,
     p_time_id     UUID         NOT NULL,
+    location      GEOGRAPHY(Point, 4326),
     CONSTRAINT fk_p_stores_categories FOREIGN KEY (category_id) REFERENCES p_categories (category_id),
     CONSTRAINT fk_p_stores_p_time FOREIGN KEY (p_time_id) REFERENCES p_time (p_time_id)
 );
