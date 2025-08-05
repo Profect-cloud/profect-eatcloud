@@ -1,7 +1,6 @@
 package profect.eatcloud.domain.payment.service;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import profect.eatcloud.domain.customer.entity.Customer;
 import profect.eatcloud.security.AuthenticationHelper;
@@ -9,10 +8,13 @@ import profect.eatcloud.security.AuthenticationHelper;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class PaymentAuthenticationService {
     
     private final AuthenticationHelper authenticationHelper;
+
+    public PaymentAuthenticationService(AuthenticationHelper authenticationHelper) {
+        this.authenticationHelper = authenticationHelper;
+    }
 
     public PaymentAuthResult validateCustomerForPayment(String requestCustomerId) {
         try {

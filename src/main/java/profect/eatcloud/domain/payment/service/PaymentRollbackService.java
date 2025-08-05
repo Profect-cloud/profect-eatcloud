@@ -1,7 +1,7 @@
 package profect.eatcloud.domain.payment.service;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +14,7 @@ import profect.eatcloud.domain.payment.entity.PaymentRequest;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Slf4j
 @Transactional
 public class PaymentRollbackService {

@@ -14,10 +14,7 @@ import java.util.UUID;
 public class AuthenticationHelper {
     
     private final CustomerRepository customerRepository;
-    
-    /**
-     * 현재 인증된 고객 정보 조회
-     */
+
     public Customer getCurrentCustomer() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -33,24 +30,15 @@ public class AuthenticationHelper {
             throw new AuthenticationException("유효하지 않은 고객 ID 형식입니다.");
         }
     }
-    
-    /**
-     * 현재 인증된 고객 ID 조회
-     */
+
     public UUID getCurrentCustomerId() {
         return getCurrentCustomer().getId();
     }
-    
-    /**
-     * 현재 인증된 고객 ID를 문자열로 조회
-     */
+
     public String getCurrentCustomerIdAsString() {
         return getCurrentCustomerId().toString();
     }
-    
-    /**
-     * 고객 ID 검증 (현재 인증된 고객과 비교)
-     */
+
     public boolean validateCustomerId(String customerIdStr) {
         try {
             Customer currentCustomer = getCurrentCustomer();
@@ -59,10 +47,7 @@ public class AuthenticationHelper {
             return false;
         }
     }
-    
-    /**
-     * 고객 ID 검증 (현재 인증된 고객과 비교) - UUID 버전
-     */
+
     public boolean validateCustomerId(UUID customerId) {
         try {
             Customer currentCustomer = getCurrentCustomer();
@@ -71,18 +56,12 @@ public class AuthenticationHelper {
             return false;
         }
     }
-    
-    /**
-     * 테스트 고객 여부 확인
-     */
+
     public boolean isTestCustomer(String customerIdStr) {
         return "test-customer".equals(customerIdStr) || 
                "11111111-1111-1111-1111-111111111111".equals(customerIdStr);
     }
-    
-    /**
-     * 인증 상태 확인
-     */
+
     public boolean isAuthenticated() {
         try {
             getCurrentCustomer();
@@ -91,10 +70,7 @@ public class AuthenticationHelper {
             return false;
         }
     }
-    
-    /**
-     * 커스텀 인증 예외
-     */
+
     public static class AuthenticationException extends RuntimeException {
         public AuthenticationException(String message) {
             super(message);

@@ -1,6 +1,5 @@
 package profect.eatcloud.domain.payment.controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/api/v1/payment")
 @Tag(name = "9. PaymentViewController")
 @Slf4j
@@ -26,6 +24,12 @@ public class PaymentController {
 
     private final PaymentProcessingService paymentProcessingService;
     private final PaymentAuthenticationService paymentAuthenticationService;
+
+    public PaymentController(PaymentProcessingService paymentProcessingService,
+                             PaymentAuthenticationService paymentAuthenticationService) {
+        this.paymentProcessingService = paymentProcessingService;
+        this.paymentAuthenticationService = paymentAuthenticationService;
+    }
 
     @Operation(summary = "주문 페이지", description = "결제 주문 페이지를 표시합니다.")
     @GetMapping("/order")
@@ -92,7 +96,6 @@ public class PaymentController {
                 
             paymentProcessingService.processPaymentSuccess(request);
             
-            // 성공 페이지 모델 설정
             model.addAttribute("paymentKey", paymentKey);
             model.addAttribute("orderId", orderId);
             model.addAttribute("amount", amount);
@@ -126,7 +129,6 @@ public class PaymentController {
             
         Map<String, Object> rollbackResult = paymentProcessingService.processPaymentFailure(request);
         
-        // 모델에 결과 설정
         rollbackResult.forEach(model::addAttribute);
         model.addAttribute("message", message != null ? message : "결제가 취소되었습니다.");
         model.addAttribute("code", code);
@@ -153,7 +155,6 @@ public class PaymentController {
             
         Map<String, Object> rollbackResult = paymentProcessingService.processPaymentFailure(request);
         
-        // 모델에 결과 설정
         rollbackResult.forEach(model::addAttribute);
         model.addAttribute("message", message != null ? message : "알 수 없는 오류가 발생했습니다.");
         model.addAttribute("code", code);

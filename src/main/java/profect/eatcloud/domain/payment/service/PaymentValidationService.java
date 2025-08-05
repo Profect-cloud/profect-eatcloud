@@ -12,13 +12,17 @@ import java.util.Optional;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class PaymentValidationService {
 
     private final PaymentRequestRepository paymentRequestRepository;
     private final PaymentService paymentService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final Integer MAX_AMOUNT = 100_000_000;
+
+    public PaymentValidationService(PaymentRequestRepository paymentRequestRepository, PaymentService paymentService) {
+        this.paymentRequestRepository = paymentRequestRepository;
+        this.paymentService = paymentService;
+    }
 
     public PaymentRequest savePaymentRequest(UUID orderId, String tossOrderId, Integer amount) {
         if (orderId == null) {

@@ -9,10 +9,13 @@ import java.util.UUID;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class PointService {
 
     private final CustomerRepository customerRepository;
+
+    public PointService(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
 
     public boolean canUsePoints(UUID customerId, Integer pointsToUse) {
         if (customerId == null || pointsToUse == null || pointsToUse <= 0) {

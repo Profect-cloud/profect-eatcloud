@@ -1,6 +1,6 @@
 package profect.eatcloud.domain.payment.service;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;

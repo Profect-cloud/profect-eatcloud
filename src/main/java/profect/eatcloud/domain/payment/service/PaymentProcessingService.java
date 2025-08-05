@@ -36,21 +36,15 @@ public class PaymentProcessingService {
     @Value("${toss.client-key}")
     private String clientKey;
 
-    /**
-     * 주문 결제 체크아웃 처리
-     */
     public CheckoutResponse processCheckout(String orderDataJson) {
         try {
-            // 1. JSON 데이터 파싱
             CheckoutRequest request = parseCheckoutRequest(orderDataJson);
-            
-            // 2. 고객 인증
+
             var authResult = paymentAuthenticationService.validateCustomerForPayment(request.getCustomerId());
             if (!authResult.isSuccess()) {
                 throw new RuntimeException(authResult.getErrorMessage());
             }
-            
-            // 3. 주문 생성
+
             Order createdOrder = orderService.createPendingOrder(
                 authResult.getCustomerId(),
                 request.getStoreId(),
@@ -59,8 +53,7 @@ public class PaymentProcessingService {
                 request.getUsePoints(),
                 request.getPointsToUseOrZero()
             );
-            
-            // 4. 포인트 사용 처리
+
             if (request.shouldUsePoints()) {
                 var pointResult = pointService.usePoints(authResult.getCustomerId(), request.getPointsToUseOrZero());
                 if (!pointResult.isSuccess()) {
@@ -69,15 +62,13 @@ public class PaymentProcessingService {
                 }
             }
             
-            // 5. 결제 요청 저장 (실제 결제 금액이 있을 경우만)
             String tossOrderId = generateTossOrderId(createdOrder.getOrderId());
             int finalAmount = request.getFinalPaymentAmountOrTotal();
             
             if (finalAmount > 0) {
                 paymentValidationService.savePaymentRequest(createdOrder.getOrderId(), tossOrderId, finalAmount);
             }
-            
-            // 6. 응답 생성
+
             return CheckoutResponse.builder()
                 .orderId(tossOrderId)
                 .internalOrderId(createdOrder.getOrderId().toString())
@@ -98,9 +89,6 @@ public class PaymentProcessingService {
         }
     }
 
-    /**
-     * 포인트 충전 결제 페이지 데이터 생성
-     */
     public PointChargeResponse processPointCharge(PointChargeRequest request) {
         var authResult = paymentAuthenticationService.validateCustomerForPointCharge();
         
@@ -129,11 +117,8 @@ public class PaymentProcessingService {
             .build();
     }
 
-    /**
-     * 결제 성공 콜백 처리
-     */
+
     public void processPaymentSuccess(PaymentCallbackRequest request) {
-        // 1. 콜백 유효성 검증
         var validationResult = paymentValidationService.validateCallback(
             request.getOrderId(), request.getAmount(), request.getPaymentKey());
         
@@ -142,11 +127,9 @@ public class PaymentProcessingService {
         }
         
         try {
-            // 2. 토스 결제 확인
             var tossResponse = tossPaymentService.confirmPayment(
                 request.getPaymentKey(), request.getOrderId(), request.getAmount());
-            
-            // 3. 주문 및 고객 정보 조회
+
             PaymentRequest paymentRequest = validationResult.getPaymentRequest();
             UUID internalOrderId = paymentRequest.getOrderId();
             
@@ -156,25 +139,18 @@ public class PaymentProcessingService {
             Customer customer = customerRepository.findById(order.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("고객 정보를 찾을 수 없습니다."));
             
-            // 4. 결제 정보 저장
             Payment savedPayment = paymentService.saveSuccessfulPayment(paymentRequest, customer, tossResponse);
             
-            // 5. 주문 상태 업데이트
             orderService.completePayment(internalOrderId, savedPayment.getPaymentId());
             
-            // 6. 결제 요청 상태 업데이트
             paymentValidationService.updatePaymentStatus(paymentRequest.getPaymentRequestId(), "COMPLETED");
             
         } catch (Exception e) {
-            // 롤백 처리
             handlePaymentFailureRollback(request);
             throw new RuntimeException("결제 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
-    /**
-     * 결제 취소/실패 콜백 처리
-     */
     public Map<String, Object> processPaymentFailure(PaymentCallbackRequest request) {
         Map<String, Object> result = new HashMap<>();
         
@@ -211,8 +187,6 @@ public class PaymentProcessingService {
         
         return result;
     }
-
-    // === Private Helper Methods ===
     
     private CheckoutRequest parseCheckoutRequest(String orderDataJson) {
         try {
