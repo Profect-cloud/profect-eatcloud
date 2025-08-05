@@ -73,7 +73,7 @@ class ManagerMenuControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.menuName").value("불고기 덮밥"));
+                .andExpect(jsonPath("$.data.menuName").value("불고기 덮밥"));
     }
 
     @Test
@@ -134,7 +134,7 @@ class ManagerMenuControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.menuName").value("업데이트된 메뉴"));
+                .andExpect(jsonPath("$.data.menuName").value("업데이트된 메뉴"));
     }
 
 
@@ -169,7 +169,7 @@ class ManagerMenuControllerTest {
         doNothing().when(managerService).deleteMenu(eq(menuId));
 
         mockMvc.perform(delete("/api/v1/manager/stores/{storeId}/menus/{menuId}", storeId, menuId))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
 
     }
 

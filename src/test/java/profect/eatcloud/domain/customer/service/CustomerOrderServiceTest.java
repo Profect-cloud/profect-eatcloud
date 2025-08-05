@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import profect.eatcloud.domain.customer.entity.Cart;
+import profect.eatcloud.domain.customer.exception.CustomerException;
 import profect.eatcloud.domain.customer.repository.CartRepository;
 import profect.eatcloud.domain.globalCategory.entity.OrderStatusCode;
 import profect.eatcloud.domain.globalCategory.entity.OrderTypeCode;
@@ -111,8 +112,8 @@ class CustomerOrderServiceTest {
 
         // when, then
         assertThatThrownBy(() -> customerOrderService.createOrder(customerId, "TAKEOUT", false, 0))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("장바구니가 비어 있습니다.");
+                .isInstanceOf(CustomerException.class)
+                .hasMessage("장바구니가 비어 있습니다");
     }
 
     @Test
@@ -122,8 +123,8 @@ class CustomerOrderServiceTest {
 
         // when, then
         assertThatThrownBy(() -> customerOrderService.createOrder(customerId, "TAKEOUT", false, 0))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("장바구니가 존재하지 않습니다.");
+                .isInstanceOf(CustomerException.class)
+                .hasMessage("장바구니를 찾을 수 없습니다");
     }
 
     @Test
@@ -135,7 +136,7 @@ class CustomerOrderServiceTest {
 
         // when, then
         assertThatThrownBy(() -> customerOrderService.createOrder(customerId, "INVALID", false, 0))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("유효하지 않은 주문 타입 코드입니다.");
+                .isInstanceOf(CustomerException.class)
+                .hasMessage("유효하지 않은 주문 타입 코드입니다");
     }
 }
