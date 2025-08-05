@@ -3,11 +3,13 @@ package profect.eatcloud.domain.store.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
-public class StoreSearchByMenuCategoryRequestDto {
-    private String categoryCode;
+public class StoreSearchRequestDto {
+    private UUID categoryId;
     private double userLat;
     private double userLon;
-    private double distanceKm = 3.0; // 기본 거리 (km)
+    private double distanceKm = 3.0; // 기본값
 }

@@ -48,14 +48,4 @@ public class Menu extends BaseTimeEntity {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
-    public void updateFrom(MenuRequestDto dto) {
-        this.menuNum = dto.getMenuNum();
-        this.menuName = dto.getMenuName();
-        this.menuCategoryCode = dto.getMenuCategoryCode();
-        this.price = dto.getPrice();
-        this.description = dto.getDescription();
-        this.isAvailable = dto.getIsAvailable();
-        this.imageUrl = dto.getImageUrl();
-    }
-
 }

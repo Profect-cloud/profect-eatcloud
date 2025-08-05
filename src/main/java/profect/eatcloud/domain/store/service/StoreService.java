@@ -3,6 +3,7 @@ package profect.eatcloud.domain.store.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import profect.eatcloud.domain.store.dto.StoreSearchByMenuCategoryRequestDto;
+import profect.eatcloud.domain.store.dto.StoreSearchRequestDto;
 import profect.eatcloud.domain.store.dto.StoreSearchResponseDto;
 import profect.eatcloud.domain.store.repository.StoreRepository_min;
 
@@ -19,16 +20,21 @@ public class StoreService {
         this.storeRepository = storeRepository;
     }
 
-    public List<StoreSearchResponseDto> searchStoresByCategoryAndDistance(UUID categoryId, double userLat, double userLon, double distanceKm) {
-        return storeRepository.findStoresByCategoryWithinDistance(categoryId, userLat, userLon, distanceKm);
+    public List<StoreSearchResponseDto> searchStoresByCategoryAndDistance(StoreSearchRequestDto condition) {
+        return storeRepository.findStoresByCategoryWithinDistance(
+                condition.getCategoryId(),
+                condition.getUserLat(),
+                condition.getUserLon(),
+                condition.getDistanceKm()
+        );
     }
 
-    public List<StoreSearchResponseDto> searchStoresByMenuCategory(StoreSearchByMenuCategoryRequestDto request) {
+    public List<StoreSearchResponseDto> searchStoresByMenuCategory(StoreSearchByMenuCategoryRequestDto condition) {
         return storeRepository.findStoresByMenuCategoryWithinDistance(
-                request.getCategoryCode(),
-                request.getLat(),
-                request.getLon(),
-                request.getRadius()
+                condition.getCategoryCode(),
+                condition.getUserLat(),
+                condition.getUserLon(),
+                condition.getDistanceKm()
         );
     }
 }

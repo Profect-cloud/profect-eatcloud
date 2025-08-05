@@ -95,13 +95,18 @@ public class ManagerService {
             }
         }
 
-        if (dto.getIsAvailable() == null) {
-            dto.setIsAvailable(true);
-        }
+        // updateFrom 제거하고 수동으로 반영
+        menu.setMenuNum(dto.getMenuNum());
+        menu.setMenuName(dto.getMenuName());
+        menu.setMenuCategoryCode(dto.getMenuCategoryCode());
+        menu.setPrice(dto.getPrice());
+        menu.setDescription(dto.getDescription());
+        menu.setIsAvailable(dto.getIsAvailable() != null ? dto.getIsAvailable() : true);
+        menu.setImageUrl(dto.getImageUrl());
 
-        menu.updateFrom(dto);
         return menuRepository.save(menu);
     }
+
 
     @Transactional
     public void deleteMenu(UUID menuId) {
@@ -114,8 +119,18 @@ public class ManagerService {
     public void updateStore(UUID storeId, StoreRequestDto dto) {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
-        store.updateInfo(dto);
+
+        if (dto.getStoreName() != null) store.setStoreName(dto.getStoreName());
+        if (dto.getStoreAddress() != null) store.setStoreAddress(dto.getStoreAddress());
+        if (dto.getPhoneNumber() != null) store.setPhoneNumber(dto.getPhoneNumber());
+        if (dto.getMinCost() != null) store.setMinCost(dto.getMinCost());
+        if (dto.getDescription() != null) store.setDescription(dto.getDescription());
+        if (dto.getStoreLat() != null) store.setStoreLat(dto.getStoreLat());
+        if (dto.getStoreLon() != null) store.setStoreLon(dto.getStoreLon());
+        if (dto.getOpenTime() != null) store.setOpenTime(dto.getOpenTime());
+        if (dto.getCloseTime() != null) store.setCloseTime(dto.getCloseTime());
     }
+
 
 
 
