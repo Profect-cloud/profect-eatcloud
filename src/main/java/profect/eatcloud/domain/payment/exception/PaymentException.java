@@ -1,8 +1,5 @@
 package profect.eatcloud.domain.payment.exception;
 
-/**
- * Payment 관련 커스텀 예외 클래스
- */
 public class PaymentException extends RuntimeException {
     
     private final String errorCode;

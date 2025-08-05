@@ -14,12 +14,15 @@ import java.util.Map;
 import java.util.HashMap;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/v1/payment")
 @Tag(name = "9. PaymentController")
 public class PaymentApiController {
     
     private final TossPaymentService tossPaymentService;
+
+    public PaymentApiController(TossPaymentService tossPaymentService) {
+        this.tossPaymentService = tossPaymentService;
+    }
 
     @Operation(summary = "결제 승인", description = "토스페이먼츠 결제 승인을 처리합니다.")
     @PostMapping("/confirm")
