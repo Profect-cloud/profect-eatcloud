@@ -1,28 +1,28 @@
 package profect.eatcloud.domain.order.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import profect.eatcloud.domain.order.entity.Order;
 import profect.eatcloud.domain.order.repository.OrderRepository;
-import profect.eatcloud.domain.order.dto.AdminOrderResponseDto;
+import profect.eatcloud.domain.order.dto.ManagerOrderResponseDto;
 import profect.eatcloud.domain.globalCategory.entity.OrderStatusCode;
 import profect.eatcloud.domain.globalCategory.repository.OrderStatusCodeRepository;
 
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
-public class AdminOrderService {
+public class ManagerOrderService {
 
     private final OrderRepository orderRepository;
     private final OrderStatusCodeRepository orderStatusCodeRepository;
 
-    /**
-     * 주문 수락 (PAID -> CONFIRMED)
-     */
-    public AdminOrderResponseDto confirmOrder(UUID orderId) {
+    public ManagerOrderService(OrderRepository orderRepository, OrderStatusCodeRepository orderStatusCodeRepository) {
+        this.orderRepository = orderRepository;
+        this.orderStatusCodeRepository = orderStatusCodeRepository;
+    }
+
+    public ManagerOrderResponseDto confirmOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다: " + orderId));
 
@@ -36,7 +36,7 @@ public class AdminOrderService {
         order.setOrderStatusCode(confirmedStatus);
         orderRepository.save(order);
 
-        return AdminOrderResponseDto.builder()
+        return ManagerOrderResponseDto.builder()
                 .orderId(orderId)
                 .orderNumber(order.getOrderNumber())
                 .orderStatus("CONFIRMED")
@@ -44,10 +44,7 @@ public class AdminOrderService {
                 .build();
     }
 
-    /**
-     * 주문 완료 (CONFIRMED -> COMPLETED)
-     */
-    public AdminOrderResponseDto completeOrder(UUID orderId) {
+    public ManagerOrderResponseDto completeOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다: " + orderId));
 
@@ -61,7 +58,7 @@ public class AdminOrderService {
         order.setOrderStatusCode(completedStatus);
         orderRepository.save(order);
 
-        return AdminOrderResponseDto.builder()
+        return ManagerOrderResponseDto.builder()
                 .orderId(orderId)
                 .orderNumber(order.getOrderNumber())
                 .orderStatus("COMPLETED")
@@ -69,15 +66,12 @@ public class AdminOrderService {
                 .build();
     }
 
-    /**
-     * 주문 상태 조회
-     */
     @Transactional(readOnly = true)
-    public AdminOrderResponseDto getOrderStatus(UUID orderId) {
+    public ManagerOrderResponseDto getOrderStatus(UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다: " + orderId));
 
-        return AdminOrderResponseDto.builder()
+        return ManagerOrderResponseDto.builder()
                 .orderId(orderId)
                 .orderNumber(order.getOrderNumber())
                 .orderStatus(order.getOrderStatusCode().getCode())

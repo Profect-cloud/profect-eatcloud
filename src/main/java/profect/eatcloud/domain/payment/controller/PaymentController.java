@@ -83,7 +83,7 @@ public class PaymentController {
 
     @Operation(summary = "결제 성공 콜백", description = "토스페이먼츠 결제 성공 콜백을 처리합니다.")
     @GetMapping("/success")
-    public String paymentSuccess(@RequestParam String paymentKey,
+    public ResponseEntity<Map<String, Object>> paymentSuccess(@RequestParam String paymentKey,
                                 @RequestParam String orderId,
                                 @RequestParam Integer amount,
                                 Model model) {
@@ -100,13 +100,13 @@ public class PaymentController {
             model.addAttribute("orderId", orderId);
             model.addAttribute("amount", amount);
             model.addAttribute("message", "결제가 성공적으로 처리되었습니다.");
-            
-            return "payment/success";
+            return ResponseEntity.ok(model.asMap());
             
         } catch (Exception e) {
             log.error("결제 성공 처리 중 오류 발생", e);
             model.addAttribute("error", "결제 처리 중 오류가 발생했습니다: " + e.getMessage());
-            return "payment/fail";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(model.asMap());
         }
     }
 

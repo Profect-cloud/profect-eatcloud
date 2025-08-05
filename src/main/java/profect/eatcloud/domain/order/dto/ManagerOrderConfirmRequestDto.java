@@ -9,6 +9,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AdminOrderConfirmRequestDto {
+public class ManagerOrderConfirmRequestDto {
     private UUID orderId;
 }

@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AdminOrderResponseDto {
+public class ManagerOrderResponseDto {
     private UUID orderId;
     private String orderNumber;
     private String orderStatus;
