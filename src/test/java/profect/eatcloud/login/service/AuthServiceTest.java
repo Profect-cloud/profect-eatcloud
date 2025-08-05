@@ -1,7 +1,6 @@
 package profect.eatcloud.login.service;
 
 
-import com.nimbusds.oauth2.sdk.TokenResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;

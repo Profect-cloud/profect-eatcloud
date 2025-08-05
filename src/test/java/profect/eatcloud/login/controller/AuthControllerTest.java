@@ -1,7 +1,5 @@
 package profect.eatcloud.login.controller;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,14 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import profect.eatcloud.common.ApiResponse;
-import profect.eatcloud.common.ApiResponseStatus;
 import profect.eatcloud.login.dto.LoginRequestDto;
 import profect.eatcloud.login.dto.LoginResponseDto;
 import profect.eatcloud.login.dto.SignupRequestDto;
@@ -25,7 +16,6 @@ import profect.eatcloud.login.service.AuthService;
 import profect.eatcloud.login.service.RefreshTokenService;
 import profect.eatcloud.security.jwt.JwtTokenProvider;
 
-import java.security.Principal;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -34,9 +24,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
