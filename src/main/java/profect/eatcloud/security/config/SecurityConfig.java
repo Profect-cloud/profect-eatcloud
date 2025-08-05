@@ -61,8 +61,10 @@ public class SecurityConfig {
 		"/api/v1/payment/cancel",  // 결제 취소 엔드포인트 추가
 		"/api/v1/payment/charge",
 
-		"/api/v1/customers/**"
-    };
+		"/api/v1/customers/**",
+
+		"/api/v1/unauth/**"
+	};
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -104,10 +106,10 @@ public class SecurityConfig {
 				})
 			);
 
-//		// ✅ 테스트가 아닐 때만 필터 등록
-//		if (!isTestProfile) {
-//			http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-//		}
+		//		// ✅ 테스트가 아닐 때만 필터 등록
+		//		if (!isTestProfile) {
+		//			http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+		//		}
 
 		return http.build();
 	}

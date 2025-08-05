@@ -1,7 +1,5 @@
 package profect.eatcloud.domain.admin.service;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import profect.eatcloud.domain.admin.dto.ManagerStoreApplicationRequestDto;
 import profect.eatcloud.domain.admin.dto.ManagerStoreApplicationResponseDto;
 import profect.eatcloud.domain.admin.entity.ManagerStoreApplication;
+import profect.eatcloud.domain.admin.exception.AdminErrorCode;
+import profect.eatcloud.domain.admin.exception.AdminException;
 import profect.eatcloud.domain.admin.repository.ManagerStoreApplicationRepository;
 
 @Service
@@ -19,8 +19,12 @@ public class AssignService {
 
 	@Transactional
 	public ManagerStoreApplicationResponseDto newManagerStoreApply(ManagerStoreApplicationRequestDto req) {
+		// 1) 중복 검사
+		if (managerStoreApplicationRepository.existsByManagerEmail(req.getManagerEmail())) {
+			throw new AdminException(AdminErrorCode.APPLICATION_EMAIL_ALREADY_EXISTS);
+		}
+
 		ManagerStoreApplication entity = ManagerStoreApplication.builder()
-			.applicationId(UUID.randomUUID())
 			.managerName(req.getManagerName())
 			.managerEmail(req.getManagerEmail())
 			.managerPassword(req.getManagerPassword())
