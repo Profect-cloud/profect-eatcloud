@@ -8,11 +8,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import profect.eatcloud.common.ApiResponse;
+import profect.eatcloud.domain.store.dto.MenuResponseDto;
 import profect.eatcloud.domain.store.entity.Menu;
+import profect.eatcloud.domain.store.message.MenuResponseMessage;
 import profect.eatcloud.domain.store.service.MenuService;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/stores/{store_id}/menus")
@@ -23,15 +27,20 @@ public class MenuController {
 
     @Operation(summary = "단일 매장 메뉴 리스트 조회")
     @GetMapping
-    public ResponseEntity<List<Menu>> getMenus(@PathVariable UUID store_id) {
-        return ResponseEntity.ok(menuService.getMenusByStore(store_id));
+    public ApiResponse<List<MenuResponseDto>> getMenus(@PathVariable UUID store_id) {
+        List<Menu> menus = menuService.getMenusByStore(store_id);
+        List<MenuResponseDto> response = menus.stream()
+                .map(MenuResponseDto::from)
+                .collect(Collectors.toList());
+
+        return ApiResponse.success(response);
     }
 
     @Operation(summary = "메뉴 상세 조회")
     @GetMapping("/{menu_id}")
-    public ResponseEntity<Menu> getMenuDetail(@PathVariable UUID store_id, @PathVariable UUID menu_id) {
-        return ResponseEntity.ok(menuService.getMenuById(store_id, menu_id));
+    public ApiResponse<MenuResponseDto> getMenuDetail(@PathVariable UUID store_id, @PathVariable UUID menu_id) {
+        Menu menu = menuService.getMenuById(store_id, menu_id);
+        return ApiResponse.success(MenuResponseDto.from(menu));
     }
-
 }
 

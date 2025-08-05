@@ -18,6 +18,7 @@ import profect.eatcloud.domain.store.exception.StoreException;
 import profect.eatcloud.domain.store.repository.MenuRepository_min;
 import profect.eatcloud.domain.store.repository.StoreRepository_min;
 
+import java.time.LocalTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,14 +53,38 @@ public class ManagerServiceTest {
     void 가게정보_수정_정상작동() {
         UUID storeId = UUID.randomUUID();
         Store store = mock(Store.class);
-        StoreRequestDto dto = new StoreRequestDto();
+        UUID categoryId = UUID.randomUUID(); // 반드시 categoryId 지정
+
+        StoreRequestDto dto = StoreRequestDto.builder()
+                .storeName("테스트 가게")
+                .storeAddress("서울시 종로구")
+                .phoneNumber("010-1234-5678")
+                .minCost(10000)
+                .description("설명")
+                .storeLat(37.5665)
+                .storeLon(126.9780)
+                .openTime(LocalTime.of(9, 0))
+                .closeTime(LocalTime.of(18, 0))
+                .categoryId(categoryId) // 중요!
+                .build();
 
         when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
 
         managerService.updateStore(storeId, dto);
 
-        verify(store, times(1)).updateInfo(dto);
+        verify(store).setStoreName(dto.getStoreName());
+        verify(store).setStoreAddress(dto.getStoreAddress());
+        verify(store).setPhoneNumber(dto.getPhoneNumber());
+        verify(store).setMinCost(dto.getMinCost());
+        verify(store).setDescription(dto.getDescription());
+        verify(store).setStoreLat(dto.getStoreLat());
+        verify(store).setStoreLon(dto.getStoreLon());
+        verify(store).setOpenTime(dto.getOpenTime());
+        verify(store).setCloseTime(dto.getCloseTime());
     }
+
+
+
 
     @Test
     void 가게정보_수정_실패_가게없음() {

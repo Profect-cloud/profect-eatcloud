@@ -5,9 +5,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import profect.eatcloud.common.ApiResponse;
 import profect.eatcloud.domain.store.dto.StoreSearchByMenuCategoryRequestDto;
 import profect.eatcloud.domain.store.dto.StoreSearchRequestDto;
 import profect.eatcloud.domain.store.dto.StoreSearchResponseDto;
+import profect.eatcloud.domain.store.message.StoreResponseMessage;
 import profect.eatcloud.domain.store.service.StoreService;
 
 import java.util.List;
@@ -24,20 +26,20 @@ public class StoreController {
 
     @Operation(summary = "1. 매장 카테고리 별 거리기반 매장 조회")
     @GetMapping("/search/category")
-    public ResponseEntity<List<StoreSearchResponseDto>> searchStoresByCategoryAndDistance(
+    public ApiResponse<List<StoreSearchResponseDto>> searchStoresByCategoryAndDistance(
             @ModelAttribute StoreSearchRequestDto condition
     ) {
         List<StoreSearchResponseDto> stores = storeService.searchStoresByCategoryAndDistance(condition);
-        return ResponseEntity.ok(stores);
+        return ApiResponse.success(stores);
     }
 
     @Operation(summary = "2. 메뉴 카테고리 별 거리 기반 매장 검색")
     @GetMapping("/search/menu-category")
-    public ResponseEntity<List<StoreSearchResponseDto>> searchStoresByMenuCategoryAndDistance(
+    public ApiResponse<List<StoreSearchResponseDto>> searchStoresByMenuCategoryAndDistance(
             @ModelAttribute StoreSearchByMenuCategoryRequestDto condition
     ) {
         List<StoreSearchResponseDto> stores = storeService.searchStoresByMenuCategory(condition);
-        return ResponseEntity.ok(stores);
+        return ApiResponse.success(stores);
     }
 
 }

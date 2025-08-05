@@ -73,17 +73,4 @@ public class Store extends BaseTimeEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    public void updateInfo(StoreRequestDto dto) {
-        this.storeName = dto.getStoreName();
-        this.storeAddress = dto.getStoreAddress();
-        this.phoneNumber = dto.getPhoneNumber();
-        this.minCost = dto.getMinCost();
-        this.description = dto.getDescription();
-        this.storeLat = dto.getStoreLat();
-        this.storeLon = dto.getStoreLon();
-        this.openTime = dto.getOpenTime();
-        this.closeTime = dto.getCloseTime();
-        this.category = new Category(dto.getCategoryId(), null); // id만 바인딩
-    }
-
 }

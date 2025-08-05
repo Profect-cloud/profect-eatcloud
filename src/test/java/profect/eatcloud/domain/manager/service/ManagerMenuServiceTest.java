@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import profect.eatcloud.domain.admin.repository.ManagerStoreApplicationRepository;
+import profect.eatcloud.domain.manager.repository.ManagerRepository;
 import profect.eatcloud.domain.store.dto.MenuRequestDto;
 import profect.eatcloud.domain.store.entity.Menu;
 import profect.eatcloud.domain.store.entity.Store;
@@ -28,12 +30,22 @@ class ManagerMenuServiceTest {
     private ManagerService managerService;
     private MenuRepository_min menuRepository;
     private StoreRepository_min storeRepository;
+    private ManagerRepository managerRepository;
+    private ManagerStoreApplicationRepository applicationRepository;
 
     @BeforeEach
     void setUp() {
-        menuRepository = mock(MenuRepository_min.class);
         storeRepository = mock(StoreRepository_min.class);
-        managerService = new ManagerService(menuRepository, storeRepository);
+        menuRepository = mock(MenuRepository_min.class);
+        managerRepository = mock(ManagerRepository.class);
+        applicationRepository = mock(ManagerStoreApplicationRepository.class);
+
+        managerService = new ManagerService(
+                menuRepository,
+                storeRepository,
+                applicationRepository,
+                managerRepository
+        );
     }
 
     @Test
