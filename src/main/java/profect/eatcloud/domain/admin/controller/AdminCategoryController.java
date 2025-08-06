@@ -1,10 +1,11 @@
 package profect.eatcloud.domain.admin.controller;
 
-import java.util.UUID;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,41 +17,57 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import profect.eatcloud.domain.admin.dto.CategoryDto;
-import profect.eatcloud.domain.admin.service.AdminCategoryService;
 import profect.eatcloud.common.ApiResponse;
 import profect.eatcloud.common.ApiResponseStatus;
+import profect.eatcloud.domain.admin.dto.CategoryDto;
+import profect.eatcloud.domain.admin.message.ResponseMessage;
+import profect.eatcloud.domain.admin.service.GenericCategoryService;
 
 @RestController
 @AllArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-@RequestMapping("/api/v1/admin/categories")
-@Tag(name = "2-2. Admin Category API", description = "관리자가 카테고리 CRUD를 수행하는 API")
+@RequestMapping("/api/v1/admin/{categoryType}")
+@Tag(
+	name = "2-2. Admin Category API",
+	description = "관리자가 다양한 카테고리(store, menu 등) CRUD를 수행하는 API"
+)
 public class AdminCategoryController {
 
-	private final AdminCategoryService adminCategoryService;
+	private final GenericCategoryService genericCategoryService;
 
 	@Operation(summary = "1. 카테고리 생성")
-	@PostMapping("/add")
+	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ApiResponse<CategoryDto> createCategory(@RequestBody CategoryDto dto) {
-		CategoryDto created = adminCategoryService.createCategory(dto);
-		return ApiResponse.of(ApiResponseStatus.CREATED, created);
+	public ApiResponse<ResponseMessage> createCategory(
+		@PathVariable String categoryType, @RequestBody CategoryDto dto) {
+		genericCategoryService.create(categoryType, dto);
+		return ApiResponse.of(ApiResponseStatus.CREATED, ResponseMessage.CATEGORY_CREATE_SUCCESS);
 	}
 
 	@Operation(summary = "2. 카테고리 수정")
 	@PutMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public ApiResponse<CategoryDto> updateCategory(@PathVariable UUID id, @RequestBody CategoryDto dto) {
-		CategoryDto updated = adminCategoryService.updateCategory(id, dto);
-		return ApiResponse.success(updated);
+	public ApiResponse<ResponseMessage> updateCategory(
+		@PathVariable String categoryType, @PathVariable Integer id, @RequestBody CategoryDto dto) {
+		genericCategoryService.update(categoryType, id, dto);
+		return ApiResponse.of(ApiResponseStatus.OK, ResponseMessage.CATEGORY_UPDATE_SUCCESS);
 	}
 
 	@Operation(summary = "3. 카테고리 삭제")
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public ApiResponse<Void> deleteCategory(@PathVariable UUID id) {
-		adminCategoryService.deleteCategory(id);
-		return ApiResponse.success();
+	public ApiResponse<ResponseMessage> deleteCategory(
+		@PathVariable String categoryType, @PathVariable Integer id) {
+		genericCategoryService.delete(categoryType, id);
+		return ApiResponse.success(ResponseMessage.CATEGORY_DELETE_SUCCESS);
+	}
+
+	@Operation(summary = "4. 카테고리 목록 조회")
+	@GetMapping("/list")
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponse<List<CategoryDto>> listCategories(
+		@PathVariable String categoryType) {
+		List<CategoryDto> list = genericCategoryService.list(categoryType);
+		return ApiResponse.success(list);
 	}
 }

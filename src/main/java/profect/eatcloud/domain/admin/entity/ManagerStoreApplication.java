@@ -53,7 +53,7 @@ public class ManagerStoreApplication extends BaseTimeEntity {
 	private String storePhoneNumber;
 
 	@Column(name = "category_id")
-	private UUID categoryId;
+	private Integer categoryId;
 
 	@Column(name = "description", columnDefinition = "TEXT")
 	private String description;

@@ -26,7 +26,7 @@ import profect.eatcloud.security.SecurityUtil;
 @RestController
 @RequestMapping("/api/v1/customers/orders")
 @PreAuthorize("hasRole('CUSTOMER')")
-@Tag(name = "2. CustomerOrderController", description = "고객 주문 생성 API")
+@Tag(name = "3-4. CustomerOrderController", description = "고객 주문 생성 API")
 public class CustomerOrderController {
 
 	private final CustomerOrderService customerOrderService;

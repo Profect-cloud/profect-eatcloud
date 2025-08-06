@@ -15,11 +15,11 @@ import profect.eatcloud.domain.admin.entity.ManagerStoreApplication;
 import profect.eatcloud.domain.admin.exception.AdminErrorCode;
 import profect.eatcloud.domain.admin.exception.AdminException;
 import profect.eatcloud.domain.admin.repository.ManagerStoreApplicationRepository;
+import profect.eatcloud.domain.globalCategory.entity.StoreCategory;
+import profect.eatcloud.domain.globalCategory.repository.StoreCategoryRepository;
 import profect.eatcloud.domain.manager.entity.Manager;
 import profect.eatcloud.domain.manager.repository.ManagerRepository;
-import profect.eatcloud.domain.store.entity.Category;
 import profect.eatcloud.domain.store.entity.Store;
-import profect.eatcloud.domain.store.repository.CategoryRepository_hong;
 import profect.eatcloud.domain.store.repository.StoreRepository_hong;
 
 @Service
@@ -29,7 +29,7 @@ public class AdminAssignService {
 	private final ManagerStoreApplicationRepository managerStoreApplicationRepository;
 	private final ManagerRepository managerRepository;
 	private final StoreRepository_hong storeRepository;
-	private final CategoryRepository_hong categoryRepository;
+	private final StoreCategoryRepository categoryRepository;
 	private final PasswordEncoder passwordEncoder;
 
 	@Transactional(readOnly = true)
@@ -101,9 +101,9 @@ public class AdminAssignService {
 	}
 
 	private Store createStore(ManagerStoreApplication app) {
-		Category category = null;
+		StoreCategory storeCategory = null;
 		if (app.getCategoryId() != null) {
-			category = categoryRepository.findById(app.getCategoryId())
+			storeCategory = categoryRepository.findById(app.getCategoryId())
 				.orElseThrow(() -> new AdminException(AdminErrorCode.CATEGORY_NOT_FOUND));
 		}
 
@@ -112,7 +112,7 @@ public class AdminAssignService {
 			.storeName(app.getStoreName())
 			.storeAddress(app.getStoreAddress())
 			.phoneNumber(app.getStorePhoneNumber())
-			.category(category)
+			.storeCategory(storeCategory)
 			.minCost(0)
 			.description(app.getDescription())
 			.openStatus(false)

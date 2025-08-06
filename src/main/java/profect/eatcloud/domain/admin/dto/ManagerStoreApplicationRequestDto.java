@@ -1,7 +1,5 @@
 package profect.eatcloud.domain.admin.dto;
 
-import java.util.UUID;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -53,8 +51,8 @@ public class ManagerStoreApplicationRequestDto {
 	@Schema(description = "스토어 연락처", example = "02-123-4567")
 	private String storePhoneNumber;
 
-	@Schema(description = "카테고리 ID", example = "11111111-1111-1111-1111-111111111111")
-	private UUID categoryId;
+	@Schema(description = "카테고리 ID", example = "1")
+	private Integer categoryId;
 
 	@Schema(description = "스토어 설명", example = "정통 화덕 피자 전문점")
 	private String description;
