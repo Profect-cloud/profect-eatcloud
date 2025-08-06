@@ -12,6 +12,9 @@ import profect.eatcloud.domain.admin.exception.AdminErrorCode;
 import profect.eatcloud.domain.admin.exception.AdminException;
 import profect.eatcloud.domain.customer.exception.CustomerErrorCode;
 import profect.eatcloud.domain.customer.exception.CustomerException;
+import profect.eatcloud.domain.manager.exception.ManagerErrorCode;
+import profect.eatcloud.domain.manager.exception.ManagerException;
+import profect.eatcloud.domain.store.exception.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -64,6 +67,63 @@ public class GlobalExceptionHandler {
 
 		ApiResponse<Void> response = ApiResponse.of(status, null);
 		return ResponseEntity.status(status.getHttpStatus()).body(response);
+	}
+
+	@ExceptionHandler(MenuException.class)
+	public ResponseEntity<ApiResponse<Void>> handleMenuException(MenuException ex) {
+		MenuErrorCode errorCode = ex.getErrorCode();
+
+		ApiResponseStatus status = switch (errorCode) {
+			case MENU_NOT_FOUND -> ApiResponseStatus.NOT_FOUND;
+
+			case MENU_STORE_MISMATCH,
+				 INVALID_MENU_REQUEST,
+				 MENU_NAME_REQUIRED,
+				 INVALID_MENU_PRICE,
+				 DUPLICATE_MENU_NUM -> ApiResponseStatus.BAD_REQUEST;
+		};
+
+		return ResponseEntity.status(status.getHttpStatus())
+				.body(ApiResponse.of(status, null));
+	}
+
+
+	@ExceptionHandler(StoreException.class)
+	public ResponseEntity<ApiResponse<Void>> handleStoreException(StoreException ex) {
+		StoreErrorCode errorCode = ex.getErrorCode();
+
+		ApiResponseStatus status = switch (errorCode) {
+			case STORE_NOT_FOUND -> ApiResponseStatus.NOT_FOUND;
+			case STORE_ALREADY_REGISTERED, STORE_APPLICATION_PENDING, STORE_ALREADY_CLOSED -> ApiResponseStatus.BAD_REQUEST;
+			case NOT_AUTHORIZED -> ApiResponseStatus.FORBIDDEN;
+		};
+
+		return ResponseEntity.status(status.getHttpStatus())
+				.body(ApiResponse.of(status, null));
+	}
+
+	@ExceptionHandler(ManagerException.class)
+	public ResponseEntity<ApiResponse<Void>> handleManagerException(ManagerException ex) {
+		ManagerErrorCode errorCode = ex.getErrorCode();
+
+		ApiResponseStatus status = switch (errorCode) {
+			case MANAGER_NOT_FOUND -> ApiResponseStatus.NOT_FOUND;
+			case DUPLICATE_APPLICATION -> ApiResponseStatus.BAD_REQUEST;
+			case NO_PERMISSION -> ApiResponseStatus.FORBIDDEN;
+		};
+
+		return ResponseEntity.status(status.getHttpStatus())
+				.body(ApiResponse.of(status, null));
+	}
+
+	@ExceptionHandler(AiDescriptionException.class)
+	public ResponseEntity<ApiResponse<Void>> handleAiDescriptionException(AiDescriptionException ex) {
+		AiErrorCode errorCode = ex.getErrorCode();
+		ApiResponseStatus status = ApiResponseStatus.INTERNAL_ERROR;
+
+		return ResponseEntity
+				.status(status.getHttpStatus())
+				.body(ApiResponse.of(status, null));
 	}
 
 	@ExceptionHandler(Exception.class)
