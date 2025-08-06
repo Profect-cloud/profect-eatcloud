@@ -44,8 +44,8 @@ public class ManagerStoreApplicationDetailDto {
 	@Schema(description = "스토어 연락처", example = "02-123-4567")
 	private String storePhoneNumber;
 
-	@Schema(description = "카테고리 ID", example = "11111111-1111-1111-1111-111111111111")
-	private UUID categoryId;
+	@Schema(description = "카테고리 ID", example = "1")
+	private Integer categoryId;
 
 	@Schema(description = "스토어 설명")
 	private String description;

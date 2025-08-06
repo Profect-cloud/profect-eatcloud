@@ -22,8 +22,8 @@ public class StoreDto {
 	@Schema(description = "가게 이름", example = "맛있는 분식집")
 	private String storeName;
 
-	@Schema(description = "카테고리 UUID", example = "7f9f9f9f-1234-5678-9abc-def012345678")
-	private UUID categoryId;
+	@Schema(description = "카테고리 Id", example = "7f9f9f9f-1234-5678-9abc-def012345678")
+	private Integer categoryId;
 
 	@Schema(description = "최소 주문 금액", example = "12000")
 	private Integer minCost;
