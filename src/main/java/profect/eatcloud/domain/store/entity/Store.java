@@ -2,6 +2,7 @@ package profect.eatcloud.domain.store.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import profect.eatcloud.domain.globalCategory.entity.StoreCategory;
 import profect.eatcloud.domain.store.dto.StoreRequestDto;
 import profect.eatcloud.domain.store.dto.StoreSearchResponseDto;
 import profect.eatcloud.global.timeData.BaseTimeEntity;
@@ -60,6 +61,6 @@ public class Store extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    private Category category;
+    private StoreCategory storeCategory;
 
 }

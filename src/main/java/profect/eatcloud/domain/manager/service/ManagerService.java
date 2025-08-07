@@ -167,7 +167,7 @@ public class ManagerService {
                 .managerPhoneNumber(manager.getPhoneNumber())
                 .storeName(store.getStoreName())
                 .storePhoneNumber(store.getPhoneNumber())
-                .categoryId(store.getCategory().getCategoryId())
+                .categoryId(store.getStoreCategory().getId())
                 .status("CLOSURE_REQUESTED")
                 .build();
 
