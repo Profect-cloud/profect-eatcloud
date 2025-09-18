@@ -9,11 +9,11 @@ Goorm 프로펙트 클라우드 엔지니어링 과정 3기 – 1차 프로젝�
 - 25.07.21 ~ 25.08.06
 
 ## 👥 멤버 구성
-- 오해인 [@badarang]
-- 강능요 [@teadmu]
-- 정연주 [@racoi]
-- 정민영 [@minmaker-komu]
-- 홍성문 [@HHsungmoon]
+- [오해인](https://github.com/badarang)  
+- [강능요](https://github.com/teadmu)  
+- [정연주](https://github.com/racoi)  
+- [정민영](https://github.com/minmaker-komu)  
+- [홍성문](https://github.com/HHsungmoon)  
 
 ## 🛠 기술 스택
 `Java` `Spring Boot` `Spring Security` `PostgreSQL` `PostGIS` `Redis` `QueryDSL`
@@ -26,7 +26,7 @@ Goorm 프로펙트 클라우드 엔지니어링 과정 3기 – 1차 프로젝�
 - JPA Entity Listener를 활용한 생성, 수정 시간 자동 관리
 - 공통 응답 구조 및 예외 처리
 
-## 🏗 아키텍처
+## 🏗 디렉토리 구조
 ```
 profect-eatcloud/
   src/
