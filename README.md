@@ -9,11 +9,11 @@ Goorm 프로펙트 클라우드 엔지니어링 과정 3기 – 1차 프로젝�
 - 25.07.21 ~ 25.08.06
 
 ## 👥 멤버 구성
-- [오해인](https://github.com/badarang)  
+- 오해인
 - [강능요](https://github.com/teadmu)  
 - [정연주](https://github.com/racoi)  
 - [정민영](https://github.com/minmaker-komu)  
-- [홍성문](https://github.com/HHsungmoon)  
+- 홍성문
 
 ## 🛠 기술 스택
 `Java` `Spring Boot` `Spring Security` `PostgreSQL` `PostGIS` `Redis` `QueryDSL`
